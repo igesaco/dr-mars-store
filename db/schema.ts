@@ -55,6 +55,7 @@ export const productVariants = pgTable("product_variants", {
   id: uuid("id").defaultRandom().primaryKey(), productId: uuid("product_id").notNull().references(() => products.id, { onDelete: "cascade" }),
   name: varchar("name", { length: 120 }).notNull(), sku: varchar("sku", { length: 100 }).notNull().unique(), volumeMl: integer("volume_ml"),
   price: numeric("price", { precision: 12, scale: 2 }).notNull(), compareAtPrice: numeric("compare_at_price", { precision: 12, scale: 2 }),
+  unitCost: numeric("unit_cost", { precision: 12, scale: 2 }),
   stockQuantity: integer("stock_quantity").default(0).notNull(), lowStockThreshold: integer("low_stock_threshold").default(5).notNull(), isActive: boolean("is_active").default(true).notNull(), ...timestamps,
 });
 
@@ -97,6 +98,7 @@ export const orderItems = pgTable("order_items", {
   id: uuid("id").defaultRandom().primaryKey(), orderId: uuid("order_id").notNull().references(() => orders.id, { onDelete: "cascade" }), variantId: uuid("variant_id").references(() => productVariants.id, { onDelete: "set null" }),
   productName: varchar("product_name", { length: 180 }).notNull(), variantName: varchar("variant_name", { length: 120 }), sku: varchar("sku", { length: 100 }),
   unitPrice: numeric("unit_price", { precision: 12, scale: 2 }).notNull(), quantity: integer("quantity").notNull(), lineTotal: numeric("line_total", { precision: 12, scale: 2 }).notNull(), createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  unitCost: numeric("unit_cost", { precision: 12, scale: 2 }),
 });
 
 export const siteSettings = pgTable("site_settings", {
