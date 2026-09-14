@@ -12,7 +12,8 @@
     "start": "next start -p 5173",
     "lint": "eslint . --ignore-pattern dist --ignore-pattern .next",
     "db:generate": "drizzle-kit generate",
-    "db:migrate": "node --env-file=.env.local ./node_modules/drizzle-kit/bin.cjs migrate"
+    "db:check": "node --env-file=.env.local scripts/check-db.mjs",
+    "db:migrate": "node --env-file=.env.local scripts/check-db.mjs && node --env-file=.env.local ./node_modules/drizzle-kit/bin.cjs migrate"
   },
   "dependencies": {
     "@base-ui/react": "^1.7.0",
