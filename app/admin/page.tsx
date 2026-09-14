@@ -33,6 +33,8 @@ export default async function AdminHome({ searchParams }: { searchParams: Promis
   const days = requested === "7" ? 7 : requested === "90" ? 90 : 30;
   const now = new Date();
   const start = new Date(now.getTime() - days * 86_400_000);
+  const shownDays = new Set(Array.from({ length: days }, (_, offset) =>
+    dayKey(new Date(now.getTime() - offset * 86_400_000))));
   let error = "";
   let orderRows: OrderRow[] = [];
   let itemRows: ItemRow[] = [];
@@ -65,8 +67,9 @@ export default async function AdminHome({ searchParams }: { searchParams: Promis
       db.select({ value: count() }).from(carts),
       db.select({ value: count() }).from(products).where(eq(products.isActive, true)),
     ]);
-    orderRows = recentOrders;
-    itemRows = soldItems;
+    orderRows = recentOrders.filter(order => shownDays.has(dayKey(order.createdAt)));
+    const shownOrderIds = new Set(orderRows.map(order => order.id));
+    itemRows = soldItems.filter(item => shownOrderIds.has(item.orderId));
     variantRows = stock;
     customerCount = customers[0].value;
     cartCount = cartsResult[0].value;
