@@ -1,1 +1,29 @@
-import Link from "next/link";export default function Cart(){return <main><header className="site-header"><Link className="brand" href="/"><span>DR</span><i/><span>MARS</span></Link><Link href="/kategori/kolonyalar" className="text-sm font-bold">Alışverişe devam et</Link></header><section className="mx-auto grid max-w-6xl gap-10 px-6 py-20 md:grid-cols-[1fr_360px]"><div><p className="eyebrow dark">SEPETİM</p><h1 className="text-4xl font-bold tracking-tight">Sepetiniz boş.</h1><p className="mt-3 text-slate-600">Eklediğiniz ürünler burada görünecek.</p><Link href="/kategori/kolonyalar" className="primary-link mt-8">Ürünleri incele</Link></div><aside className="bg-white p-7"><h2 className="text-xl font-bold">Sipariş özeti</h2><div className="my-6 flex justify-between border-b pb-4"><span>Ara toplam</span><strong>₺0</strong></div><div className="flex justify-between"><span>Kargo</span><strong>—</strong></div><button className="mt-8 w-full bg-[#101e2c] py-4 text-sm font-bold text-white">Ödemeye geç</button></aside></section></main>}
+import type { Metadata } from "next";
+import { Header } from "@/components/storefront/header";
+import { Footer } from "@/components/storefront/footer";
+import { getStoreNavCategories, getStoreSettings } from "@/lib/storefront-data";
+import { CartClient } from "./cart-client";
+
+export const dynamic = "force-dynamic";
+
+export const metadata: Metadata = {
+  title: "Sepetim | Dr. Mars Modern Cologne",
+  description: "Dr. Mars alışveriş sepetinizdeki ürünleri görüntüleyin ve siparişinizi tamamlayın.",
+};
+
+export default async function CartPage() {
+  const [navCategories, settings] = await Promise.all([
+    getStoreNavCategories(),
+    getStoreSettings(),
+  ]);
+
+  const announcement = settings.announcement?.text ?? "1500 TL VE ÜZERİ SİPARİŞLERDE KARGO ÜCRETSİZ";
+
+  return (
+    <main className="min-h-screen bg-[#f5f4ee] text-[#0b1724]">
+      <Header categories={navCategories} announcementText={announcement} />
+      <CartClient />
+      <Footer />
+    </main>
+  );
+}

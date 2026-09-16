@@ -1,3 +1,59 @@
 import Link from "next/link";
-const sections = [["Marka kimliği", "Logo, mağaza adı, renk paleti, tipografi ve iletişim bilgileri"], ["Ana sayfa & banner", "Duyuru bandı, hero alanı, kampanyalar, koleksiyonlar ve blok sıralaması"], ["Katalog ayarları", "Ürün kartları, filtreler, kategori görünümü ve ürün detay şablonu"], ["Navigasyon & içerik", "Header, footer, menüler, kurumsal sayfalar, sözleşmeler ve sosyal ağlar"]];
-export default function DesignAdmin() { return <main className="admin-shell"><section className="admin-main"><p className="admin-kicker">YÖNETİM PANELİ / 03</p><h1>Web tasarımı & yönetim</h1><p className="admin-lead">Markanın vitrini olan tüm görsel ve içerik ayarlarını canlı yönet.</p><div className="admin-section-grid">{sections.map(([title, text]) => <Link href="#" className="admin-section-card" key={title}><span>YÖNET</span><h2>{title}</h2><p>{text}</p><b>Alanı aç →</b></Link>)}</div></section></main>; }
+import { LayoutTemplate, ShoppingBag, Sliders, Tags } from "lucide-react";
+import { requireAdmin } from "@/lib/admin-auth";
+
+export const dynamic = "force-dynamic";
+
+const designSections = [
+  {
+    title: "Duyuru Bandı & Mağaza Ayarları",
+    text: "En üstte yer alan duyuru metni, kargo ücretsiz limitleri ve iletişim bilgilerini yönetin.",
+    href: "/admin/ayarlar",
+    badge: "AKTİF AYARLAR",
+  },
+  {
+    title: "Katalog & Vitrin Ürünleri",
+    text: "Ana sayfada öne çıkan ürünleri seçin, ürün açıklamalarını ve koku notalarını güncelleyin.",
+    href: "/admin/urunler",
+    badge: "ÜRÜNLER",
+  },
+  {
+    title: "Kategori & Menü Sıralaması",
+    text: "Header menüsündeki kategorileri düzenleyin, sıralamayı ve linkleri belirleyin.",
+    href: "/admin/kategoriler",
+    badge: "KATEGORİLER",
+  },
+  {
+    title: "SEO & Sosyal Paylaşım Görselleri",
+    text: "Google arama başlıkları, meta açıklamaları ve analitik izleme kodları.",
+    href: "/admin/seo",
+    badge: "SEO & ANALİTİK",
+  },
+];
+
+export default async function DesignAdmin() {
+  await requireAdmin();
+
+  return (
+    <main className="admin-shell">
+      <section className="admin-main">
+        <p className="admin-kicker">YÖNETİM PANELİ / 03</p>
+        <h1>Web Tasarımı & Görünüm</h1>
+        <p className="admin-lead">
+          Markanın vitrini olan görsel ve içerik ayarlarını doğrudan ilgili yönetim alanlarından yönetin.
+        </p>
+
+        <div className="admin-section-grid">
+          {designSections.map((sec) => (
+            <Link href={sec.href} className="admin-section-card" key={sec.title}>
+              <span>{sec.badge}</span>
+              <h2>{sec.title}</h2>
+              <p>{sec.text}</p>
+              <b>Bölümü Yönet →</b>
+            </Link>
+          ))}
+        </div>
+      </section>
+    </main>
+  );
+}

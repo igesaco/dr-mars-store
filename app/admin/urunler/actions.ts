@@ -53,12 +53,15 @@ export async function createProduct(form: FormData) {
   if (!name || name.length > 180 || !slugPattern.test(slug) || !/^[A-Z0-9-]{3,100}$/.test(sku) || !moneyPattern.test(price)) {
     throw new Error("Ürün adı, URL, SKU veya fiyat bilgisini kontrol et.");
   }
+  const fragranceNotesRaw = read(form, "fragranceNotes");
+  const fragranceNotes = fragranceNotesRaw ? fragranceNotesRaw.split(",").map(s => s.trim()).filter(Boolean) : null;
   const db = getDb();
   await db.transaction(async tx => {
     const [product] = await tx.insert(products).values({
       name, slug, categoryId: categoryId(form),
       shortDescription: read(form, "shortDescription").slice(0, 500) || null,
       description: read(form, "description") || null,
+      fragranceNotes,
       isFeatured: read(form, "isFeatured") === "on",
       isActive: read(form, "status") !== "draft",
       seoTitle: read(form, "seoTitle").slice(0, 160) || null,
@@ -93,11 +96,14 @@ export async function updateProduct(form: FormData) {
     const [old] = await tx.select({ stock: productVariants.stockQuantity }).from(productVariants)
       .where(and(eq(productVariants.id, variantId), eq(productVariants.productId, id))).limit(1);
     if (!old) throw new Error("Ürün varyantı bulunamadı.");
+    const fragranceNotesRaw = read(form, "fragranceNotes");
+    const fragranceNotes = fragranceNotesRaw ? fragranceNotesRaw.split(",").map(s => s.trim()).filter(Boolean) : null;
     const active = read(form, "status") !== "draft";
     await tx.update(products).set({
       name, slug, categoryId: categoryId(form),
       shortDescription: read(form, "shortDescription").slice(0, 500) || null,
       description: read(form, "description") || null,
+      fragranceNotes,
       isFeatured: read(form, "isFeatured") === "on", isActive: active,
       seoTitle: read(form, "seoTitle").slice(0, 160) || null,
       seoDescription: read(form, "seoDescription").slice(0, 320) || null, updatedAt: new Date(),

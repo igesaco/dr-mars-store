@@ -104,3 +104,14 @@ export const orderItems = pgTable("order_items", {
 export const siteSettings = pgTable("site_settings", {
   key: varchar("key", { length: 120 }).primaryKey(), value: jsonb("value").notNull(), updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
 });
+
+export const productReviews = pgTable("product_reviews", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  productId: uuid("product_id").notNull().references(() => products.id, { onDelete: "cascade" }),
+  authorName: varchar("author_name", { length: 120 }).notNull(),
+  rating: integer("rating").notNull(),
+  title: varchar("title", { length: 180 }),
+  comment: text("comment").notNull(),
+  isApproved: boolean("is_approved").default(true).notNull(),
+  ...timestamps,
+});

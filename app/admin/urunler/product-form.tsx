@@ -2,7 +2,7 @@ import Link from "next/link";
 
 export type ProductFormData = {
   id?: string; variantId?: string; name?: string; slug?: string; shortDescription?: string | null;
-  description?: string | null; categoryId?: string | null; featured?: boolean; active?: boolean;
+  description?: string | null; fragranceNotes?: string[] | null; categoryId?: string | null; featured?: boolean; active?: boolean;
   sku?: string | null; volumeMl?: number | null; price?: string | null; compareAtPrice?: string | null;
   unitCost?: string | null; stock?: number | null; lowStockThreshold?: number | null; imageUrl?: string | null;
   seoTitle?: string | null; seoDescription?: string | null;
@@ -24,6 +24,7 @@ export default function ProductForm({ data = {}, categories, action, mode }: {
           <label className="editor-wide">Ürün adı<input name="name" required maxLength={180} defaultValue={data.name ?? ""} placeholder="Örn. Citrus No. 01" /></label>
           <label>URL kısa adı<input name="slug" required pattern="[a-z0-9]+(-[a-z0-9]+)*" defaultValue={data.slug ?? ""} placeholder="citrus-no-01" /></label>
           <label>Kategori<select name="categoryId" defaultValue={data.categoryId ?? ""}><option value="">Kategorisiz</option>{categories.map(item => <option value={item.id} key={item.id}>{item.name}</option>)}</select></label>
+          <label className="editor-wide">Koku notaları (Virgülle ayırarak yazın)<input name="fragranceNotes" defaultValue={Array.isArray(data.fragranceNotes) ? data.fragranceNotes.join(", ") : ""} placeholder="Örn. Bergamot, Beyaz Çay, Temiz Misk" /></label>
           <label className="editor-wide">Kısa açıklama<textarea name="shortDescription" maxLength={500} rows={3} defaultValue={data.shortDescription ?? ""} placeholder="Listeleme ve özet alanında gösterilecek kısa metin" /></label>
           <label className="editor-wide">Ürün açıklaması<textarea name="description" rows={7} defaultValue={data.description ?? ""} placeholder="Koku karakteri, kullanım şekli, içerik ve ürün detayları" /></label>
         </div>

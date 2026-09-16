@@ -1,2 +1,11 @@
-import Link from "next/link";import { ShoppingBag } from "lucide-react";
-export default function Product(){return <main><header className="site-header"><Link className="brand" href="/"><span>DR</span><i/><span>MARS</span></Link><nav><Link href="/kategori/kolonyalar">Kolonyalar</Link><Link href="/hakkimizda">Kurumsal</Link></nav><Link className="text-sm font-bold" href="/sepet">Sepetim (0)</Link></header><section className="grid min-h-[calc(100vh-84px)] md:grid-cols-2"><div className="lime product-art min-h-[560px]"><span>01</span><b>DR<br/>MARS</b></div><div className="flex max-w-xl flex-col justify-center px-8 py-16 md:px-20"><p className="eyebrow dark">100 ML · KOLONYA</p><h1 className="text-5xl font-bold tracking-[-.06em]">Citrus No. 01</h1><p className="mt-4 text-xl text-slate-600">Bergamot, beyaz çay ve temiz misk notalarıyla gün boyu ferah bir iz.</p><p className="mt-8 text-2xl font-bold">₺349</p><div className="mt-8 flex gap-3"><button className="border border-slate-300 px-5 py-3 text-sm font-bold">100 ML</button><button className="border border-slate-300 px-5 py-3 text-sm font-bold">250 ML</button></div><Link href="/sepet" className="mt-6 flex w-full items-center justify-center gap-3 bg-[#101e2c] px-5 py-4 text-sm font-bold text-white"><ShoppingBag size={18}/> Sepete ekle</Link><div className="mt-10 border-t pt-6 text-sm leading-7 text-slate-600">Ücretsiz kargo · Güvenli ödeme · Kolay iade</div></div></section></main>}
+import ProductPage, { generateMetadata as baseMetadata } from "../[slug]/page";
+
+export const dynamic = "force-dynamic";
+
+export async function generateMetadata() {
+  return baseMetadata({ params: Promise.resolve({ slug: "citrus-no-01" }) });
+}
+
+export default async function CitrusPage() {
+  return ProductPage({ params: Promise.resolve({ slug: "citrus-no-01" }) });
+}
