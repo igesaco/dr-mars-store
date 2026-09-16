@@ -2,12 +2,12 @@ import "./admin.css";
 import "./sections.css";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { BarChart3, Box, Code, LayoutTemplate, Search, ShoppingBag } from "lucide-react";
+import { BarChart3, Box, LayoutTemplate, PlusSquare, Search, ShoppingBag, Tags } from "lucide-react";
 import { isAdmin } from "@/lib/admin-auth";
 import { logoutAction } from "@/app/yonetici-giris/actions";
 
 const groups = [
-  { title: "MAĞAZA", links: [["Genel bakış", "/admin", BarChart3], ["E-ticaret & ödeme", "/admin/e-ticaret", ShoppingBag], ["Ürün yönetimi", "/admin/urunler", Box]] },
+  { title: "MAĞAZA", links: [["Genel bakış", "/admin", BarChart3], ["E-ticaret & ödeme", "/admin/e-ticaret", ShoppingBag], ["Ürünler", "/admin/urunler", Box], ["Yeni ürün", "/admin/urunler/yeni", PlusSquare], ["Kategoriler", "/admin/kategoriler", Tags]] },
   { title: "BÜYÜME & MARKA", links: [["SEO & analiz", "/admin/seo", Search], ["Web tasarımı", "/admin/tasarim", LayoutTemplate]] },
 ] as const;
 
