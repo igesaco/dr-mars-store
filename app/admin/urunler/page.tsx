@@ -1,70 +1,71 @@
-import { asc, desc, eq } from "drizzle-orm";
+import Link from "next/link";
+import { and, asc, count, desc, eq, ilike, lte, or } from "drizzle-orm";
 import { getDb } from "@/db";
-import { categories, products, productVariants } from "@/db/schema";
-import { archiveProduct, createProduct, updateProduct } from "./actions";
+import { categories, productImages, products, productVariants } from "@/db/schema";
+import ProductsTable, { type CatalogRow } from "./products-table";
 
-type ProductRow = {
-  id: string; variantId: string | null; name: string; slug: string; sku: string | null;
-  volumeMl: number | null; price: string | null; unitCost: string | null;
-  stock: number | null; active: boolean;
-};
-
-export default async function ProductManagement() {
-  let rows: ProductRow[] = [];
-  let categoryRows: { name: string; slug: string }[] = [];
+export default async function ProductManagement({ searchParams }: {
+  searchParams: Promise<{ q?: string; status?: string; category?: string; created?: string; updated?: string }>;
+}) {
+  const params = await searchParams;
+  const q = (params.q ?? "").trim(), status = params.status ?? "all", category = params.category ?? "all";
+  let rows: CatalogRow[] = [], categoryRows: { id: string; name: string }[] = [];
+  let totals = { all: 0, active: 0, low: 0, draft: 0 };
   let error = "";
   try {
     const db = getDb();
-    [rows, categoryRows] = await Promise.all([
+    const conditions = [];
+    if (q) conditions.push(or(ilike(products.name, `%${q}%`), ilike(productVariants.sku, `%${q}%`)));
+    if (status === "active") conditions.push(eq(products.isActive, true));
+    if (status === "draft") conditions.push(eq(products.isActive, false));
+    if (status === "low") conditions.push(lte(productVariants.stockQuantity, productVariants.lowStockThreshold));
+    if (category !== "all") conditions.push(eq(products.categoryId, category));
+    const [results, categoryList, allCount, activeCount, lowCount, draftCount] = await Promise.all([
       db.select({
-        id: products.id, variantId: productVariants.id, name: products.name, slug: products.slug,
+        id: products.id, name: products.name, slug: products.slug, category: categories.name,
         sku: productVariants.sku, volumeMl: productVariants.volumeMl, price: productVariants.price,
-        unitCost: productVariants.unitCost, stock: productVariants.stockQuantity, active: products.isActive,
-      }).from(products).leftJoin(productVariants, eq(products.id, productVariants.productId))
-        .orderBy(desc(products.createdAt)).limit(100),
-      db.select({ name: categories.name, slug: categories.slug }).from(categories).orderBy(asc(categories.sortOrder)),
+        unitCost: productVariants.unitCost, stock: productVariants.stockQuantity,
+        lowStockThreshold: productVariants.lowStockThreshold, active: products.isActive, imageUrl: productImages.url,
+      }).from(products)
+        .leftJoin(categories, eq(products.categoryId, categories.id))
+        .leftJoin(productVariants, eq(products.id, productVariants.productId))
+        .leftJoin(productImages, and(eq(products.id, productImages.productId), eq(productImages.sortOrder, 0)))
+        .where(conditions.length ? and(...conditions) : undefined).orderBy(desc(products.updatedAt)).limit(250),
+      db.select({ id: categories.id, name: categories.name }).from(categories).orderBy(asc(categories.sortOrder), asc(categories.name)),
+      db.select({ value: count() }).from(products),
+      db.select({ value: count() }).from(products).where(eq(products.isActive, true)),
+      db.select({ value: count() }).from(productVariants).where(lte(productVariants.stockQuantity, productVariants.lowStockThreshold)),
+      db.select({ value: count() }).from(products).where(eq(products.isActive, false)),
     ]);
+    rows = results;
+    categoryRows = categoryList;
+    totals = { all: allCount[0].value, active: activeCount[0].value, low: lowCount[0].value, draft: draftCount[0].value };
   } catch {
-    error = "Veritabanına erişilemedi. .env.local ve pnpm db:migrate adımlarını kontrol et.";
+    error = "Ürün kataloğu okunamadı. PostgreSQL bağlantısını ve migration işlemini kontrol et.";
   }
 
-  return <main className="admin-main">
-    <p className="admin-kicker">E-TİCARET / KATALOG</p>
-    <h1>Ürün yönetimi</h1>
-    <p className="admin-lead">Ürünleri, fiyatları, birim maliyetlerini ve stokları kalıcı olarak yönet.</p>
-    {error && <div className="admin-notice" role="alert">{error}</div>}
-    <section className="admin-panel" style={{ marginBottom: 20 }}>
-      <div className="panel-title"><div><p className="admin-kicker">YENİ ÜRÜN</p><h2>Ürün ekle</h2></div></div>
-      <form className="product-admin-form" action={createProduct}>
-        <label>Ürün adı<input name="name" required maxLength={180} placeholder="Örn. Citrus No. 01" /></label>
-        <label>URL kısa adı<input name="slug" required pattern="[a-z0-9]+(-[a-z0-9]+)*" placeholder="citrus-no-01" /></label>
-        <label>Kategori<select name="category"><option value="">Kategori seçilmedi</option>{categoryRows.map(c => <option key={c.slug} value={c.slug}>{c.name}</option>)}</select></label>
-        <label>Stok kodu (SKU)<input name="sku" required pattern="[A-Za-z0-9-]{3,100}" placeholder="DRM-CT-100" /></label>
-        <label>Hacim (ML)<input name="volumeMl" type="number" min="1" required defaultValue="100" /></label>
-        <label>Fiyat (₺)<input name="price" type="number" min="0" step="0.01" required /></label>
-        <label>Stok (adet)<input name="stock" type="number" min="0" step="1" required defaultValue="0" /></label>
-        <label>Birim maliyet (₺)<input name="unitCost" type="number" min="0" step="0.01" placeholder="Bilinmiyorsa boş bırak" /></label>
-        <label className="product-form-wide">Kısa açıklama<textarea name="description" rows={2} maxLength={500} /></label>
-        <label>SEO başlığı<input name="seoTitle" maxLength={160} /></label>
-        <label>SEO açıklaması<input name="seoDescription" maxLength={320} /></label>
-        <button type="submit" disabled={!!error}>Ürünü kaydet</button>
-      </form>
+  return <main className="admin-main catalog-main">
+    <header className="catalog-top">
+      <div><p className="admin-kicker">E-TİCARET / KATALOG</p><h1>Ürünler</h1><p className="admin-lead">Kataloğu ara, filtrele ve ürünleri toplu olarak yönet.</p></div>
+      <div className="catalog-actions"><Link className="catalog-secondary" href="/admin/kategoriler">Kategoriler</Link><Link className="catalog-primary" href="/admin/urunler/yeni">+ Yeni ürün ekle</Link></div>
+    </header>
+    {(params.created || params.updated) && <div className="admin-notice"><span />{params.created ? "Ürün başarıyla oluşturuldu." : "Ürün değişiklikleri kaydedildi."}</div>}
+    {error && <div className="admin-notice report-error" role="alert">{error}</div>}
+    <section className="catalog-metrics">
+      <article><span>Tüm ürünler</span><strong>{totals.all}</strong></article>
+      <article><span>Yayındaki</span><strong>{totals.active}</strong></article>
+      <article><span>Düşük stok</span><strong>{totals.low}</strong></article>
+      <article><span>Taslak / arşiv</span><strong>{totals.draft}</strong></article>
     </section>
-    <section className="admin-panel">
-      <div className="panel-title"><div><p className="admin-kicker">KATALOG</p><h2>Ürünler ve varyantlar</h2></div><span>{rows.length} varyant</span></div>
-      {!rows.length && <p className="admin-lead">Henüz kayıtlı ürün yok. Yukarıdaki formdan ilk ürünü ekleyebilirsin.</p>}
-      <div className="product-admin-list">{rows.map(row => <article key={row.variantId ?? row.id} className="product-admin-row">
-        <div><strong>{row.name}</strong><small>{row.slug} · {row.volumeMl ?? "—"} ML · {row.sku ?? "—"} · {row.active ? "Aktif" : "Arşivde"}</small></div>
-        {row.variantId && <form action={updateProduct} className="product-admin-edit">
-          <input type="hidden" name="id" value={row.id} /><input type="hidden" name="variantId" value={row.variantId} />
-          <label>Ürün adı<input name="name" defaultValue={row.name} required /></label>
-          <label>Fiyat ₺<input name="price" type="number" min="0" step="0.01" defaultValue={row.price ?? "0"} required /></label>
-          <label>Birim maliyet ₺<input name="unitCost" type="number" min="0" step="0.01" defaultValue={row.unitCost ?? ""} placeholder="Bilinmiyor" /></label>
-          <label>Stok<input name="stock" type="number" min="0" step="1" defaultValue={row.stock ?? 0} required /></label>
-          <button type="submit">Güncelle</button>
-        </form>}
-        {row.active && <form action={archiveProduct}><input type="hidden" name="id" value={row.id} /><button className="product-archive" type="submit">Arşivle</button></form>}
-      </article>)}</div>
+    <section className="admin-panel catalog-panel">
+      <form method="get" className="catalog-filters">
+        <label className="catalog-search"><span>Ürün veya SKU ara</span><input name="q" defaultValue={q} placeholder="Örn. Citrus veya DRM-CT-100" /></label>
+        <label><span>Durum</span><select name="status" defaultValue={status}><option value="all">Tüm durumlar</option><option value="active">Yayında</option><option value="draft">Taslak / arşiv</option><option value="low">Düşük stok</option></select></label>
+        <label><span>Kategori</span><select name="category" defaultValue={category}><option value="all">Tüm kategoriler</option>{categoryRows.map(item => <option key={item.id} value={item.id}>{item.name}</option>)}</select></label>
+        <button type="submit">Filtrele</button>
+        {(q || status !== "all" || category !== "all") && <Link href="/admin/urunler">Temizle</Link>}
+      </form>
+      <ProductsTable rows={rows} />
     </section>
   </main>;
 }
