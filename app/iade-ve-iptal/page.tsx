@@ -32,7 +32,7 @@ export default async function ReturnPolicyPage() {
           <div className="space-y-4 pt-4 border-t border-stone-100">
             <h2 className="text-base font-bold text-stone-900">Sipariş İptali</h2>
             <p>
-              Siparişiniz henüz kargoya verilmediyse (durumu &quot;Bekliyor&quot; veya &quot;Hazırlanıyor&quot; iken) 0850 300 00 00 numaralı çağrı merkezimizi arayarak veya destek@drmars.com adresine e-posta göndererek siparişinizi ücretsiz olarak iptal edebilirsiniz. İptal edilen siparişlerin ücret iadesi bankanıza bağlı olarak 1-3 iş günü içinde kartınıza yansıtılır.
+              Siparişiniz henüz kargoya verilmediyse (durumu &quot;Bekliyor&quot; veya &quot;Hazırlanıyor&quot; iken) 0 (482) 212 19 03 numaralı müşteri destek hattımızı arayarak veya info@drmarsparfum.com adresine e-posta göndererek siparişinizi ücretsiz olarak iptal edebilirsiniz. İptal edilen siparişlerin ücret iadesi bankanıza bağlı olarak 1-3 iş günü içinde kartınıza yansıtılır.
             </p>
 
             <h2 className="text-base font-bold text-stone-900 pt-2">İade Şartları ve Süreci</h2>

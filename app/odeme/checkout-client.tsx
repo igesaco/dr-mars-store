@@ -567,7 +567,7 @@ export function CheckoutClient({ paymentSettings }: { paymentSettings?: any }) {
 
             <div className="pt-2 text-center text-[11px] text-stone-500 space-y-1">
               <p>🔒 Tüm işlemler 256-Bit SSL ile şifrelenmektedir.</p>
-              <p>Müşteri hizmetleri: 0850 300 00 00</p>
+              <p>Müşteri Hizmetleri & WhatsApp: +90 482 212 19 03</p>
             </div>
           </div>
         </aside>

@@ -7,11 +7,13 @@ import {
   inventoryMovements,
   orderItems,
   orders,
+  products,
   productVariants,
   users,
 } from "@/db/schema";
 import { processCardPayment } from "@/lib/payment-service";
 import { sendOrderNotification } from "@/lib/notification-service";
+import { getCurrentCustomer } from "@/lib/customer-auth";
 
 type CheckoutItem = {
   variantId: string;
@@ -73,6 +75,7 @@ export async function createOrderAction(data: CheckoutFormData) {
       .select({
         id: productVariants.id,
         productId: productVariants.productId,
+        productName: products.name,
         name: productVariants.name,
         sku: productVariants.sku,
         price: productVariants.price,
@@ -80,6 +83,7 @@ export async function createOrderAction(data: CheckoutFormData) {
         stock: productVariants.stockQuantity,
       })
       .from(productVariants)
+      .innerJoin(products, eq(productVariants.productId, products.id))
       .where(inArray(productVariants.id, variantIds));
 
     if (dbVariants.length !== variantIds.length) {
@@ -186,6 +190,26 @@ export async function createOrderAction(data: CheckoutFormData) {
     const orderStatusVal = isPaid ? "paid" : "pending";
     const paymentStatusVal = isPaid ? "paid" : "pending";
 
+    // Müşteri ilişkilendirme (Giriş yapılmışsa veya e-posta kayıtlıysa)
+    let assignedUserId: string | null = null;
+    try {
+      const currentCustomer = await getCurrentCustomer();
+      if (currentCustomer) {
+        assignedUserId = currentCustomer.id;
+      } else {
+        const [existingUser] = await db
+          .select({ id: users.id })
+          .from(users)
+          .where(eq(users.email, email.trim().toLowerCase()))
+          .limit(1);
+        if (existingUser) {
+          assignedUserId = existingUser.id;
+        }
+      }
+    } catch {
+      // Hata durumunda misafir siparişi olarak devam et
+    }
+
     // 5. PostgreSQL Transaction
     await db.transaction(async (tx) => {
       // Siparişi oluştur
@@ -193,6 +217,7 @@ export async function createOrderAction(data: CheckoutFormData) {
         .insert(orders)
         .values({
           orderNumber,
+          userId: assignedUserId,
           status: orderStatusVal,
           paymentStatus: paymentStatusVal,
           subtotal: subtotal.toFixed(2),
@@ -217,7 +242,7 @@ export async function createOrderAction(data: CheckoutFormData) {
         await tx.insert(orderItems).values({
           orderId: order.id,
           variantId: v.id,
-          productName: `Dr. Mars Kolonya`,
+          productName: v.productName || "Dr. Mars Parfüm",
           variantName: v.name,
           sku: v.sku,
           unitPrice: v.price,
