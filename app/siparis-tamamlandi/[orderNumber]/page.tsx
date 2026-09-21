@@ -2,12 +2,15 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { eq } from "drizzle-orm";
-import { ArrowRight, CheckCircle2, Package, Printer, ShieldCheck, Truck } from "lucide-react";
+import { ArrowRight, CheckCircle2, MessageSquare, Package, Printer, ShieldCheck, Truck } from "lucide-react";
 import { getDb } from "@/db";
 import { orderItems, orders } from "@/db/schema";
 import { Header } from "@/components/storefront/header";
 import { Footer } from "@/components/storefront/footer";
 import { getStoreNavCategories, getStoreSettings } from "@/lib/storefront-data";
+import { getPaymentSettings } from "@/lib/payment-service";
+import { generateWhatsAppOrderUrl } from "@/lib/notification-service";
+import { OrderBankTransferBox } from "@/components/storefront/order-bank-transfer-box";
 
 export const dynamic = "force-dynamic";
 
@@ -39,13 +42,16 @@ export default async function OrderSuccessPage({ params }: Props) {
     .from(orderItems)
     .where(eq(orderItems.orderId, order.id));
 
-  const [navCategories, settings] = await Promise.all([
+  const [navCategories, settings, paymentSettings] = await Promise.all([
     getStoreNavCategories(),
     getStoreSettings(),
+    getPaymentSettings(),
   ]);
 
   const announcement = settings.announcement?.text ?? "1500 TL VE ÜZERİ SİPARİŞLERDE KARGO ÜCRETSİZ";
   const address = order.shippingAddress as Record<string, string>;
+  const isTestOrder = order.customerNote?.includes("[TEST MODU]");
+  const isBankTransfer = order.paymentStatus !== "paid";
 
   return (
     <main className="min-h-screen bg-[#f5f4ee] text-[#0b1724]">
@@ -66,9 +72,16 @@ export default async function OrderSuccessPage({ params }: Props) {
             Siparişiniz başarıyla kaydedildi ve hazırlık aşamasına alındı. Sipariş detayları ve kargo bilgileri e-posta adresinize gönderildi.
           </p>
 
-          <div className="mt-6 inline-flex items-center gap-2 rounded-xl bg-stone-100 px-6 py-3 font-mono text-sm font-bold text-stone-900">
-            <span>Sipariş No:</span>
-            <strong className="text-base text-[#101e2c]">{order.orderNumber}</strong>
+          <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
+            <div className="inline-flex items-center gap-2 rounded-xl bg-stone-100 px-6 py-3 font-mono text-sm font-bold text-stone-900">
+              <span>Sipariş No:</span>
+              <strong className="text-base text-[#101e2c]">{order.orderNumber}</strong>
+            </div>
+            {isTestOrder && (
+              <div className="inline-flex items-center gap-1.5 rounded-xl bg-amber-100 border border-amber-300 px-4 py-3 text-xs font-bold text-amber-900">
+                <span>🧪 Test Modu Simülasyon Siparişi</span>
+              </div>
+            )}
           </div>
 
           {/* Quick Info Grid */}
@@ -93,6 +106,14 @@ export default async function OrderSuccessPage({ params }: Props) {
             </div>
           </div>
         </div>
+
+        {/* Havale / EFT Bilgileri */}
+        {isBankTransfer && (
+          <OrderBankTransferBox
+            orderNumber={order.orderNumber}
+            bankAccounts={paymentSettings.bankAccounts || []}
+          />
+        )}
 
         {/* Order Details & Summary Card */}
         <div className="mt-8 grid sm:grid-cols-2 gap-8">
@@ -159,6 +180,14 @@ export default async function OrderSuccessPage({ params }: Props) {
 
         {/* Action buttons */}
         <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
+          <a
+            href={generateWhatsAppOrderUrl(order.orderNumber, address.phone)}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-2 rounded-xl bg-emerald-700 hover:bg-emerald-800 px-7 py-4 text-xs font-black uppercase tracking-wider text-white shadow transition-colors"
+          >
+            <MessageSquare size={16} /> WhatsApp ile Teyit Et
+          </a>
           <Link
             href={`/siparis/${order.orderNumber}/fatura`}
             target="_blank"

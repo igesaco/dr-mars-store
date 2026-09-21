@@ -1,6 +1,193 @@
 @import "tailwindcss";
-:root{--ink:#0b1724;--blue:#101e2c;--lime:#d7fb91;--paper:#f5f4ee}*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--paper);color:var(--ink);font-family:Arial,Helvetica,sans-serif}a{color:inherit;text-decoration:none}button,input{font:inherit}.announcement{background:#caff73;text-align:center;font-size:.73rem;font-weight:700;letter-spacing:.07em;padding:.72rem;text-transform:uppercase}.site-header{height:84px;padding:0 clamp(1.25rem,4vw,5rem);display:flex;align-items:center;justify-content:space-between}.brand{display:inline-flex;align-items:center;gap:.4rem;font-size:1.05rem;font-weight:900;letter-spacing:-.09em}.brand i{width:7px;height:7px;background:#caff73;border-radius:50%}nav{display:flex;gap:2.2rem;font-size:.78rem;font-weight:700;text-transform:uppercase}.header-actions{display:flex;gap:.9rem}.header-actions button{border:0;background:0;padding:0;display:flex;gap:.25rem}.menu{display:none!important}.hero{min-height:650px;height:calc(100vh - 114px);max-height:790px;position:relative;overflow:hidden;background:#102031;color:#fff}.hero img{width:100%;height:100%;object-fit:cover}.hero-shade{position:absolute;inset:0;background:linear-gradient(90deg,rgba(5,13,23,.76),rgba(5,13,23,.05))}.hero-copy{position:absolute;left:clamp(1.25rem,9vw,10rem);bottom:clamp(3rem,11vh,7rem);max-width:510px}.eyebrow{margin:0 0 1rem;font-size:.71rem;letter-spacing:.14em;text-transform:uppercase;font-weight:800;display:flex;gap:.45rem;align-items:center}.dark{color:#61713d}h1,h2,h3,p{margin-top:0}.hero h1{font-size:clamp(3.5rem,7.7vw,7.4rem);line-height:.88;letter-spacing:-.075em;margin:0 0 1.5rem}.hero h1 em{font-family:Georgia,serif;font-weight:400}.hero-text{line-height:1.6;max-width:370px}.primary-link{background:var(--lime);color:#13221f;padding:.95rem 1.2rem;font-weight:800;font-size:.82rem;display:inline-flex;align-items:center;gap:.8rem}.intro{max-width:980px;margin:auto;padding:9rem 1.5rem;text-align:center}.intro .eyebrow,.newsletter .eyebrow{justify-content:center}.intro h2,.section-heading h2,.newsletter h2{font-size:clamp(2.5rem,5vw,4.6rem);letter-spacing:-.06em;line-height:.98}.intro>p:last-child{color:#56606b;max-width:520px;margin:auto;line-height:1.65}.collection{padding:0 clamp(1.25rem,5.5vw,7rem) 8rem}.section-heading{display:flex;justify-content:space-between;align-items:end;margin-bottom:2.3rem}.section-heading h2{margin:0}.section-heading>a,.text-link{display:flex;align-items:center;gap:.5rem;font-size:.8rem;font-weight:800;border-bottom:1px solid;padding-bottom:.35rem}.product-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.1rem}.product-art{min-height:420px;position:relative;overflow:hidden;display:block;padding:1.25rem;color:#fff}.product-art b{position:absolute;bottom:1.1rem;left:1.25rem;font-size:2.35rem;line-height:.73;letter-spacing:-.15em}.lime{background:linear-gradient(135deg,#d7ff99,#849649)}.blue{background:linear-gradient(135deg,#b7d9e5,#496a77)}.violet{background:linear-gradient(135deg,#b78cdd,#37254e)}.product-details{display:flex;justify-content:space-between;padding:1rem 0;gap:.8rem}.product-details h3{font-size:1rem;margin:0 0 .25rem}.product-details p{font-size:.76rem;color:#6e7680;margin:0}.ritual{background:var(--blue);color:#fff;min-height:620px;display:grid;grid-template-columns:1fr 1fr;padding:clamp(2rem,5vw,6rem);align-items:end;overflow:hidden}.ritual-copy{max-width:400px}.ritual-copy h2{font-size:clamp(3rem,5vw,5rem);line-height:.9;letter-spacing:-.07em}.ritual-copy>p:not(.eyebrow){line-height:1.65;color:#c4cbd1}.ritual-words{display:flex;flex-direction:column;align-items:end;font-size:clamp(4rem,10vw,9rem);line-height:.73;letter-spacing:-.1em;font-weight:900;color:transparent;-webkit-text-stroke:1px #d7fb91}.ritual-words span:nth-child(2){padding-right:15%;color:#caff73;-webkit-text-stroke:0}.ritual-words span:nth-child(3){padding-right:30%}.newsletter{padding:8rem 1.25rem;background:#caff73;text-align:center}.newsletter form{display:flex;width:min(100%,460px);margin:2rem auto 0;border-bottom:1px solid}.newsletter input{flex:1;border:0;background:transparent;padding:.9rem 0;outline:0}.newsletter button{border:0;background:transparent;font-weight:800;display:flex;align-items:center;gap:.45rem}.sr-only{position:absolute;width:1px;height:1px;overflow:hidden}@media(max-width:720px){.site-header{height:70px}nav,.header-actions>button:not(.menu){display:none}.menu{display:flex!important}.hero{height:650px;min-height:0}.hero img{object-position:58%}.intro{padding:6rem 1.4rem}.collection{padding-bottom:5rem}.product-grid{grid-template-columns:1fr;gap:2rem}.product-art{min-height:360px}.ritual{min-height:620px;grid-template-columns:1fr}.ritual-words{font-size:5rem}.newsletter{padding:5.5rem 1.25rem}}
 
+:root {
+  --ink: #121721;
+  --gold: #c5a880;
+  --gold-light: #dfcca8;
+  --gold-dark: #91754f;
+  --noir: #0a0e14;
+  --noir-card: #121822;
+  --noir-border: #232c3a;
+  --paper: #faf8f5;
+  --paper-subtle: #f3efe6;
+  --stone-line: #e7e3d8;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-sans), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+  letter-spacing: -0.015em;
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button, input {
+  font: inherit;
+}
+
+/* Modern E-Ticaret Başlık Tipografisi */
+.font-serif-luxury {
+  font-family: var(--font-sans), -apple-system, BlinkMacSystemFont, sans-serif;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+}
+
+/* Kurumsal Duyuru Bandı */
+.announcement {
+  background: #0d131a;
+  color: #dfcca8;
+  text-align: center;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  padding: 0.65rem 1rem;
+  text-transform: uppercase;
+  border-bottom: 1px solid rgba(197, 168, 128, 0.2);
+}
+
+/* Lüks Üst Menü */
+.site-header {
+  height: 84px;
+  padding: 0 clamp(1.25rem, 4vw, 5rem);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #ffffff;
+  border-bottom: 1px solid var(--stone-line);
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1.15rem;
+  font-weight: 900;
+  letter-spacing: 0.05em;
+  color: #0d131a;
+}
+
+.brand-dot {
+  width: 6px;
+  height: 6px;
+  background: #c5a880;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+nav {
+  display: flex;
+  gap: 2.2rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.header-actions {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.header-actions button {
+  border: 0;
+  background: 0;
+  padding: 0;
+  display: flex;
+  gap: 0.25rem;
+  cursor: pointer;
+}
+
+.menu {
+  display: none !important;
+}
+
+/* Lüks Butonlar */
+.btn-gold {
+  background: #c5a880;
+  color: #0b0f14;
+  font-weight: 800;
+  font-size: 0.8rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 0.95rem 1.6rem;
+  border: 1px solid #c5a880;
+  transition: all 0.25s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.btn-gold:hover {
+  background: #dfcca8;
+  border-color: #dfcca8;
+  box-shadow: 0 4px 20px rgba(197, 168, 128, 0.35);
+}
+
+.btn-noir {
+  background: #0d131a;
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 0.8rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 0.95rem 1.6rem;
+  border: 1px solid #232c3a;
+  transition: all 0.25s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.btn-noir:hover {
+  background: #16202c;
+  border-color: #c5a880;
+  color: #dfcca8;
+}
+
+.btn-outline-gold {
+  background: transparent;
+  color: #dfcca8;
+  font-weight: 700;
+  font-size: 0.8rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 0.95rem 1.6rem;
+  border: 1px solid rgba(197, 168, 128, 0.4);
+  transition: all 0.25s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.btn-outline-gold:hover {
+  background: rgba(197, 168, 128, 0.12);
+  border-color: #dfcca8;
+  color: #ffffff;
+}
+
+/* Altın Işıltısı Efekti */
+.gold-shimmer {
+  background: linear-gradient(120deg, #c5a880 0%, #dfcca8 30%, #fff4db 50%, #dfcca8 70%, #91754f 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Koku Baloncuk Animasyonu */
 @keyframes scentFloat {
   0% { opacity: 0; transform: translateY(15px) scale(0.8); }
   20% { opacity: 1; transform: translateY(0) scale(1.05); }
@@ -10,4 +197,16 @@
 
 .animate-scent-float {
   animation: scentFloat 3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@media (max-width: 720px) {
+  .site-header {
+    height: 70px;
+  }
+  nav, .header-actions > button:not(.menu) {
+    display: none;
+  }
+  .menu {
+    display: flex !important;
+  }
 }

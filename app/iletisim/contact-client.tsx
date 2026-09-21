@@ -246,11 +246,11 @@ export function ContactClient({
             </div>
           </div>
 
-          <div className="rounded-3xl bg-[#101e2c] text-white p-8 space-y-3">
-            <span className="text-[11px] font-black uppercase tracking-widest text-[#caff73]">
+          <div className="rounded-3xl bg-[#0c1117] border border-[#c5a880]/30 text-white p-8 space-y-3">
+            <span className="text-[10px] font-bold uppercase tracking-[0.25em] text-[#c5a880]">
               ÇALIŞMA SAATLERİ
             </span>
-            <h4 className="text-xl font-bold">
+            <h4 className="text-lg font-serif-luxury font-bold">
               {contact.workingHours ?? "Haftanın 7 Günü: 09:00 - 20:00"}
             </h4>
             <p className="text-xs text-stone-400">

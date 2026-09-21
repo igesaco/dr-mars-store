@@ -16,100 +16,107 @@ export function MobileMenu({
 
   return (
     <div className="fixed inset-0 z-50 flex">
-      {/* Backdrop */}
+      {/* Karartma */}
       <div
-        className="fixed inset-0 bg-black/60 backdrop-blur-xs transition-opacity"
+        className="fixed inset-0 bg-black/70 backdrop-blur-xs transition-opacity"
         onClick={onClose}
         aria-hidden="true"
       />
 
-      {/* Drawer */}
+      {/* Menü Paneli */}
       <nav
-        className="relative z-10 flex h-full w-4/5 max-w-sm flex-col bg-[#101e2c] text-white p-6 shadow-2xl"
+        className="relative z-10 flex h-full w-4/5 max-w-sm flex-col bg-[#0b0f15] text-white p-6 shadow-2xl border-r border-[#1e2735]"
         role="dialog"
         aria-modal="true"
         aria-label="Mobil Menü"
       >
-        <div className="flex items-center justify-between border-b border-stone-800 pb-5">
-          <Link href="/" onClick={onClose} className="brand text-white">
-            <span>DR</span>
-            <i className="bg-[#caff73]" />
-            <span>MARS</span>
+        <div className="flex items-center justify-between border-b border-[#1e2735] pb-5">
+          <Link href="/" onClick={onClose} className="flex flex-col items-start leading-none">
+            <div className="flex items-center gap-1.5 text-xl font-black tracking-widest text-white">
+              <span>DR</span>
+              <span className="inline-block w-1.5 h-1.5 bg-[#c5a880] rounded-full mx-0.5" />
+              <span>MARS</span>
+            </div>
+            <span className="text-[7.5px] font-bold tracking-[0.28em] text-[#c5a880] uppercase mt-1">
+              HAUTE PARFUMERIE · MARDİN
+            </span>
           </Link>
           <button
             onClick={onClose}
-            className="p-1 text-stone-400 hover:text-white transition-colors"
+            className="p-1 text-stone-400 hover:text-white transition-colors cursor-pointer"
             aria-label="Menüyü kapat"
           >
-            <X size={22} />
+            <X size={20} />
           </button>
         </div>
 
         <div className="flex-1 overflow-y-auto py-6 space-y-6">
           <div>
-            <p className="text-[11px] font-extrabold uppercase tracking-widest text-stone-400 mb-3">
+            <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-[#c5a880] mb-3">
               Koleksiyonlar
             </p>
             <div className="space-y-1">
               <Link
                 href="/kategori/kolonyalar"
                 onClick={onClose}
-                className="flex items-center justify-between py-2.5 text-base font-bold text-stone-200 hover:text-[#caff73] transition-colors"
+                className="flex items-center justify-between py-2.5 text-sm font-bold text-stone-200 hover:text-[#dfcca8] transition-colors"
               >
-                Tüm Kolonyalar <ArrowRight size={16} />
+                Tüm Kolonyalar <ArrowRight size={15} className="text-[#c5a880]" />
               </Link>
-              {categories.map((cat) => (
-                <Link
-                  key={cat.id}
-                  href={`/kategori/${cat.slug}`}
-                  onClick={onClose}
-                  className="flex items-center justify-between py-2 text-sm font-semibold text-stone-300 hover:text-[#caff73] transition-colors"
-                >
-                  {cat.name} <ArrowRight size={14} className="text-stone-500" />
-                </Link>
-              ))}
+              {categories
+                .filter((c) => c.slug !== "kolonyalar")
+                .map((cat) => (
+                  <Link
+                    key={cat.id}
+                    href={`/kategori/${cat.slug}`}
+                    onClick={onClose}
+                    className="flex items-center justify-between py-2 text-xs font-semibold text-stone-300 hover:text-[#dfcca8] transition-colors"
+                  >
+                    {cat.name} <ArrowRight size={13} className="text-stone-600" />
+                  </Link>
+                ))}
             </div>
           </div>
 
-          <div className="border-t border-stone-800 pt-6">
-            <p className="text-[11px] font-extrabold uppercase tracking-widest text-stone-400 mb-3">
-              Hızlı Erişim
+          <div className="border-t border-[#1e2735] pt-6">
+            <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-[#c5a880] mb-3">
+              Kurumsal & Hizmetler
             </p>
             <div className="space-y-2">
               <Link
                 href="/siparis-takip"
                 onClick={onClose}
-                className="flex items-center gap-2.5 py-2 text-sm font-semibold text-stone-300 hover:text-white"
+                className="flex items-center gap-2.5 py-2 text-xs font-medium text-stone-300 hover:text-white"
               >
-                <Package size={17} className="text-lime-300" /> Sipariş Takip
+                <Package size={15} className="text-[#c5a880]" /> Sipariş & Kargo Takip
               </Link>
               <Link
                 href="/giris"
                 onClick={onClose}
-                className="flex items-center gap-2.5 py-2 text-sm font-semibold text-stone-300 hover:text-white"
+                className="flex items-center gap-2.5 py-2 text-xs font-medium text-stone-300 hover:text-white"
               >
-                <User size={17} className="text-lime-300" /> Giriş Yap / Üye Ol
+                <User size={15} className="text-[#c5a880]" /> Müşteri Girişi / Üyelik
               </Link>
               <Link
                 href="/hakkimizda"
                 onClick={onClose}
-                className="flex items-center gap-2.5 py-2 text-sm font-semibold text-stone-300 hover:text-white"
+                className="flex items-center gap-2.5 py-2 text-xs font-medium text-stone-300 hover:text-white"
               >
-                <Box size={17} className="text-lime-300" /> Hakkımızda
+                <Box size={15} className="text-[#c5a880]" /> Hakkımızda & Hikayemiz
               </Link>
               <Link
                 href="/iletisim"
                 onClick={onClose}
-                className="flex items-center gap-2.5 py-2 text-sm font-semibold text-stone-300 hover:text-white"
+                className="flex items-center gap-2.5 py-2 text-xs font-medium text-stone-300 hover:text-white"
               >
-                <HelpCircle size={17} className="text-lime-300" /> İletişim & Destek
+                <HelpCircle size={15} className="text-[#c5a880]" /> Butik Showroom & Fabrika
               </Link>
             </div>
           </div>
         </div>
 
-        <div className="border-t border-stone-800 pt-4 text-xs text-stone-400">
-          <p>© 2026 Dr. Mars. Modern Cologne.</p>
+        <div className="border-t border-[#1e2735] pt-4 text-[11px] text-stone-500 font-mono">
+          <p>© 2026 Dr. Mars Kozmetik A.Ş.</p>
         </div>
       </nav>
     </div>

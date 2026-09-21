@@ -224,7 +224,10 @@ export function ProductView({ product, reviews = [] }: ProductProps) {
           </div>
 
           {/* Title & Short Description */}
-          <h1 className="text-4xl sm:text-5xl font-black tracking-tight text-stone-900">
+          <span className="text-[10px] font-bold uppercase tracking-[0.25em] text-[#8f7351] mb-1 block">
+            PATENTLİ AKİK TAŞLI FORMÜLASYON
+          </span>
+          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-serif-luxury font-bold tracking-tight text-stone-950">
             {product.name}
           </h1>
 
@@ -312,16 +315,16 @@ export function ProductView({ product, reviews = [] }: ProductProps) {
                         setSelectedVariant(v);
                         setQuantity(1);
                       }}
-                      className={`flex flex-col items-center justify-center rounded-lg border px-5 py-3 text-xs font-black transition-all ${
+                      className={`flex flex-col items-center justify-center rounded-xl border px-5 py-3 text-xs font-bold transition-all ${
                         isSelected
-                          ? "border-[#101e2c] bg-[#101e2c] text-white shadow-sm"
-                          : "border-stone-300 bg-white text-stone-800 hover:border-stone-900"
+                          ? "border-[#c5a880] bg-[#0e131a] text-[#dfcca8] shadow-md"
+                          : "border-stone-300 bg-white text-stone-800 hover:border-[#c5a880]/50"
                       }`}
                     >
                       <span className="text-sm font-bold">{v.name}</span>
                       <span
                         className={`text-[11px] mt-0.5 ${
-                          isSelected ? "text-stone-300" : "text-stone-500"
+                          isSelected ? "text-[#c5a880]" : "text-stone-500"
                         }`}
                       >
                         ₺{Number(v.price).toLocaleString("tr-TR")}
@@ -371,12 +374,12 @@ export function ProductView({ product, reviews = [] }: ProductProps) {
             <button
               onClick={handleAddToCart}
               disabled={isOutOfStock}
-              className={`flex flex-1 items-center justify-center gap-2 rounded-lg py-4 px-6 text-sm font-black uppercase tracking-wider text-white shadow-md transition-all ${
+              className={`flex flex-1 items-center justify-center gap-2 rounded-xl py-4 px-6 text-xs font-bold uppercase tracking-[0.16em] text-white shadow-lg transition-all ${
                 added
                   ? "bg-emerald-700"
                   : isOutOfStock
                   ? "bg-stone-300 cursor-not-allowed"
-                  : "bg-[#101e2c] hover:bg-black"
+                  : "bg-[#0e131a] border border-[#c5a880]/50 text-[#dfcca8] hover:bg-[#c5a880] hover:text-[#0e131a] hover:border-[#c5a880]"
               }`}
             >
               {added ? (

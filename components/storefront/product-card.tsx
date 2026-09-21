@@ -1,9 +1,10 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
-import { ArrowUpRight, Heart, ShoppingBag } from "lucide-react";
+import Image from "next/image";
+import { Check, Search } from "lucide-react";
 import { useCart } from "@/components/cart/cart-context";
-import { useWishlist } from "@/components/wishlist/wishlist-context";
 
 export type ProductCardProps = {
   id: string;
@@ -25,23 +26,20 @@ export type ProductCardProps = {
   index: number;
 };
 
-const tones = ["lime", "blue", "violet", "lime", "blue"];
-
 export function ProductCard({
   id,
   name,
   slug,
-  shortDescription,
-  fragranceNotes,
   variants,
   imageUrl,
   index,
 }: ProductCardProps) {
-  const { addItem } = useCart();
-  const { isFavorite, toggleFavorite } = useWishlist();
+  const { addItem, openDrawer } = useCart();
+  const [added, setAdded] = useState(false);
   const defaultVariant = variants[0];
-  const toneClass = tones[index % tones.length];
-  const isFav = isFavorite(id);
+
+  const priceNum = defaultVariant ? Number(defaultVariant.price) : 0;
+  const compareNum = defaultVariant?.compareAtPrice ? Number(defaultVariant.compareAtPrice) : 0;
 
   const handleQuickAdd = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -55,80 +53,91 @@ export function ProductCard({
       name,
       variantName: defaultVariant.name,
       sku: defaultVariant.sku,
-      price: Number(defaultVariant.price),
+      price: priceNum,
       volumeMl: defaultVariant.volumeMl ?? undefined,
       image: imageUrl ?? undefined,
     });
-  };
 
-  const handleToggleFavorite = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    toggleFavorite({
-      id,
-      name,
-      slug,
-      price: defaultVariant?.price ?? "0",
-      imageUrl,
-      shortDescription,
-    });
+    setAdded(true);
+    openDrawer();
+    setTimeout(() => setAdded(false), 2000);
   };
 
   const displayPrice = defaultVariant
-    ? `₺${Number(defaultVariant.price).toLocaleString("tr-TR")}`
+    ? `₺${priceNum.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
     : "—";
 
-  const notesText = fragranceNotes && fragranceNotes.length > 0
-    ? fragranceNotes.slice(0, 3).join(" · ")
-    : shortDescription ?? "Özel koku notaları";
-
   return (
-    <article className="product group flex flex-col justify-between">
-      <Link className={`product-art ${toneClass} relative block overflow-hidden rounded`} href={`/urun/${slug}`}>
-        <span>0{index + 1}</span>
-        <b>
-          DR
-          <br />
-          MARS
-        </b>
-
-        {/* Favorite Button */}
-        <button
-          onClick={handleToggleFavorite}
-          aria-label="Favorilere ekle"
-          className="absolute top-4 right-4 z-10 flex h-9 w-9 items-center justify-center rounded-full bg-black/20 backdrop-blur-md text-white hover:bg-white hover:text-rose-600 transition-all shadow-xs"
-        >
-          <Heart size={18} className={isFav ? "fill-rose-500 text-rose-500" : ""} />
-        </button>
-
-        {/* Quick Add Overlay on Hover */}
-        <div className="absolute inset-0 flex items-center justify-center bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity">
-          <button
-            onClick={handleQuickAdd}
-            className="flex items-center gap-2 rounded-full bg-white px-5 py-2.5 text-xs font-black uppercase tracking-wider text-[#101e2c] shadow-lg hover:bg-[#caff73] transition-all transform translate-y-2 group-hover:translate-y-0"
-          >
-            <ShoppingBag size={15} /> Sepete Ekle
-          </button>
-        </div>
+    <article className="group flex flex-col items-center text-center p-2 sm:p-4 bg-white transition-all">
+      {/* Ürün Görseli (Saf Beyaz zemin, dikey stüdyo fotoğrafı) */}
+      <Link
+        href={`/urun/${slug}`}
+        className="relative h-64 sm:h-80 w-full flex items-center justify-center mb-3 bg-white overflow-hidden"
+      >
+        {imageUrl ? (
+          <div className="relative h-full w-full">
+            <Image
+              src={imageUrl}
+              alt={name}
+              fill
+              sizes="(max-width: 640px) 50vw, (max-width: 1024px) 25vw, 20vw"
+              className="object-contain p-1 mix-blend-multiply transition-transform duration-300 group-hover:scale-105"
+              priority={index < 4}
+            />
+          </div>
+        ) : (
+          <div className="relative flex flex-col items-center transition-transform duration-300 group-hover:scale-105">
+            <div className="h-6 w-8 rounded-t bg-stone-300" />
+            <div className="h-2 w-4 bg-stone-200" />
+            <div className="relative flex h-36 w-24 flex-col items-center justify-center rounded-xl border border-stone-200 bg-amber-50/40">
+              <div className="text-[9px] font-bold text-stone-600">DR. MARS</div>
+            </div>
+          </div>
+        )}
       </Link>
 
-      <div className="product-details mt-3 flex items-start justify-between">
-        <div>
-          <Link href={`/urun/${slug}`}>
-            <h3 className="text-base font-bold text-stone-900 group-hover:underline">
-              {name}
-            </h3>
-          </Link>
-          <p className="text-xs text-stone-500 mt-1 capitalize">{notesText}</p>
-        </div>
-        <div className="text-right">
-          <strong className="text-base font-black text-stone-900">{displayPrice}</strong>
-          {defaultVariant?.compareAtPrice && (
-            <span className="block text-xs text-stone-400 line-through">
-              ₺{Number(defaultVariant.compareAtPrice).toLocaleString("tr-TR")}
+      {/* Ürün Başlığı (Ortalı ve Hacim Bilgili) */}
+      <Link
+        href={`/urun/${slug}`}
+        className="text-xs sm:text-[13.5px] text-stone-800 hover:text-[#27382f] transition-colors leading-snug line-clamp-2 min-h-[2.4rem] flex items-center justify-center max-w-[260px] font-medium"
+      >
+        {name} {defaultVariant?.volumeMl ? `· ${defaultVariant.volumeMl} ml Sprey Flakon` : "· 150 ml Akik Taşlı"}
+      </Link>
+
+      {/* Fiyat (Ortalı) */}
+      <div className="mt-2 mb-3.5 flex items-center justify-center gap-2">
+        <span className="text-sm sm:text-base font-semibold text-stone-950">
+          {displayPrice}
+        </span>
+        {compareNum > 0 && (
+          <span className="text-xs text-stone-400 line-through">
+            ₺{compareNum.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+          </span>
+        )}
+      </div>
+
+      {/* Butonlar: [ 🔍 (İncele) ] [ Sepete Ekle ] */}
+      <div className="w-full flex items-center justify-center gap-2 max-w-[230px]">
+        <Link
+          href={`/urun/${slug}`}
+          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#27382f] text-white hover:bg-[#1a2620] transition-colors cursor-pointer shadow-xs"
+          title="Ürünü İncele"
+        >
+          <Search size={16} />
+        </Link>
+
+        <button
+          onClick={handleQuickAdd}
+          className="flex-1 h-10 flex items-center justify-center rounded-lg bg-[#27382f] text-white hover:bg-[#1a2620] text-xs font-semibold tracking-wide transition-colors cursor-pointer shadow-xs"
+        >
+          {added ? (
+            <span className="flex items-center gap-1 text-emerald-300 font-bold">
+              <Check size={14} className="stroke-[3]" /> Eklendi
             </span>
+          ) : (
+            "Sepete Ekle"
           )}
-        </div>
+        </button>
       </div>
     </article>
   );

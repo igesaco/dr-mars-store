@@ -25,18 +25,8 @@ export function SearchModal({
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (!isOpen) {
-      setQuery("");
-      setResults([]);
-      return;
-    }
-  }, [isOpen]);
-
-  useEffect(() => {
     const trimmed = query.trim();
     if (trimmed.length < 2) {
-      setResults([]);
-      setLoading(false);
       return;
     }
 
@@ -58,12 +48,20 @@ export function SearchModal({
 
   if (!isOpen) return null;
 
+  const displayResults = query.trim().length < 2 ? [] : results;
+
+  const handleClose = () => {
+    setQuery("");
+    setResults([]);
+    onClose();
+  };
+
   return (
     <div className="fixed inset-0 z-50 flex items-start justify-center pt-20">
       {/* Backdrop */}
       <div
         className="fixed inset-0 bg-black/60 backdrop-blur-xs transition-opacity"
-        onClick={onClose}
+        onClick={handleClose}
         aria-hidden="true"
       />
 
@@ -88,8 +86,8 @@ export function SearchModal({
             {loading && <Loader2 size={18} className="animate-spin text-stone-400 shrink-0" />}
           </div>
           <button
-            onClick={onClose}
-            className="p-1 text-stone-400 hover:text-stone-800 transition-colors ml-2"
+            onClick={handleClose}
+            className="p-1 text-stone-400 hover:text-stone-800 transition-colors ml-2 cursor-pointer"
             aria-label="Kapat"
           >
             <X size={20} />
@@ -98,19 +96,19 @@ export function SearchModal({
 
         {/* Results */}
         <div className="mt-4 max-h-96 overflow-y-auto">
-          {query.trim().length >= 2 && !loading && results.length === 0 && (
+          {query.trim().length >= 2 && !loading && displayResults.length === 0 && (
             <p className="py-8 text-center text-sm text-stone-500">
               &quot;{query}&quot; için arama sonucu bulunamadı.
             </p>
           )}
 
-          {results.length > 0 && (
+          {displayResults.length > 0 && (
             <ul className="divide-y divide-stone-100">
-              {results.map((item) => (
+              {displayResults.map((item) => (
                 <li key={item.id}>
                   <Link
                     href={`/urun/${item.slug}`}
-                    onClick={onClose}
+                    onClick={handleClose}
                     className="flex items-center justify-between py-3 px-2 hover:bg-stone-50 rounded-lg transition-colors group"
                   >
                     <div>
@@ -139,10 +137,46 @@ export function SearchModal({
 
           {query.trim().length < 2 && (
             <div className="py-6 text-center text-xs text-stone-400">
-              Popüler aramalar: <strong className="text-stone-700">Citrus</strong>,{" "}
-              <strong className="text-stone-700">Mineral</strong>,{" "}
-              <strong className="text-stone-700">Night</strong>,{" "}
-              <strong className="text-stone-700">Amber</strong>
+              Popüler aramalar:{" "}
+              <button
+                type="button"
+                className="text-[#8f7351] hover:underline cursor-pointer font-bold"
+                onClick={() => setQuery("Citrus")}
+              >
+                Citrus
+              </button>
+              ,{" "}
+              <button
+                type="button"
+                className="text-[#8f7351] hover:underline cursor-pointer font-bold"
+                onClick={() => setQuery("Mineral")}
+              >
+                Mineral
+              </button>
+              ,{" "}
+              <button
+                type="button"
+                className="text-[#8f7351] hover:underline cursor-pointer font-bold"
+                onClick={() => setQuery("Night")}
+              >
+                Night
+              </button>
+              ,{" "}
+              <button
+                type="button"
+                className="text-[#8f7351] hover:underline cursor-pointer font-bold"
+                onClick={() => setQuery("Amber")}
+              >
+                Amber
+              </button>
+              ,{" "}
+              <button
+                type="button"
+                className="text-[#8f7351] hover:underline cursor-pointer font-bold"
+                onClick={() => setQuery("Akik")}
+              >
+                Akik Taşı
+              </button>
             </div>
           )}
         </div>

@@ -16,7 +16,7 @@ export type NavCategory = {
 
 export function Header({
   categories = [],
-  announcementText = "1500 TL VE ÜZERİ SİPARİŞLERDE KARGO ÜCRETSİZ",
+  announcementText = "MARDİN OSB LABORATUVARLARINDAN · 1500 TL VE ÜZERİ SİPARİŞLERDE KARGO ÜCRETSİZ",
 }: {
   categories?: NavCategory[];
   announcementText?: string;
@@ -29,89 +29,104 @@ export function Header({
   return (
     <>
       {announcementText && (
-        <div className="announcement bg-[#caff73] text-[#101e2c] text-center text-xs font-bold tracking-wider py-2 px-4 uppercase">
+        <div className="bg-[#0b0f15] text-[#dfcca8] border-b border-[#c5a880]/20 text-center text-[10.5px] font-bold tracking-[0.18em] py-2 px-4 uppercase">
           {announcementText}
         </div>
       )}
 
-      <header className="site-header sticky top-0 z-40 bg-[#f5f4ee]/90 backdrop-blur-md border-b border-stone-200/60 transition-all">
-        <Link className="brand text-[#0b1724]" href="/">
-          <span>DR</span>
-          <i className="inline-block w-1.5 h-1.5 bg-[#849649] rounded-full mx-0.5" />
-          <span>MARS</span>
-        </Link>
-
-        <nav className="hidden lg:flex items-center gap-8 text-xs font-extrabold tracking-wider uppercase text-stone-700">
-          <Link href="/kategori/kolonyalar" className="hover:text-black transition-colors">
-            Kolonyalar
+      <header className="sticky top-0 z-40 bg-[#faf8f5]/95 backdrop-blur-md border-b border-[#e7e3d8] transition-all">
+        <div className="mx-auto max-w-7xl h-20 px-4 sm:px-8 flex items-center justify-between">
+          {/* Lüks Marka Logosu */}
+          <Link className="flex flex-col items-start leading-none group cursor-pointer" href="/">
+            <div className="flex items-center gap-1.5 text-xl sm:text-2xl font-black tracking-widest text-[#0b0f15] group-hover:text-[#91754f] transition-colors">
+              <span>DR</span>
+              <span className="inline-block w-1.5 h-1.5 bg-[#c5a880] rounded-full mx-0.5" />
+              <span>MARS</span>
+            </div>
+            <span className="text-[8.5px] font-bold tracking-[0.3em] text-[#8f7351] uppercase mt-1">
+              HAUTE PARFUMERIE · MARDİN
+            </span>
           </Link>
-          {categories.map((cat) => (
-            <Link
-              key={cat.id}
-              href={`/kategori/${cat.slug}`}
-              className="hover:text-black transition-colors"
-            >
-              {cat.name}
+
+          {/* Orta Kurumsal Menü */}
+          <nav className="hidden lg:flex items-center gap-9 text-[11px] font-bold tracking-[0.16em] uppercase text-stone-700">
+            <Link href="/kategori/kolonyalar" className="hover:text-[#91754f] transition-colors">
+              Kolonyalar
             </Link>
-          ))}
-          <Link href="/hakkimizda" className="hover:text-black transition-colors">
-            Kurumsal
-          </Link>
-          <Link href="/siparis-takip" className="hover:text-black transition-colors">
-            Sipariş Takip
-          </Link>
-        </nav>
+            {categories
+              .filter((c) => c.slug !== "kolonyalar")
+              .map((cat) => (
+                <Link
+                  key={cat.id}
+                  href={`/kategori/${cat.slug}`}
+                  className="hover:text-[#91754f] transition-colors"
+                >
+                  {cat.name}
+                </Link>
+              ))}
+            <Link href="/hakkimizda" className="hover:text-[#91754f] transition-colors">
+              Hakkımızda
+            </Link>
+            <Link href="/iletisim" className="hover:text-[#91754f] transition-colors">
+              Butik & Fabrika
+            </Link>
+            <Link href="/siparis-takip" className="hover:text-[#91754f] transition-colors">
+              Sipariş Takip
+            </Link>
+          </nav>
 
-        <div className="header-actions flex items-center gap-4">
-          <button
-            onClick={() => setIsSearchOpen(true)}
-            aria-label="Ürün Ara"
-            className="p-2 text-stone-700 hover:text-black transition-colors"
-          >
-            <Search size={19} />
-          </button>
+          {/* Sağ Aksiyon İkonları */}
+          <div className="flex items-center gap-3 sm:gap-4">
+            <button
+              onClick={() => setIsSearchOpen(true)}
+              aria-label="Koleksiyonda Ara"
+              className="p-2 text-stone-700 hover:text-[#0b0f15] transition-colors cursor-pointer"
+            >
+              <Search size={18} />
+            </button>
 
-          <Link
-            href="/favorilerim"
-            aria-label="Favorilerim"
-            className="relative p-2 text-stone-700 hover:text-black transition-colors"
-          >
-            <Heart size={19} />
-            {wishlistCount > 0 && (
-              <span className="absolute -top-1 -right-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-rose-600 px-1 text-[10px] font-bold text-white animate-in zoom-in">
-                {wishlistCount}
-              </span>
-            )}
-          </Link>
+            <Link
+              href="/favorilerim"
+              aria-label="Favorilerim"
+              className="relative p-2 text-stone-700 hover:text-[#0b0f15] transition-colors"
+            >
+              <Heart size={18} />
+              {wishlistCount > 0 && (
+                <span className="absolute -top-0.5 -right-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-[#91754f] px-1 text-[9.5px] font-bold text-white shadow-sm">
+                  {wishlistCount}
+                </span>
+              )}
+            </Link>
 
-          <Link
-            href="/giris"
-            aria-label="Hesabım"
-            className="p-2 text-stone-700 hover:text-black transition-colors hidden sm:inline-flex"
-          >
-            <User size={19} />
-          </Link>
+            <Link
+              href="/hesabim"
+              aria-label="Müşteri Hesabı"
+              className="p-2 text-stone-700 hover:text-[#0b0f15] transition-colors hidden sm:inline-flex"
+            >
+              <User size={18} />
+            </Link>
 
-          <button
-            onClick={openDrawer}
-            aria-label="Alışveriş Çantası"
-            className="relative p-2 text-stone-700 hover:text-black transition-colors flex items-center"
-          >
-            <ShoppingBag size={19} />
-            {itemCount > 0 && (
-              <span className="absolute -top-1 -right-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-[#101e2c] px-1 text-[10px] font-bold text-white animate-in zoom-in">
-                {itemCount}
-              </span>
-            )}
-          </button>
+            <button
+              onClick={openDrawer}
+              aria-label="Alışveriş Çantası"
+              className="relative p-2 text-stone-700 hover:text-[#0b0f15] transition-colors flex items-center cursor-pointer"
+            >
+              <ShoppingBag size={18} />
+              {itemCount > 0 && (
+                <span className="absolute -top-0.5 -right-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-[#0b0f15] border border-[#c5a880] px-1 text-[9.5px] font-bold text-[#dfcca8] shadow-sm">
+                  {itemCount}
+                </span>
+              )}
+            </button>
 
-          <button
-            onClick={() => setIsMobileMenuOpen(true)}
-            aria-label="Menüyü Aç"
-            className="lg:hidden p-2 text-stone-700 hover:text-black transition-colors"
-          >
-            <Menu size={22} />
-          </button>
+            <button
+              onClick={() => setIsMobileMenuOpen(true)}
+              aria-label="Menüyü Aç"
+              className="lg:hidden p-2 text-stone-700 hover:text-[#0b0f15] transition-colors"
+            >
+              <Menu size={22} />
+            </button>
+          </div>
         </div>
       </header>
 

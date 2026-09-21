@@ -20,10 +20,12 @@ export async function getStoreNavCategories() {
   }
 }
 
-export async function getStoreSettings() {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export async function getStoreSettings(): Promise<Record<string, any>> {
   try {
     const db = getDb();
     const rows = await db.select().from(siteSettings);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const map: Record<string, any> = {};
     for (const row of rows) {
       map[row.key] = row.value;
@@ -43,6 +45,7 @@ export async function getFeaturedProducts() {
         id: products.id,
         name: products.name,
         slug: products.slug,
+        categoryId: products.categoryId,
         shortDescription: products.shortDescription,
         fragranceNotes: products.fragranceNotes,
         isFeatured: products.isFeatured,

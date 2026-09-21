@@ -10,6 +10,8 @@ import {
   productVariants,
   users,
 } from "@/db/schema";
+import { processCardPayment } from "@/lib/payment-service";
+import { sendOrderNotification } from "@/lib/notification-service";
 
 type CheckoutItem = {
   variantId: string;
@@ -28,6 +30,12 @@ type CheckoutFormData = {
   paymentMethod: "credit_card" | "bank_transfer" | "cash_on_delivery";
   couponCode?: string;
   customerNote?: string;
+  cardData?: {
+    cardHolder: string;
+    cardNumber: string;
+    expiry: string;
+    cvv: string;
+  };
   items: CheckoutItem[];
 };
 
@@ -45,6 +53,7 @@ export async function createOrderAction(data: CheckoutFormData) {
       paymentMethod,
       couponCode,
       customerNote,
+      cardData,
       items,
     } = data;
 
@@ -138,13 +147,46 @@ export async function createOrderAction(data: CheckoutFormData) {
       postalCode: postalCode ?? "",
     };
 
-    // Ödeme ve sipariş durumu belirle
-    // Kredi kartı simülasyonu -> paid, Havale/Kapıda -> pending
-    const isPaid = paymentMethod === "credit_card";
+    // 4. Kredi Kartı ile Ödeme Kontrolü ve Tahsilat
+    let isPaid = false;
+    let paymentNote: string | null = null;
+
+    if (paymentMethod === "credit_card") {
+      if (!cardData || !cardData.cardNumber || !cardData.expiry || !cardData.cvv) {
+        return {
+          success: false,
+          message: "Lütfen kart bilgilerinizi (kart numarası, son kullanma ve CVV) eksiksiz giriniz.",
+        };
+      }
+
+      const payRes = await processCardPayment({
+        amount: totalAmount,
+        orderNumber,
+        cardHolder: cardData.cardHolder,
+        cardNumber: cardData.cardNumber,
+        expiry: cardData.expiry,
+        cvv: cardData.cvv,
+        customerEmail: email,
+        customerPhone: phone,
+      });
+
+      if (!payRes.success) {
+        return {
+          success: false,
+          message: payRes.message || "Ödeme bankanız tarafından onaylanmadı.",
+        };
+      }
+
+      isPaid = true;
+      paymentNote = payRes.isTestPayment
+        ? `[TEST MODU] ${payRes.transactionId}`
+        : `[CANLI POS] ${payRes.transactionId}`;
+    }
+
     const orderStatusVal = isPaid ? "paid" : "pending";
     const paymentStatusVal = isPaid ? "paid" : "pending";
 
-    // 4. PostgreSQL Transaction
+    // 5. PostgreSQL Transaction
     await db.transaction(async (tx) => {
       // Siparişi oluştur
       const [order] = await tx
@@ -161,7 +203,9 @@ export async function createOrderAction(data: CheckoutFormData) {
           shippingAddress,
           billingAddress: shippingAddress,
           cargoCompany: "Yurtiçi Kargo",
-          customerNote: customerNote ? customerNote.slice(0, 500) : null,
+          customerNote: customerNote
+            ? `${customerNote.slice(0, 450)} ${paymentNote ? `(${paymentNote})` : ""}`.trim()
+            : paymentNote,
         })
         .returning({ id: orders.id });
 
@@ -211,6 +255,34 @@ export async function createOrderAction(data: CheckoutFormData) {
           .where(eq(coupons.id, verifiedCoupon.id));
       }
     });
+
+    // 6. Müşteri & Yönetici Sipariş Bildirimi
+    try {
+      await sendOrderNotification({
+        orderNumber,
+        customerName: `${firstName} ${lastName}`,
+        customerEmail: email,
+        customerPhone: phone,
+        totalAmount,
+        paymentMethod,
+        items: items.map((i) => {
+          const v = variantMap.get(i.variantId)!;
+          return {
+            productName: `Dr. Mars Kolonya`,
+            variantName: v.name,
+            quantity: i.quantity,
+            price: Number(v.price),
+          };
+        }),
+        shippingAddress: {
+          city,
+          district,
+          addressLine,
+        },
+      });
+    } catch (notifErr) {
+      console.error("Sipariş bildirimi gönderilemedi:", notifErr);
+    }
 
     return {
       success: true,

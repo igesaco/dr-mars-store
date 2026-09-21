@@ -49,18 +49,20 @@ export function CartClient() {
         <div className="mx-auto flex h-24 w-24 items-center justify-center rounded-full bg-stone-200/70 text-stone-500">
           <ShoppingBag size={44} strokeWidth={1.5} />
         </div>
-        <p className="eyebrow dark justify-center mt-6">SEPETİNİZ BOŞ</p>
-        <h1 className="text-3xl sm:text-4xl font-extrabold text-stone-900 tracking-tight">
-          Sepetinizde henüz ürün bulunmuyor.
+        <span className="text-[10px] font-bold uppercase tracking-[0.25em] text-[#8f7351] block mt-6 mb-2">
+          SEPETİNİZ HENÜZ BOŞ
+        </span>
+        <h1 className="text-3xl sm:text-4xl font-serif-luxury font-bold text-stone-900 tracking-tight">
+          Alışveriş Çantanızda Ürün Bulunmuyor
         </h1>
-        <p className="mt-3 text-stone-600 max-w-md mx-auto text-sm">
-          Seçkin notalarla hazırlanan Dr. Mars kolonya serisini inceleyebilir, beğendiğiniz ürünleri sepetinize ekleyebilirsiniz.
+        <p className="mt-3 text-stone-600 max-w-md mx-auto text-xs leading-relaxed font-light">
+          Kimya Mühendisliği formülasyonu ve hakiki akik taşlarıyla hazırlanan Dr. Mars kolonya koleksiyonumuzu inceleyebilirsiniz.
         </p>
         <Link
           href="/kategori/kolonyalar"
-          className="mt-8 inline-flex items-center gap-2 rounded-lg bg-[#101e2c] px-8 py-4 text-xs font-black uppercase tracking-wider text-white shadow hover:bg-black transition-colors"
+          className="mt-8 inline-flex items-center gap-2 rounded-xl bg-[#0e131a] border border-[#c5a880]/30 px-8 py-4 text-xs font-bold uppercase tracking-wider text-[#dfcca8] shadow hover:bg-[#c5a880] hover:text-[#0e131a] transition-all"
         >
-          Koleksiyonu İncele <ArrowRight size={16} />
+          Koleksiyonu Keşfet <ArrowRight size={16} />
         </Link>
       </section>
     );
@@ -69,10 +71,12 @@ export function CartClient() {
   return (
     <section className="mx-auto max-w-7xl px-6 py-12 sm:px-12">
       {/* Title */}
-      <div className="flex flex-col sm:flex-row sm:items-end justify-between border-b border-stone-200 pb-6 mb-8 gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between border-b border-[#e7e3d8] pb-6 mb-8 gap-4">
         <div>
-          <p className="eyebrow dark">ALIŞVERİŞ SEPETİ</p>
-          <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-stone-900">
+          <span className="text-[10px] font-bold uppercase tracking-[0.25em] text-[#8f7351] block mb-1">
+            ALIŞVERİŞ ÇANTASI
+          </span>
+          <h1 className="text-3xl sm:text-4xl font-serif-luxury font-bold tracking-tight text-stone-900">
             Sepetiniz ({items.reduce((s, i) => s + i.quantity, 0)} Ürün)
           </h1>
         </div>
@@ -273,7 +277,7 @@ export function CartClient() {
 
             <Link
               href="/odeme"
-              className="flex w-full items-center justify-center gap-2 rounded-lg bg-[#101e2c] py-4 text-xs font-black uppercase tracking-wider text-white shadow-lg hover:bg-black transition-colors"
+              className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#c5a880] py-4 text-xs font-bold uppercase tracking-[0.16em] text-[#0a0e14] shadow-lg hover:bg-[#dfcca8] transition-all"
             >
               Ödemeye Geç <ArrowRight size={16} />
             </Link>
