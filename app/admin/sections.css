@@ -5,3 +5,62 @@
 .category-layout{display:grid;grid-template-columns:330px minmax(0,1fr);gap:18px;align-items:start}.category-form{display:grid;gap:14px}.category-create{position:sticky;top:20px}.category-list{padding:0;overflow:hidden}.category-list>.panel-title{padding:22px}.category-row{padding:18px 22px;border-top:1px solid #e8edf0}.category-edit{display:grid;grid-template-columns:1fr 1fr 90px minmax(180px,1.4fr) 80px;gap:10px;align-items:end}.category-meta{display:flex;align-items:center;justify-content:flex-end;gap:12px;color:#748594;font-size:.7rem;margin-top:10px}.category-meta form button{border:0;background:none;color:#8a4c3a;font-size:.7rem;font-weight:800;cursor:pointer}
 @media(max-width:1050px){.product-editor{grid-template-columns:1fr}.product-editor-aside{position:static;grid-template-columns:repeat(2,minmax(0,1fr))}.category-layout{grid-template-columns:1fr}.category-create{position:static}.category-edit{grid-template-columns:repeat(2,minmax(0,1fr))}.category-edit button{width:auto}.catalog-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:700px){.admin-section-grid{grid-template-columns:1fr}.catalog-top{align-items:flex-start;flex-direction:column}.catalog-actions{width:100%}.catalog-actions a{flex:1}.catalog-metrics{gap:8px}.catalog-filters{align-items:stretch;flex-direction:column}.catalog-filters label{width:100%}.catalog-bulkbar{align-items:stretch;flex-wrap:wrap}.catalog-bulkbar>span{width:100%}.editor-fields{grid-template-columns:1fr}.editor-wide{grid-column:auto}.product-editor-aside{grid-template-columns:1fr}.category-edit{grid-template-columns:1fr}.category-description{grid-column:auto}}
+
+/* Pricing, Shipping & Live Profit Calculator */
+.editor-field-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px}
+.editor-badge{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:999px;font-size:0.68rem;font-weight:800}
+.editor-badge-discount{background:#e7f5d5;color:#4c731e}
+.editor-badge-info{background:#e8f1f8;color:#285a84}
+.editor-badge-muted{background:#eef2f5;color:#637586}
+
+.field-help{display:block;font-size:0.71rem;color:#788998;font-weight:normal;line-height:1.4;margin-top:4px}
+
+.shipping-policy-options{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:8px}
+.shipping-policy-card{display:flex;flex-direction:column;align-items:flex-start;gap:6px;padding:14px;border:1.5px solid #dce4e9;border-radius:10px;background:#fff;cursor:pointer;transition:all 0.15s ease;text-align:left;position:relative}
+.shipping-policy-card:hover{border-color:#b9cbd6;background:#fbfcfd}
+.shipping-policy-card.selected{border-color:#759531;background:#f8faf3;box-shadow:0 0 0 1px #759531}
+.shipping-policy-card input{position:absolute;opacity:0;pointer-events:none}
+.shipping-policy-top{display:flex;align-items:center;justify-content:space-between;width:100%;gap:8px}
+.shipping-policy-top svg{color:#557723}
+.shipping-policy-card:not(.selected) .shipping-policy-top svg{color:#798e9e}
+.shipping-policy-badge{font-size:0.65rem;font-weight:900;padding:2px 6px;border-radius:4px;background:#eff4f8;color:#436177}
+.shipping-policy-card.selected .shipping-policy-badge{background:#e6f3d4;color:#4b6f1a}
+.shipping-policy-card strong{font-size:0.8rem;color:#182e42;font-weight:800;display:block}
+.shipping-policy-card p{font-size:0.7rem;color:#677b8c;line-height:1.4;margin:0}
+
+/* Profit & Unit Economics Simulator */
+.profit-sim-container{margin-top:20px;border-radius:12px;background:#f8fbfd;border:1px solid #d7e4ec;padding:18px;overflow:hidden}
+.profit-sim-head{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid #e3edf2}
+.profit-sim-title{display:flex;align-items:center;gap:8px;color:#172c3e;font-size:0.88rem;font-weight:900}
+.profit-sim-title svg{color:#487422}
+.profit-status-pill{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;font-size:0.7rem;font-weight:900}
+.profit-status-pill.excellent{background:#dcf3be;color:#39630e}
+.profit-status-pill.good{background:#dff0fa;color:#1e5e89}
+.profit-status-pill.warning{background:#fef3c7;color:#92400e}
+.profit-status-pill.danger{background:#fee2e2;color:#991b1b}
+.profit-status-pill.neutral{background:#eef2f5;color:#647585}
+
+.profit-sim-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:14px}
+.profit-sim-metric{background:#fff;border:1px solid #e1e9ee;border-radius:8px;padding:12px 14px}
+.profit-sim-metric span{display:block;font-size:0.68rem;font-weight:800;color:#6c7f8f;margin-bottom:4px}
+.profit-sim-metric strong{display:block;font-size:1.15rem;letter-spacing:-0.03em;color:#142738}
+.profit-sim-metric small{display:block;font-size:0.67rem;color:#8798a7;margin-top:2px}
+
+.profit-sim-metric.highlight-profit{background:#f4f9ed;border-color:#cfe3b3}
+.profit-sim-metric.highlight-profit strong{color:#3d6711}
+.profit-sim-metric.highlight-danger{background:#fff5f5;border-color:#fecaca}
+.profit-sim-metric.highlight-danger strong{color:#b91c1c}
+
+.profit-waterfall{background:#fff;border:1px solid #e1e9ee;border-radius:8px;padding:12px 16px;font-size:0.75rem}
+.profit-waterfall-row{display:flex;align-items:center;justify-content:space-between;padding:5px 0;color:#506475}
+.profit-waterfall-row.total{border-top:1px dashed #d5e1e8;margin-top:4px;padding-top:8px;font-weight:900;color:#142738;font-size:0.82rem}
+.profit-waterfall-row.total span:last-child{color:#3d6711}
+.profit-waterfall-row.total.is-negative span:last-child{color:#b91c1c}
+
+.profit-sim-note{display:flex;align-items:flex-start;gap:8px;margin-top:12px;font-size:0.71rem;color:#617687;line-height:1.45}
+.profit-sim-note svg{flex-shrink:0;color:#45677f;margin-top:2px}
+
+@media(max-width:850px){
+  .shipping-policy-options{grid-template-columns:1fr}
+  .profit-sim-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
