@@ -51,20 +51,67 @@ export function MobileMenu({
         </div>
 
         <div className="flex-1 overflow-y-auto py-6 space-y-6">
+          {/* 1. ÜRÜN KATEGORİLERİ */}
           <div>
             <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-[#c5a880] mb-3">
-              Koleksiyonlar
+              Ürün Kategorileri
             </p>
             <div className="space-y-1">
               <Link
+                href="/#urunler"
+                onClick={onClose}
+                className="flex items-center justify-between py-2 text-xs font-semibold text-stone-300 hover:text-[#dfcca8] transition-colors"
+              >
+                <span>✨ Tüm Koleksiyon</span>
+                <ArrowRight size={13} className="text-stone-600" />
+              </Link>
+              <Link
                 href="/kategori/kolonyalar"
                 onClick={onClose}
-                className="flex items-center justify-between py-2.5 text-sm font-bold text-stone-200 hover:text-[#dfcca8] transition-colors"
+                className="flex items-center justify-between py-2 text-xs font-semibold text-stone-300 hover:text-[#dfcca8] transition-colors"
               >
-                Tüm Kolonyalar <ArrowRight size={15} className="text-[#c5a880]" />
+                <span>🌿 Kolonyalar</span>
+                <ArrowRight size={13} className="text-stone-600" />
+              </Link>
+              <Link
+                href="/kategori/oda-kokulari"
+                onClick={onClose}
+                className="flex items-center justify-between py-2 text-xs font-semibold text-stone-300 hover:text-[#dfcca8] transition-colors"
+              >
+                <span>🏠 Oda Kokuları</span>
+                <ArrowRight size={13} className="text-stone-600" />
+              </Link>
+              <Link
+                href="/kategori/oto-kokulari"
+                onClick={onClose}
+                className="flex items-center justify-between py-2 text-xs font-semibold text-stone-300 hover:text-[#dfcca8] transition-colors"
+              >
+                <span>🚗 Oto Kokuları</span>
+                <ArrowRight size={13} className="text-stone-600" />
+              </Link>
+              <Link
+                href="/kategori/parfumler"
+                onClick={onClose}
+                className="flex items-center justify-between py-2 text-xs font-semibold text-stone-300 hover:text-[#dfcca8] transition-colors"
+              >
+                <span>💎 Parfümler</span>
+                <ArrowRight size={13} className="text-stone-600" />
+              </Link>
+              <Link
+                href="/kategori/hediye-setleri"
+                onClick={onClose}
+                className="flex items-center justify-between py-2 text-xs font-semibold text-[#dfcca8] hover:text-white transition-colors"
+              >
+                <span>🎁 Hediye Setleri</span>
+                <ArrowRight size={13} className="text-[#c5a880]" />
               </Link>
               {categories
-                .filter((c) => c.slug !== "kolonyalar")
+                .filter(
+                  (c) =>
+                    !["kolonyalar", "oda-kokulari", "oto-kokulari", "parfumler", "hediye-setleri"].includes(
+                      c.slug
+                    )
+                )
                 .map((cat) => (
                   <Link
                     key={cat.id}
@@ -72,31 +119,19 @@ export function MobileMenu({
                     onClick={onClose}
                     className="flex items-center justify-between py-2 text-xs font-semibold text-stone-300 hover:text-[#dfcca8] transition-colors"
                   >
-                    {cat.name} <ArrowRight size={13} className="text-stone-600" />
+                    <span>{cat.name}</span>
+                    <ArrowRight size={13} className="text-stone-600" />
                   </Link>
                 ))}
             </div>
           </div>
 
+          {/* 2. KURUMSAL BİLGİLER & HİZMETLER */}
           <div className="border-t border-[#1e2735] pt-6">
             <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-[#c5a880] mb-3">
-              Kurumsal & Hizmetler
+              Kurumsal Bilgiler
             </p>
             <div className="space-y-2">
-              <Link
-                href="/siparis-takip"
-                onClick={onClose}
-                className="flex items-center gap-2.5 py-2 text-xs font-medium text-stone-300 hover:text-white"
-              >
-                <Package size={15} className="text-[#c5a880]" /> Sipariş & Kargo Takip
-              </Link>
-              <Link
-                href="/giris"
-                onClick={onClose}
-                className="flex items-center gap-2.5 py-2 text-xs font-medium text-stone-300 hover:text-white"
-              >
-                <User size={15} className="text-[#c5a880]" /> Müşteri Girişi / Üyelik
-              </Link>
               <Link
                 href="/hakkimizda"
                 onClick={onClose}
@@ -105,11 +140,39 @@ export function MobileMenu({
                 <Box size={15} className="text-[#c5a880]" /> Hakkımızda & Hikayemiz
               </Link>
               <Link
+                href="/hakkimizda#laboratuvar"
+                onClick={onClose}
+                className="flex items-center gap-2.5 py-2 text-xs font-medium text-stone-300 hover:text-white"
+              >
+                <Box size={15} className="text-[#c5a880]" /> Laboratuvar & Üretim
+              </Link>
+              <Link
                 href="/iletisim"
                 onClick={onClose}
                 className="flex items-center gap-2.5 py-2 text-xs font-medium text-stone-300 hover:text-white"
               >
                 <HelpCircle size={15} className="text-[#c5a880]" /> Butik Showroom & Fabrika
+              </Link>
+              <Link
+                href="/iletisim#iletisim-formu"
+                onClick={onClose}
+                className="flex items-center gap-2.5 py-2 text-xs font-medium text-stone-300 hover:text-white"
+              >
+                <HelpCircle size={15} className="text-[#c5a880]" /> İletişim & Danışma
+              </Link>
+              <Link
+                href="/siparis-takip"
+                onClick={onClose}
+                className="flex items-center gap-2.5 py-2 text-xs font-medium text-stone-300 hover:text-white"
+              >
+                <Package size={15} className="text-[#c5a880]" /> Sipariş & Kargo Takip
+              </Link>
+              <Link
+                href="/hesabim"
+                onClick={onClose}
+                className="flex items-center gap-2.5 py-2 text-xs font-medium text-stone-300 hover:text-white"
+              >
+                <User size={15} className="text-[#c5a880]" /> Müşteri Hesabı
               </Link>
             </div>
           </div>

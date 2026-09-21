@@ -48,34 +48,46 @@ export function Header({
             </span>
           </Link>
 
-          {/* Orta Kurumsal Menü */}
-          <nav className="hidden lg:flex items-center gap-9 text-[11px] font-bold tracking-[0.16em] uppercase text-stone-700">
-            <Link href="/kategori/kolonyalar" className="hover:text-[#91754f] transition-colors">
-              Kolonyalar
+          {/* ORTA: KURUMSAL MENÜ (Sadece Kurumsal & Marka Sayfaları) */}
+          <nav className="hidden lg:flex items-center gap-7 xl:gap-8 text-[11px] font-bold tracking-[0.16em] uppercase text-stone-700">
+            <Link
+              href="/hakkimizda"
+              className="hover:text-[#91754f] transition-colors py-1 relative group"
+            >
+              <span>Hakkımızda</span>
+              <span className="absolute bottom-0 left-0 w-0 h-[1.5px] bg-[#91754f] group-hover:w-full transition-all duration-300" />
             </Link>
-            {categories
-              .filter((c) => c.slug !== "kolonyalar")
-              .map((cat) => (
-                <Link
-                  key={cat.id}
-                  href={`/kategori/${cat.slug}`}
-                  className="hover:text-[#91754f] transition-colors"
-                >
-                  {cat.name}
-                </Link>
-              ))}
-            <Link href="/hakkimizda" className="hover:text-[#91754f] transition-colors">
-              Hakkımızda
+            <Link
+              href="/hakkimizda#laboratuvar"
+              className="hover:text-[#91754f] transition-colors py-1 relative group"
+            >
+              <span>Hikayemiz & Laboratuvar</span>
+              <span className="absolute bottom-0 left-0 w-0 h-[1.5px] bg-[#91754f] group-hover:w-full transition-all duration-300" />
             </Link>
-            <Link href="/iletisim" className="hover:text-[#91754f] transition-colors">
-              Butik & Fabrika
+            <Link
+              href="/iletisim"
+              className="hover:text-[#91754f] transition-colors py-1 relative group"
+            >
+              <span>Butik & Fabrika</span>
+              <span className="absolute bottom-0 left-0 w-0 h-[1.5px] bg-[#91754f] group-hover:w-full transition-all duration-300" />
             </Link>
-            <Link href="/siparis-takip" className="hover:text-[#91754f] transition-colors">
-              Sipariş Takip
+            <Link
+              href="/iletisim#iletisim-formu"
+              className="hover:text-[#91754f] transition-colors py-1 relative group"
+            >
+              <span>İletişim</span>
+              <span className="absolute bottom-0 left-0 w-0 h-[1.5px] bg-[#91754f] group-hover:w-full transition-all duration-300" />
+            </Link>
+            <Link
+              href="/siparis-takip"
+              className="hover:text-[#91754f] transition-colors py-1 relative group"
+            >
+              <span>Sipariş Takip</span>
+              <span className="absolute bottom-0 left-0 w-0 h-[1.5px] bg-[#91754f] group-hover:w-full transition-all duration-300" />
             </Link>
           </nav>
 
-          {/* Sağ Aksiyon İkonları */}
+          {/* SAĞ: AKSİYON İKONLARI */}
           <div className="flex items-center gap-3 sm:gap-4">
             <button
               onClick={() => setIsSearchOpen(true)}
@@ -129,12 +141,15 @@ export function Header({
           </div>
         </div>
 
-        {/* İKİNCİ HEADER: Kategori Navigasyon Barı */}
-        <div className="border-t border-[#e7e3d8] bg-[#f4f1ea]/95 backdrop-blur-xs py-2.5 px-4 sm:px-8 overflow-x-auto no-scrollbar shadow-2xs">
+        {/* ALT HEADER: KATEGORİLER (Sadece Ürün Kategorileri) */}
+        <nav
+          aria-label="Ürün Kategorileri"
+          className="border-t border-[#e7e3d8] bg-[#f4f1ea]/95 backdrop-blur-xs py-2.5 px-4 sm:px-8 overflow-x-auto no-scrollbar shadow-2xs"
+        >
           <div className="mx-auto max-w-7xl flex items-center justify-center sm:justify-start lg:justify-center gap-1 sm:gap-4 text-[11px] font-black uppercase tracking-[0.14em] text-stone-700 whitespace-nowrap">
             <Link
               href="/#urunler"
-              className="px-3.5 py-1.5 rounded-full hover:bg-white hover:text-stone-900 transition-all flex items-center gap-1.5"
+              className="px-3.5 py-1.5 rounded-full hover:bg-white hover:text-stone-950 transition-all flex items-center gap-1.5"
             >
               <span className="text-xs">✨</span>
               <span>TÜM ÜRÜNLER</span>
@@ -142,7 +157,7 @@ export function Header({
             <span className="text-stone-300 select-none">•</span>
             <Link
               href="/kategori/kolonyalar"
-              className="px-3.5 py-1.5 rounded-full hover:bg-white hover:text-stone-900 transition-all flex items-center gap-1.5 text-stone-900"
+              className="px-3.5 py-1.5 rounded-full hover:bg-white hover:text-stone-950 transition-all flex items-center gap-1.5 text-stone-900"
             >
               <span className="text-xs">🌿</span>
               <span>KOLONYALAR</span>
@@ -150,7 +165,7 @@ export function Header({
             <span className="text-stone-300 select-none">•</span>
             <Link
               href="/kategori/oda-kokulari"
-              className="px-3.5 py-1.5 rounded-full hover:bg-white hover:text-stone-900 transition-all flex items-center gap-1.5"
+              className="px-3.5 py-1.5 rounded-full hover:bg-white hover:text-stone-950 transition-all flex items-center gap-1.5"
             >
               <span className="text-xs">🏠</span>
               <span>ODA KOKULARI</span>
@@ -158,7 +173,7 @@ export function Header({
             <span className="text-stone-300 select-none">•</span>
             <Link
               href="/kategori/oto-kokulari"
-              className="px-3.5 py-1.5 rounded-full hover:bg-white hover:text-stone-900 transition-all flex items-center gap-1.5"
+              className="px-3.5 py-1.5 rounded-full hover:bg-white hover:text-stone-950 transition-all flex items-center gap-1.5"
             >
               <span className="text-xs">🚗</span>
               <span>OTO KOKULARI</span>
@@ -166,7 +181,7 @@ export function Header({
             <span className="text-stone-300 select-none">•</span>
             <Link
               href="/kategori/parfumler"
-              className="px-3.5 py-1.5 rounded-full hover:bg-white hover:text-stone-900 transition-all flex items-center gap-1.5"
+              className="px-3.5 py-1.5 rounded-full hover:bg-white hover:text-stone-950 transition-all flex items-center gap-1.5"
             >
               <span className="text-xs">💎</span>
               <span>PARFÜMLER</span>
@@ -179,8 +194,28 @@ export function Header({
               <span className="text-xs">🎁</span>
               <span>HEDİYE SETLERİ</span>
             </Link>
+
+            {/* Dinamik Ek Kategoriler (Varsa) */}
+            {categories
+              .filter(
+                (c) =>
+                  !["kolonyalar", "oda-kokulari", "oto-kokulari", "parfumler", "hediye-setleri"].includes(
+                    c.slug
+                  )
+              )
+              .map((cat) => (
+                <span key={cat.id} className="flex items-center gap-1 sm:gap-4">
+                  <span className="text-stone-300 select-none">•</span>
+                  <Link
+                    href={`/kategori/${cat.slug}`}
+                    className="px-3.5 py-1.5 rounded-full hover:bg-white hover:text-stone-950 transition-all flex items-center gap-1.5"
+                  >
+                    <span>{cat.name}</span>
+                  </Link>
+                </span>
+              ))}
           </div>
-        </div>
+        </nav>
       </header>
 
       <SearchModal isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
