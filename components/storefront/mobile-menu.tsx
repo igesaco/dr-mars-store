@@ -138,7 +138,10 @@ export function MobileMenu({
         </div>
 
         {/* Kaydırılabilir İçerik Alanı */}
-        <div style={{ flex: "1 1 auto", overflowY: "auto", padding: "1.5rem 0" }} className="space-y-6">
+        <div
+          style={{ flex: "1 1 auto", overflowY: "auto", padding: "1.5rem 0", scrollbarWidth: "none" }}
+          className="space-y-6 no-scrollbar"
+        >
           {/* 1. ÜRÜN KATEGORİLERİ */}
           <div>
             <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-[#c5a880] mb-3">
