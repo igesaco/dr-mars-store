@@ -178,22 +178,22 @@ export function Footer() {
             <ul className="space-y-2.5 text-stone-400">
               <li>
                 <Link href="/hakkimizda" className="hover:text-white transition-colors">
-                  Hakkımızda & Hikayemiz
+                  Hakkımızda & Kurumsal
                 </Link>
               </li>
               <li>
-                <Link href="/hakkimizda" className="hover:text-white transition-colors">
-                  Kurucumuz Hamdullah Adsoy
+                <Link href="/hikayemiz" className="hover:text-white transition-colors text-[#dfcca8]">
+                  Hikayemiz & Koku Felsefemiz
                 </Link>
               </li>
               <li>
-                <Link href="/hakkimizda" className="hover:text-white transition-colors">
-                  Mardin OSB Üretim Tesisi
+                <Link href="/hikayemiz#akik-felsefesi" className="hover:text-white transition-colors">
+                  Doğal Akik Taşı Felsefesi
                 </Link>
               </li>
               <li>
-                <Link href="/hakkimizda" className="hover:text-white transition-colors">
-                  Doğal Akik Taşı İnovasyonu
+                <Link href="/hakkimizda#laboratuvar" className="hover:text-white transition-colors">
+                  Mardin OSB Laboratuvarı
                 </Link>
               </li>
               <li>

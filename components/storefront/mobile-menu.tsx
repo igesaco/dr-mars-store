@@ -137,7 +137,14 @@ export function MobileMenu({
                 onClick={onClose}
                 className="flex items-center gap-2.5 py-2 text-xs font-medium text-stone-300 hover:text-white"
               >
-                <Box size={15} className="text-[#c5a880]" /> Hakkımızda & Hikayemiz
+                <Box size={15} className="text-[#c5a880]" /> Hakkımızda & Kurumsal
+              </Link>
+              <Link
+                href="/hikayemiz"
+                onClick={onClose}
+                className="flex items-center gap-2.5 py-2 text-xs font-medium text-stone-300 hover:text-white"
+              >
+                <Box size={15} className="text-[#c5a880]" /> Hikayemiz & Koku Felsefesi
               </Link>
               <Link
                 href="/hakkimizda#laboratuvar"

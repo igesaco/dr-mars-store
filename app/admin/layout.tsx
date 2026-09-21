@@ -6,6 +6,7 @@ import {
   BarChart3,
   Box,
   LayoutTemplate,
+  Megaphone,
   MessageSquare,
   Package,
   PlusSquare,
@@ -39,11 +40,17 @@ const groups = [
     ],
   },
   {
+    title: "PAZARLAMA & REKLAM",
+    links: [
+      ["Reklam Yönetimi", "/admin/reklamlar", Megaphone],
+      ["SEO & analiz", "/admin/seo", Search],
+    ],
+  },
+  {
     title: "YÖNETİM & AYARLAR",
     links: [
       ["E-ticaret genel", "/admin/e-ticaret", ShoppingBag],
       ["Site ayarları", "/admin/ayarlar", Settings],
-      ["SEO & analiz", "/admin/seo", Search],
       ["Web tasarımı", "/admin/tasarim", LayoutTemplate],
     ],
   },

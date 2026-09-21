@@ -58,10 +58,17 @@ export function Header({
               <span className="absolute bottom-0 left-0 w-0 h-[1.5px] bg-[#91754f] group-hover:w-full transition-all duration-300" />
             </Link>
             <Link
+              href="/hikayemiz"
+              className="hover:text-[#91754f] transition-colors py-1 relative group"
+            >
+              <span>Hikayemiz</span>
+              <span className="absolute bottom-0 left-0 w-0 h-[1.5px] bg-[#91754f] group-hover:w-full transition-all duration-300" />
+            </Link>
+            <Link
               href="/hakkimizda#laboratuvar"
               className="hover:text-[#91754f] transition-colors py-1 relative group"
             >
-              <span>Hikayemiz & Laboratuvar</span>
+              <span>Laboratuvar & Üretim</span>
               <span className="absolute bottom-0 left-0 w-0 h-[1.5px] bg-[#91754f] group-hover:w-full transition-all duration-300" />
             </Link>
             <Link

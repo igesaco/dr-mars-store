@@ -23,9 +23,9 @@ import { getStoreNavCategories, getStoreSettings } from "@/lib/storefront-data";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Kurumsal & Hikayemiz | Dr. Mars Haute Parfumerie Mardin",
+  title: "Hakkımızda & Kurumsal | Dr. Mars Haute Parfumerie Mardin",
   description:
-    "Kimya Mühendisi Hamdullah Adsoy öncülüğünde Mardin OSB laboratuvarlarında üretilen, patentli doğal akik taşlı formülasyonlarıyla Mezopotamya koku sanatını dünyaya taşıyan Dr. Mars'ın kurumsal hikayesi.",
+    "Mardin OSB yüksek teknoloji laboratuvarlarımız, GMP ve ISO sertifikalı üretim altyapımız, kurumsal değerlerimiz ve kalite standartlarımız.",
 };
 
 export default async function AboutPage() {

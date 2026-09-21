@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Plus_Jakarta_Sans } from "next/font/google";
 import { Providers } from "@/components/providers";
+import { AdPixels } from "@/components/analytics/ad-pixels";
 import "./globals.css";
 
 const plusJakarta = Plus_Jakarta_Sans({
@@ -30,6 +31,7 @@ export default function RootLayout({
   return (
     <html lang="tr" className={plusJakarta.variable}>
       <body className="antialiased font-sans bg-[#fbfaf8] text-[#111620]">
+        <AdPixels />
         <Providers>{children}</Providers>
       </body>
     </html>
