@@ -191,9 +191,10 @@ export default async function OrderSuccessPage({ params }: Props) {
           <Link
             href={`/siparis/${order.orderNumber}/fatura`}
             target="_blank"
-            className="flex items-center gap-2 rounded-xl bg-stone-900 px-7 py-4 text-xs font-black uppercase tracking-wider text-white shadow hover:bg-black transition-colors"
+            className="flex items-center gap-2 rounded-xl bg-[#101e2c] hover:bg-black px-7 py-4 text-xs font-black uppercase tracking-wider !text-white shadow transition-colors"
           >
-            <Printer size={16} /> E-Arşiv Faturası / Fiş
+            <Printer size={16} className="!text-white shrink-0" />
+            <span className="!text-white font-bold">E-Arşiv Faturası / Fiş</span>
           </Link>
           <Link
             href="/siparis-takip"

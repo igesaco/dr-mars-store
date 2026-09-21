@@ -128,6 +128,59 @@ export function Header({
             </button>
           </div>
         </div>
+
+        {/* İKİNCİ HEADER: Kategori Navigasyon Barı */}
+        <div className="border-t border-[#e7e3d8] bg-[#f4f1ea]/95 backdrop-blur-xs py-2.5 px-4 sm:px-8 overflow-x-auto no-scrollbar shadow-2xs">
+          <div className="mx-auto max-w-7xl flex items-center justify-center sm:justify-start lg:justify-center gap-1 sm:gap-4 text-[11px] font-black uppercase tracking-[0.14em] text-stone-700 whitespace-nowrap">
+            <Link
+              href="/#urunler"
+              className="px-3.5 py-1.5 rounded-full hover:bg-white hover:text-stone-900 transition-all flex items-center gap-1.5"
+            >
+              <span className="text-xs">✨</span>
+              <span>TÜM ÜRÜNLER</span>
+            </Link>
+            <span className="text-stone-300 select-none">•</span>
+            <Link
+              href="/kategori/kolonyalar"
+              className="px-3.5 py-1.5 rounded-full hover:bg-white hover:text-stone-900 transition-all flex items-center gap-1.5 text-stone-900"
+            >
+              <span className="text-xs">🌿</span>
+              <span>KOLONYALAR</span>
+            </Link>
+            <span className="text-stone-300 select-none">•</span>
+            <Link
+              href="/kategori/oda-kokulari"
+              className="px-3.5 py-1.5 rounded-full hover:bg-white hover:text-stone-900 transition-all flex items-center gap-1.5"
+            >
+              <span className="text-xs">🏠</span>
+              <span>ODA KOKULARI</span>
+            </Link>
+            <span className="text-stone-300 select-none">•</span>
+            <Link
+              href="/kategori/oto-kokulari"
+              className="px-3.5 py-1.5 rounded-full hover:bg-white hover:text-stone-900 transition-all flex items-center gap-1.5"
+            >
+              <span className="text-xs">🚗</span>
+              <span>OTO KOKULARI</span>
+            </Link>
+            <span className="text-stone-300 select-none">•</span>
+            <Link
+              href="/kategori/parfumler"
+              className="px-3.5 py-1.5 rounded-full hover:bg-white hover:text-stone-900 transition-all flex items-center gap-1.5"
+            >
+              <span className="text-xs">💎</span>
+              <span>PARFÜMLER</span>
+            </Link>
+            <span className="text-stone-300 select-none">•</span>
+            <Link
+              href="/kategori/hediye-setleri"
+              className="px-3.5 py-1.5 rounded-full hover:bg-white hover:text-[#91754f] transition-all flex items-center gap-1.5 text-[#91754f]"
+            >
+              <span className="text-xs">🎁</span>
+              <span>HEDİYE SETLERİ</span>
+            </Link>
+          </div>
+        </div>
       </header>
 
       <SearchModal isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />

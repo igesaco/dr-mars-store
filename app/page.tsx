@@ -56,6 +56,101 @@ export default async function Home() {
         </div>
       </section>
 
+      {/* KATEGORİ KEŞİF VİTRİNİ */}
+      <section className="mx-auto max-w-7xl px-4 sm:px-8 pt-10 pb-2">
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-6 pb-2 border-b border-stone-200 gap-2">
+          <div>
+            <span className="text-[10px] font-black uppercase tracking-[0.22em] text-[#8f7351] block mb-1">
+              KOLEKSİYONLARI KEŞFEDİN
+            </span>
+            <h2 className="text-xl sm:text-2xl font-serif text-stone-900 font-normal">
+              Dr. Mars Koku Dünyası
+            </h2>
+          </div>
+          <Link
+            href="/#urunler"
+            className="text-xs font-bold text-[#8f7351] hover:text-stone-900 inline-flex items-center gap-1 self-start sm:self-auto transition-colors"
+          >
+            <span>Tüm Ürünleri İncele</span>
+            <ArrowRight size={14} />
+          </Link>
+        </div>
+
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+          <Link
+            href="/kategori/kolonyalar"
+            className="group rounded-2xl border border-stone-200 bg-white p-5 hover:border-stone-800 transition-all hover:shadow-sm flex flex-col justify-between"
+          >
+            <div>
+              <span className="text-2xl mb-2.5 block">🌿</span>
+              <h3 className="text-xs sm:text-sm font-black uppercase tracking-wider text-stone-900 group-hover:text-[#8f7351] transition-colors">
+                Kolonyalar
+              </h3>
+              <p className="text-[11px] text-stone-500 mt-1 leading-snug">
+                Hakiki akik taşlı flakonda 80° ferahlatıcı imza serisi
+              </p>
+            </div>
+            <span className="text-[10.5px] font-bold text-[#8f7351] mt-4 inline-flex items-center gap-1 group-hover:translate-x-1 transition-transform">
+              Koleksiyonu Gör →
+            </span>
+          </Link>
+
+          <Link
+            href="/kategori/oda-kokulari"
+            className="group rounded-2xl border border-stone-200 bg-white p-5 hover:border-stone-800 transition-all hover:shadow-sm flex flex-col justify-between"
+          >
+            <div>
+              <span className="text-2xl mb-2.5 block">🏠</span>
+              <h3 className="text-xs sm:text-sm font-black uppercase tracking-wider text-stone-900 group-hover:text-[#8f7351] transition-colors">
+                Oda Kokuları
+              </h3>
+              <p className="text-[11px] text-stone-500 mt-1 leading-snug">
+                Bambu çubuklu ve spreyli doğal esansiyel difüzörler
+              </p>
+            </div>
+            <span className="text-[10.5px] font-bold text-[#8f7351] mt-4 inline-flex items-center gap-1 group-hover:translate-x-1 transition-transform">
+              Koleksiyonu Gör →
+            </span>
+          </Link>
+
+          <Link
+            href="/kategori/oto-kokulari"
+            className="group rounded-2xl border border-stone-200 bg-white p-5 hover:border-stone-800 transition-all hover:shadow-sm flex flex-col justify-between"
+          >
+            <div>
+              <span className="text-2xl mb-2.5 block">🚗</span>
+              <h3 className="text-xs sm:text-sm font-black uppercase tracking-wider text-stone-900 group-hover:text-[#8f7351] transition-colors">
+                Oto Kokuları
+              </h3>
+              <p className="text-[11px] text-stone-500 mt-1 leading-snug">
+                Kayın ahşap difüzör kapaklı yoğun asma esanslar
+              </p>
+            </div>
+            <span className="text-[10.5px] font-bold text-[#8f7351] mt-4 inline-flex items-center gap-1 group-hover:translate-x-1 transition-transform">
+              Koleksiyonu Gör →
+            </span>
+          </Link>
+
+          <Link
+            href="/kategori/hediye-setleri"
+            className="group rounded-2xl border border-stone-200 bg-white p-5 hover:border-stone-800 transition-all hover:shadow-sm flex flex-col justify-between"
+          >
+            <div>
+              <span className="text-2xl mb-2.5 block">🎁</span>
+              <h3 className="text-xs sm:text-sm font-black uppercase tracking-wider text-stone-900 group-hover:text-[#8f7351] transition-colors">
+                Hediye Setleri
+              </h3>
+              <p className="text-[11px] text-stone-500 mt-1 leading-snug">
+                Prestijli kadife ambalajında unutulmaz koku hediyesi
+              </p>
+            </div>
+            <span className="text-[10.5px] font-bold text-[#8f7351] mt-4 inline-flex items-center gap-1 group-hover:translate-x-1 transition-transform">
+              Koleksiyonu Gör →
+            </span>
+          </Link>
+        </div>
+      </section>
+
       {/* DOĞRUDAN ÖNE ÇIKAN VE EN ÇOK TERCİH EDİLEN ÜRÜNLER VİTRİNİ */}
       <HomeProductShowcase categories={categories} products={products} />
 

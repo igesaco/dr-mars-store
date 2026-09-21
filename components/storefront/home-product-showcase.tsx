@@ -63,12 +63,20 @@ export function HomeProductShowcase({
     return 0;
   });
 
+  const activeCategoryName =
+    selectedCategory === "all"
+      ? "Özel Koleksiyon"
+      : categories.find((c) => c.id === selectedCategory)?.name || "Koleksiyon";
+
   return (
-    <section id="vitrin" className="mx-auto max-w-7xl px-4 sm:px-8 py-10 sm:py-14 bg-white">
-      {/* Üst Satır: [ Filtreleme > ]  [ Kolonya (Ortalı Başlık) ]  [ Sıralama Seçiniz v ] */}
+    <section id="urunler" className="mx-auto max-w-7xl px-4 sm:px-8 py-10 sm:py-14 bg-white">
+      {/* Üst Satır: [ Filtreleme > ]  [ Kategori / Koleksiyon (Ortalı Başlık) ]  [ Sıralama Seçiniz v ] */}
       <div className="relative flex items-center justify-between gap-4 pb-4">
         {/* Sol: Filtreleme Butonu */}
-        <div className="flex items-center gap-1.5 text-xs font-semibold text-stone-700 hover:text-stone-950 cursor-pointer">
+        <div
+          onClick={() => setSelectedCategory("all")}
+          className="flex items-center gap-1.5 text-xs font-semibold text-stone-700 hover:text-stone-950 cursor-pointer"
+        >
           <span>Filtreleme</span>
           <ChevronRight size={14} className="text-stone-500" />
         </div>
@@ -76,7 +84,7 @@ export function HomeProductShowcase({
         {/* Orta: Başlık */}
         <div className="text-center">
           <h1 className="text-3xl sm:text-4xl lg:text-5xl font-serif text-[#1b2b22] tracking-normal font-normal">
-            Kolonya
+            {activeCategoryName}
           </h1>
         </div>
 
@@ -96,28 +104,55 @@ export function HomeProductShowcase({
         </div>
       </div>
 
-      {/* Alt Satır: [ EN ÇOK SATAN ]  [ TÜM ÜRÜNLER ] (Ortalı Sekmeler) */}
-      <div className="flex items-center justify-center gap-3 pt-2 pb-4">
+      {/* Kategori Seçim Hapları */}
+      <div className="flex items-center justify-center gap-2 pt-1 pb-4 flex-wrap">
         <button
-          onClick={() => setSelectedTab("bestsellers")}
+          onClick={() => setSelectedCategory("all")}
           className={`px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider transition-all cursor-pointer ${
-            selectedTab === "bestsellers"
+            selectedCategory === "all"
               ? "bg-[#27382f] text-white shadow-xs"
-              : "text-stone-600 hover:text-stone-900"
+              : "bg-stone-100 text-stone-600 hover:bg-stone-200"
           }`}
         >
-          EN ÇOK SATAN
+          TÜM KOLEKSİYON
+        </button>
+        {categories.map((c) => (
+          <button
+            key={c.id}
+            onClick={() => setSelectedCategory(c.id)}
+            className={`px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider transition-all cursor-pointer ${
+              selectedCategory === c.id
+                ? "bg-[#27382f] text-white shadow-xs"
+                : "bg-stone-100 text-stone-600 hover:bg-stone-200"
+            }`}
+          >
+            {c.name}
+          </button>
+        ))}
+      </div>
+
+      {/* Alt Satır: [ EN ÇOK SATAN ]  [ TÜM ÜRÜNLER ] (Ortalı Sekmeler) */}
+      <div className="flex items-center justify-center gap-3 pt-1 pb-4">
+        <button
+          onClick={() => setSelectedTab("bestsellers")}
+          className={`px-4 py-1.5 rounded-full text-[11px] font-bold uppercase tracking-wider transition-all cursor-pointer ${
+            selectedTab === "bestsellers"
+              ? "bg-stone-800 text-white"
+              : "text-stone-500 hover:text-stone-800"
+          }`}
+        >
+          EN ÇOK SATANLAR
         </button>
 
         <button
           onClick={() => setSelectedTab("all")}
-          className={`px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider transition-all cursor-pointer ${
+          className={`px-4 py-1.5 rounded-full text-[11px] font-bold uppercase tracking-wider transition-all cursor-pointer ${
             selectedTab === "all"
-              ? "bg-[#27382f] text-white shadow-xs"
-              : "text-stone-600 hover:text-stone-900"
+              ? "bg-stone-800 text-white"
+              : "text-stone-500 hover:text-stone-800"
           }`}
         >
-          TÜM ÜRÜNLER
+          LİSTELENENLER ({filtered.length})
         </button>
       </div>
 
