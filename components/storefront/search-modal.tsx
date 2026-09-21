@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import Link from "next/link";
 import { ArrowRight, Loader2, Search, X } from "lucide-react";
 
@@ -23,6 +24,11 @@ export function SearchModal({
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<SearchResult[]>([]);
   const [loading, setLoading] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     const trimmed = query.trim();
@@ -46,7 +52,7 @@ export function SearchModal({
     return () => clearTimeout(timer);
   }, [query]);
 
-  if (!isOpen) return null;
+  if (!isOpen || !mounted) return null;
 
   const displayResults = query.trim().length < 2 ? [] : results;
 
@@ -56,11 +62,11 @@ export function SearchModal({
     onClose();
   };
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-start justify-center pt-20">
+  const modalContent = (
+    <div style={{ position: "fixed", inset: 0, zIndex: 99999, display: "flex", alignItems: "flex-start", justifyContent: "center", paddingTop: "5rem" }}>
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-black/60 backdrop-blur-xs transition-opacity"
+        style={{ position: "fixed", inset: 0, backgroundColor: "rgba(0,0,0,0.65)", backdropFilter: "blur(4px)", WebkitBackdropFilter: "blur(4px)", zIndex: 1 }}
         onClick={handleClose}
         aria-hidden="true"
       />
@@ -183,4 +189,6 @@ export function SearchModal({
       </div>
     </div>
   );
+
+  return createPortal(modalContent, document.body);
 }
