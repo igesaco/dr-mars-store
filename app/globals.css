@@ -210,3 +210,13 @@ nav {
     display: flex !important;
   }
 }
+
+/* Mobil Scrollbar Gizleme ve Yumuşak Kaydırma */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}

@@ -35,7 +35,7 @@ export function Header({
       )}
 
       <header className="sticky top-0 z-40 bg-[#faf8f5]/95 backdrop-blur-md border-b border-[#e7e3d8] transition-all">
-        <div className="mx-auto max-w-7xl h-20 px-4 sm:px-8 flex items-center justify-between">
+        <div className="mx-auto max-w-7xl h-16 sm:h-20 px-3.5 sm:px-8 flex items-center justify-between">
           {/* Lüks Marka Logosu */}
           <Link className="flex flex-col items-start leading-none group cursor-pointer" href="/">
             <div className="flex items-center gap-1.5 text-xl sm:text-2xl font-black tracking-widest text-[#0b0f15] group-hover:text-[#91754f] transition-colors">
@@ -144,9 +144,9 @@ export function Header({
         {/* ALT HEADER: KATEGORİLER (Sadece Ürün Kategorileri) */}
         <nav
           aria-label="Ürün Kategorileri"
-          className="border-t border-[#e7e3d8] bg-[#f4f1ea]/95 backdrop-blur-xs py-2.5 px-4 sm:px-8 overflow-x-auto no-scrollbar shadow-2xs"
+          className="border-t border-[#e7e3d8] bg-[#f4f1ea]/95 backdrop-blur-xs py-2 px-3 sm:px-8 overflow-x-auto no-scrollbar shadow-2xs"
         >
-          <div className="mx-auto max-w-7xl flex items-center justify-center sm:justify-start lg:justify-center gap-1 sm:gap-4 text-[11px] font-black uppercase tracking-[0.14em] text-stone-700 whitespace-nowrap">
+          <div className="mx-auto max-w-7xl flex items-center justify-start lg:justify-center gap-1 sm:gap-3 text-[11px] font-black uppercase tracking-[0.13em] text-stone-700 whitespace-nowrap">
             <Link
               href="/#urunler"
               className="px-3.5 py-1.5 rounded-full hover:bg-white hover:text-stone-950 transition-all flex items-center gap-1.5"

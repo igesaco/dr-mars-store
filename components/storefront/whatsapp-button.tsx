@@ -4,7 +4,7 @@ import { useState } from "react";
 import { MessageCircle, X } from "lucide-react";
 
 export function WhatsAppButton({
-  phoneNumber = "905000000000",
+  phoneNumber = "904822121903",
   message = "Merhaba, Dr. Mars ürünleri ve koku önerileri hakkında bilgi almak istiyorum.",
 }: {
   phoneNumber?: string;
@@ -15,9 +15,9 @@ export function WhatsAppButton({
   const whatsappUrl = `https://wa.me/${phoneNumber.replace(/[^0-9]/g, "")}?text=${encodeURIComponent(message)}`;
 
   return (
-    <div className="fixed bottom-20 right-6 z-50 flex flex-col items-end gap-2 font-sans">
+    <div className="fixed bottom-20 right-4 sm:right-6 z-40 flex flex-col items-end gap-2 font-sans">
       {isOpen && (
-        <div className="relative flex items-center gap-3 rounded-2xl border border-[#c5a880]/30 bg-[#0c1117]/95 p-3.5 text-white shadow-2xl backdrop-blur-md max-w-xs animate-in fade-in slide-in-from-bottom-3 duration-300">
+        <div className="relative hidden sm:flex items-center gap-3 rounded-2xl border border-[#c5a880]/30 bg-[#0c1117]/95 p-3.5 text-white shadow-2xl backdrop-blur-md max-w-xs animate-in fade-in slide-in-from-bottom-3 duration-300">
           <button
             onClick={() => setIsOpen(false)}
             aria-label="Kapat"

@@ -684,6 +684,42 @@ export function ProductView({ product, reviews = [] }: ProductProps) {
           </div>
         </div>
       </section>
+
+      {/* MOBİL YAPIŞKAN SATIN ALMA BARI (Mobil kullanıcılar için daima erişilebilir) */}
+      <div className="sm:hidden fixed bottom-0 left-0 right-0 z-30 bg-white/95 backdrop-blur-md border-t border-stone-200 px-4 py-3 flex items-center justify-between gap-3 shadow-[0_-4px_20px_rgba(0,0,0,0.08)]">
+        <div className="flex flex-col min-w-0">
+          <span className="text-xs font-black text-stone-900 truncate">
+            {product.name}
+          </span>
+          <span className="text-[11px] text-[#8f7351] font-bold">
+            {selectedVariant.name} · ₺{Number(selectedVariant.price).toLocaleString("tr-TR")}
+          </span>
+        </div>
+
+        <button
+          onClick={handleAddToCart}
+          disabled={isOutOfStock}
+          className={`flex items-center justify-center gap-1.5 rounded-xl py-2.5 px-5 text-xs font-bold uppercase tracking-wider transition-all shrink-0 cursor-pointer ${
+            added
+              ? "bg-emerald-700 text-white"
+              : isOutOfStock
+              ? "bg-stone-300 text-stone-500 cursor-not-allowed"
+              : "bg-[#0e131a] text-[#dfcca8] hover:bg-[#c5a880] hover:text-[#0e131a] shadow-md"
+          }`}
+        >
+          {added ? (
+            <>
+              <Check size={14} /> Eklendi
+            </>
+          ) : isOutOfStock ? (
+            "Tükendi"
+          ) : (
+            <>
+              <ShoppingBag size={14} /> Sepete Ekle
+            </>
+          )}
+        </button>
+      </div>
     </>
   );
 }

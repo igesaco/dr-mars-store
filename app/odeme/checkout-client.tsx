@@ -187,7 +187,7 @@ export function CheckoutClient({ paymentSettings }: { paymentSettings?: any }) {
                   value={formData.firstName}
                   onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
                   placeholder="Ahmet"
-                  className="w-full rounded-lg border border-stone-300 p-3 text-sm outline-none focus:border-stone-900"
+                  className="w-full rounded-lg border border-stone-300 p-3 text-base sm:text-sm outline-none focus:border-stone-900"
                 />
               </div>
               <div>
@@ -198,7 +198,7 @@ export function CheckoutClient({ paymentSettings }: { paymentSettings?: any }) {
                   value={formData.lastName}
                   onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
                   placeholder="Yılmaz"
-                  className="w-full rounded-lg border border-stone-300 p-3 text-sm outline-none focus:border-stone-900"
+                  className="w-full rounded-lg border border-stone-300 p-3 text-base sm:text-sm outline-none focus:border-stone-900"
                 />
               </div>
               <div>
@@ -209,7 +209,7 @@ export function CheckoutClient({ paymentSettings }: { paymentSettings?: any }) {
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                   placeholder="ahmet@example.com"
-                  className="w-full rounded-lg border border-stone-300 p-3 text-sm outline-none focus:border-stone-900"
+                  className="w-full rounded-lg border border-stone-300 p-3 text-base sm:text-sm outline-none focus:border-stone-900"
                 />
               </div>
               <div>
@@ -220,7 +220,7 @@ export function CheckoutClient({ paymentSettings }: { paymentSettings?: any }) {
                   value={formData.phone}
                   onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                   placeholder="0532 123 45 67"
-                  className="w-full rounded-lg border border-stone-300 p-3 text-sm outline-none focus:border-stone-900"
+                  className="w-full rounded-lg border border-stone-300 p-3 text-base sm:text-sm outline-none focus:border-stone-900"
                 />
               </div>
             </div>
@@ -241,7 +241,7 @@ export function CheckoutClient({ paymentSettings }: { paymentSettings?: any }) {
                 <select
                   value={formData.city}
                   onChange={(e) => setFormData({ ...formData, city: e.target.value })}
-                  className="w-full rounded-lg border border-stone-300 p-3 text-sm outline-none focus:border-stone-900 bg-white"
+                  className="w-full rounded-lg border border-stone-300 p-3 text-base sm:text-sm outline-none focus:border-stone-900 bg-white"
                 >
                   <option value="İstanbul">İstanbul</option>
                   <option value="Ankara">Ankara</option>
@@ -260,7 +260,7 @@ export function CheckoutClient({ paymentSettings }: { paymentSettings?: any }) {
                   value={formData.district}
                   onChange={(e) => setFormData({ ...formData, district: e.target.value })}
                   placeholder="Kadıköy, Şişli vb."
-                  className="w-full rounded-lg border border-stone-300 p-3 text-sm outline-none focus:border-stone-900"
+                  className="w-full rounded-lg border border-stone-300 p-3 text-base sm:text-sm outline-none focus:border-stone-900"
                 />
               </div>
               <div className="sm:col-span-2">
@@ -271,7 +271,7 @@ export function CheckoutClient({ paymentSettings }: { paymentSettings?: any }) {
                   value={formData.addressLine}
                   onChange={(e) => setFormData({ ...formData, addressLine: e.target.value })}
                   placeholder="Mahalle, cadde, sokak, bina ve daire numarası"
-                  className="w-full rounded-lg border border-stone-300 p-3 text-sm outline-none focus:border-stone-900"
+                  className="w-full rounded-lg border border-stone-300 p-3 text-base sm:text-sm outline-none focus:border-stone-900"
                 />
               </div>
               <div>
@@ -281,7 +281,7 @@ export function CheckoutClient({ paymentSettings }: { paymentSettings?: any }) {
                   value={formData.postalCode}
                   onChange={(e) => setFormData({ ...formData, postalCode: e.target.value })}
                   placeholder="34000"
-                  className="w-full rounded-lg border border-stone-300 p-3 text-sm outline-none focus:border-stone-900"
+                  className="w-full rounded-lg border border-stone-300 p-3 text-base sm:text-sm outline-none focus:border-stone-900"
                 />
               </div>
               <div>
@@ -291,7 +291,7 @@ export function CheckoutClient({ paymentSettings }: { paymentSettings?: any }) {
                   value={formData.customerNote}
                   onChange={(e) => setFormData({ ...formData, customerNote: e.target.value })}
                   placeholder="Zili çalmayınız, kargoya not vb."
-                  className="w-full rounded-lg border border-stone-300 p-3 text-sm outline-none focus:border-stone-900"
+                  className="w-full rounded-lg border border-stone-300 p-3 text-base sm:text-sm outline-none focus:border-stone-900"
                 />
               </div>
             </div>
@@ -366,7 +366,7 @@ export function CheckoutClient({ paymentSettings }: { paymentSettings?: any }) {
                     value={cardData.cardHolder}
                     onChange={(e) => setCardData({ ...cardData, cardHolder: e.target.value.toUpperCase() })}
                     placeholder="AHMET YILMAZ"
-                    className="w-full rounded-lg border border-stone-300 bg-white p-3 text-sm uppercase outline-none focus:border-stone-900"
+                    className="w-full rounded-lg border border-stone-300 bg-white p-3 text-base sm:text-sm uppercase outline-none focus:border-stone-900"
                   />
                 </div>
 
@@ -379,7 +379,7 @@ export function CheckoutClient({ paymentSettings }: { paymentSettings?: any }) {
                     value={cardData.cardNumber}
                     onChange={(e) => setCardData({ ...cardData, cardNumber: formatCardNumber(e.target.value) })}
                     placeholder="5400 0000 0000 0000"
-                    className="w-full rounded-lg border border-stone-300 bg-white p-3 text-sm font-mono outline-none focus:border-stone-900 tracking-wider"
+                    className="w-full rounded-lg border border-stone-300 bg-white p-3 text-base sm:text-sm font-mono outline-none focus:border-stone-900 tracking-wider"
                   />
                 </div>
 
@@ -393,7 +393,7 @@ export function CheckoutClient({ paymentSettings }: { paymentSettings?: any }) {
                       value={cardData.expiry}
                       onChange={(e) => setCardData({ ...cardData, expiry: formatExpiry(e.target.value) })}
                       placeholder="12/28"
-                      className="w-full rounded-lg border border-stone-300 bg-white p-3 text-sm font-mono outline-none focus:border-stone-900"
+                      className="w-full rounded-lg border border-stone-300 bg-white p-3 text-base sm:text-sm font-mono outline-none focus:border-stone-900"
                     />
                   </div>
                   <div>
@@ -405,7 +405,7 @@ export function CheckoutClient({ paymentSettings }: { paymentSettings?: any }) {
                       value={cardData.cvv}
                       onChange={(e) => setCardData({ ...cardData, cvv: e.target.value.replace(/\D/g, "").slice(0, 4) })}
                       placeholder="123"
-                      className="w-full rounded-lg border border-stone-300 bg-white p-3 text-sm font-mono outline-none focus:border-stone-900"
+                      className="w-full rounded-lg border border-stone-300 bg-white p-3 text-base sm:text-sm font-mono outline-none focus:border-stone-900"
                     />
                   </div>
                 </div>
