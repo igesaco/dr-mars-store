@@ -104,41 +104,14 @@ export function HomeProductShowcase({
         </div>
       </div>
 
-      {/* Kategori Seçim Hapları */}
-      <div className="flex items-center justify-center gap-2 pt-1 pb-4 flex-wrap">
-        <button
-          onClick={() => setSelectedCategory("all")}
-          className={`px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider transition-all cursor-pointer ${
-            selectedCategory === "all"
-              ? "bg-[#27382f] text-white shadow-xs"
-              : "bg-stone-100 text-stone-600 hover:bg-stone-200"
-          }`}
-        >
-          TÜM KOLEKSİYON
-        </button>
-        {categories.map((c) => (
-          <button
-            key={c.id}
-            onClick={() => setSelectedCategory(c.id)}
-            className={`px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider transition-all cursor-pointer ${
-              selectedCategory === c.id
-                ? "bg-[#27382f] text-white shadow-xs"
-                : "bg-stone-100 text-stone-600 hover:bg-stone-200"
-            }`}
-          >
-            {c.name}
-          </button>
-        ))}
-      </div>
-
-      {/* Alt Satır: [ EN ÇOK SATAN ]  [ TÜM ÜRÜNLER ] (Ortalı Sekmeler) */}
-      <div className="flex items-center justify-center gap-3 pt-1 pb-4">
+      {/* Sekmeler: [ EN ÇOK SATANLAR ] [ TÜM ÜRÜNLER ] */}
+      <div className="flex items-center justify-center gap-3 pt-2 pb-5">
         <button
           onClick={() => setSelectedTab("bestsellers")}
-          className={`px-4 py-1.5 rounded-full text-[11px] font-bold uppercase tracking-wider transition-all cursor-pointer ${
+          className={`px-5 py-2 rounded-full text-xs font-bold uppercase tracking-wider transition-all cursor-pointer ${
             selectedTab === "bestsellers"
-              ? "bg-stone-800 text-white"
-              : "text-stone-500 hover:text-stone-800"
+              ? "bg-[#27382f] text-white shadow-xs"
+              : "bg-stone-100 text-stone-600 hover:bg-stone-200"
           }`}
         >
           EN ÇOK SATANLAR
@@ -146,13 +119,13 @@ export function HomeProductShowcase({
 
         <button
           onClick={() => setSelectedTab("all")}
-          className={`px-4 py-1.5 rounded-full text-[11px] font-bold uppercase tracking-wider transition-all cursor-pointer ${
+          className={`px-5 py-2 rounded-full text-xs font-bold uppercase tracking-wider transition-all cursor-pointer ${
             selectedTab === "all"
-              ? "bg-stone-800 text-white"
-              : "text-stone-500 hover:text-stone-800"
+              ? "bg-[#27382f] text-white shadow-xs"
+              : "bg-stone-100 text-stone-600 hover:bg-stone-200"
           }`}
         >
-          LİSTELENENLER ({filtered.length})
+          TÜM ÜRÜNLER ({products.length})
         </button>
       </div>
 

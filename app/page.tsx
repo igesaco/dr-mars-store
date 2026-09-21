@@ -56,8 +56,11 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* KATEGORİ KEŞİF VİTRİNİ */}
-      <section className="mx-auto max-w-7xl px-4 sm:px-8 pt-10 pb-2">
+      {/* DOĞRUDAN ÖNE ÇIKAN VE EN ÇOK TERCİH EDİLEN ÜRÜNLER VİTRİNİ */}
+      <HomeProductShowcase categories={categories} products={products} />
+
+      {/* SAYFA ALTI: KATEGORİ KEŞİF VİTRİNİ */}
+      <section className="mx-auto max-w-7xl px-4 sm:px-8 py-10">
         <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-6 pb-2 border-b border-stone-200 gap-2">
           <div>
             <span className="text-[10px] font-black uppercase tracking-[0.22em] text-[#8f7351] block mb-1">
@@ -150,9 +153,6 @@ export default async function Home() {
           </Link>
         </div>
       </section>
-
-      {/* DOĞRUDAN ÖNE ÇIKAN VE EN ÇOK TERCİH EDİLEN ÜRÜNLER VİTRİNİ */}
-      <HomeProductShowcase categories={categories} products={products} />
 
       {/* Akik Taşı & Bilimsel Zarafet Açık Tonlu Bilgi Alanı */}
       <section className="mx-auto max-w-7xl px-4 sm:px-8 py-12">
