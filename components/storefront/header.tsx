@@ -139,9 +139,10 @@ export function Header({
             </button>
 
             <button
+              type="button"
               onClick={() => setIsMobileMenuOpen(true)}
               aria-label="Menüyü Aç"
-              className="lg:hidden p-2 text-stone-700 hover:text-[#0b0f15] transition-colors"
+              className="lg:hidden p-2 text-stone-700 hover:text-[#0b0f15] transition-colors cursor-pointer"
             >
               <Menu size={22} />
             </button>

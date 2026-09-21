@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import Link from "next/link";
 import { ArrowRight, Box, HelpCircle, Package, User, X } from "lucide-react";
 
@@ -12,25 +13,42 @@ export function MobileMenu({
   onClose: () => void;
   categories: { id: string; name: string; slug: string }[];
 }) {
+  // Menü açıkken arka plan kaydırmasını kilitle ve ESC tuşunu dinle
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = "hidden";
+      const handleKeyDown = (e: KeyboardEvent) => {
+        if (e.key === "Escape") onClose();
+      };
+      window.addEventListener("keydown", handleKeyDown);
+      return () => {
+        document.body.style.overflow = "";
+        window.removeEventListener("keydown", handleKeyDown);
+      };
+    } else {
+      document.body.style.overflow = "";
+    }
+  }, [isOpen, onClose]);
+
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex">
-      {/* Karartma */}
+    <div className="fixed inset-0 z-50">
+      {/* 1. Karartma Arka Planı */}
       <div
-        className="fixed inset-0 bg-black/70 backdrop-blur-xs transition-opacity"
+        className="fixed inset-0 bg-black/75 backdrop-blur-xs transition-opacity"
         onClick={onClose}
         aria-hidden="true"
       />
 
-      {/* Menü Paneli */}
+      {/* 2. Menü Paneli (Soldan Sabitlenmiş Çekmece) */}
       <nav
-        className="relative z-10 flex h-full w-4/5 max-w-sm flex-col bg-[#0b0f15] text-white p-6 shadow-2xl border-r border-[#1e2735]"
+        className="fixed inset-y-0 left-0 z-10 flex h-full w-[85%] max-w-sm flex-col bg-[#0b0f15] text-white p-6 shadow-2xl border-r border-[#1e2735] transform transition-transform duration-300 ease-out"
         role="dialog"
         aria-modal="true"
         aria-label="Mobil Menü"
       >
-        <div className="flex items-center justify-between border-b border-[#1e2735] pb-5">
+        <div className="flex items-center justify-between border-b border-[#1e2735] pb-5 shrink-0">
           <Link href="/" onClick={onClose} className="flex flex-col items-start leading-none">
             <div className="flex items-center gap-1.5 text-xl font-black tracking-widest text-white">
               <span>DR</span>
@@ -43,14 +61,14 @@ export function MobileMenu({
           </Link>
           <button
             onClick={onClose}
-            className="p-1 text-stone-400 hover:text-white transition-colors cursor-pointer"
+            className="flex items-center justify-center p-2 rounded-lg text-stone-400 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
             aria-label="Menüyü kapat"
           >
-            <X size={20} />
+            <X size={22} />
           </button>
         </div>
 
-        <div className="flex-1 overflow-y-auto py-6 space-y-6">
+        <div className="flex-1 overflow-y-auto py-6 space-y-6 overscroll-contain">
           {/* 1. ÜRÜN KATEGORİLERİ */}
           <div>
             <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-[#c5a880] mb-3">
@@ -129,55 +147,55 @@ export function MobileMenu({
           {/* 2. KURUMSAL BİLGİLER & HİZMETLER */}
           <div className="border-t border-[#1e2735] pt-6">
             <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-[#c5a880] mb-3">
-              Kurumsal Bilgiler
+              Kurumsal & Bilgi
             </p>
             <div className="space-y-2">
               <Link
                 href="/hakkimizda"
                 onClick={onClose}
-                className="flex items-center gap-2.5 py-2 text-xs font-medium text-stone-300 hover:text-white"
+                className="flex items-center gap-2.5 py-2 text-xs font-medium text-stone-300 hover:text-white transition-colors"
               >
                 <Box size={15} className="text-[#c5a880]" /> Hakkımızda & Kurumsal
               </Link>
               <Link
                 href="/hikayemiz"
                 onClick={onClose}
-                className="flex items-center gap-2.5 py-2 text-xs font-medium text-stone-300 hover:text-white"
+                className="flex items-center gap-2.5 py-2 text-xs font-medium text-stone-300 hover:text-white transition-colors"
               >
                 <Box size={15} className="text-[#c5a880]" /> Hikayemiz & Koku Felsefesi
               </Link>
               <Link
                 href="/hakkimizda#laboratuvar"
                 onClick={onClose}
-                className="flex items-center gap-2.5 py-2 text-xs font-medium text-stone-300 hover:text-white"
+                className="flex items-center gap-2.5 py-2 text-xs font-medium text-stone-300 hover:text-white transition-colors"
               >
                 <Box size={15} className="text-[#c5a880]" /> Laboratuvar & Üretim
               </Link>
               <Link
                 href="/iletisim"
                 onClick={onClose}
-                className="flex items-center gap-2.5 py-2 text-xs font-medium text-stone-300 hover:text-white"
+                className="flex items-center gap-2.5 py-2 text-xs font-medium text-stone-300 hover:text-white transition-colors"
               >
                 <HelpCircle size={15} className="text-[#c5a880]" /> Butik Showroom & Fabrika
               </Link>
               <Link
                 href="/iletisim#iletisim-formu"
                 onClick={onClose}
-                className="flex items-center gap-2.5 py-2 text-xs font-medium text-stone-300 hover:text-white"
+                className="flex items-center gap-2.5 py-2 text-xs font-medium text-stone-300 hover:text-white transition-colors"
               >
                 <HelpCircle size={15} className="text-[#c5a880]" /> İletişim & Danışma
               </Link>
               <Link
                 href="/siparis-takip"
                 onClick={onClose}
-                className="flex items-center gap-2.5 py-2 text-xs font-medium text-stone-300 hover:text-white"
+                className="flex items-center gap-2.5 py-2 text-xs font-medium text-stone-300 hover:text-white transition-colors"
               >
                 <Package size={15} className="text-[#c5a880]" /> Sipariş & Kargo Takip
               </Link>
               <Link
                 href="/hesabim"
                 onClick={onClose}
-                className="flex items-center gap-2.5 py-2 text-xs font-medium text-stone-300 hover:text-white"
+                className="flex items-center gap-2.5 py-2 text-xs font-medium text-stone-300 hover:text-white transition-colors"
               >
                 <User size={15} className="text-[#c5a880]" /> Müşteri Hesabı
               </Link>
@@ -185,7 +203,7 @@ export function MobileMenu({
           </div>
         </div>
 
-        <div className="border-t border-[#1e2735] pt-4 text-[11px] text-stone-500 font-mono">
+        <div className="border-t border-[#1e2735] pt-4 text-[11px] text-stone-500 font-mono shrink-0">
           <p>© 2026 Dr. Mars Kozmetik A.Ş.</p>
         </div>
       </nav>
