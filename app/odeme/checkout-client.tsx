@@ -40,6 +40,21 @@ export function CheckoutClient({ paymentSettings }: { paymentSettings?: any }) {
     acceptTerms: true,
   });
 
+  // Billing address state
+  const [sameAsShipping, setSameAsShipping] = useState(true);
+  const [billingType, setBillingType] = useState<"individual" | "corporate">("individual");
+  const [billingData, setBillingData] = useState({
+    recipientName: "",
+    companyName: "",
+    taxOffice: "",
+    taxNumber: "",
+    idNumber: "",
+    city: "İstanbul",
+    district: "Şişli",
+    addressLine: "",
+    postalCode: "34365",
+  });
+
   // Credit Card form state
   const [cardData, setCardData] = useState({
     cardHolder: "",
@@ -129,6 +144,32 @@ export function CheckoutClient({ paymentSettings }: { paymentSettings?: any }) {
           cvv: cardData.cvv,
         } : undefined,
         items: items.map((i) => ({ variantId: i.variantId, quantity: i.quantity })),
+        billingAddress: sameAsShipping
+          ? {
+              type: "individual",
+              recipientName: `${formData.firstName} ${formData.lastName}`.trim(),
+              city: formData.city,
+              district: formData.district,
+              addressLine: formData.addressLine,
+              postalCode: formData.postalCode,
+              phone: formData.phone,
+            }
+          : {
+              type: billingType,
+              recipientName:
+                billingType === "individual"
+                  ? billingData.recipientName || `${formData.firstName} ${formData.lastName}`.trim()
+                  : billingData.companyName,
+              companyName: billingType === "corporate" ? billingData.companyName : undefined,
+              taxOffice: billingType === "corporate" ? billingData.taxOffice : undefined,
+              taxNumber: billingType === "corporate" ? billingData.taxNumber : undefined,
+              idNumber: billingType === "individual" ? billingData.idNumber : undefined,
+              city: billingData.city,
+              district: billingData.district,
+              addressLine: billingData.addressLine,
+              postalCode: billingData.postalCode,
+              phone: formData.phone,
+            },
       });
 
       if (!res.success || !res.orderNumber) {
@@ -294,6 +335,160 @@ export function CheckoutClient({ paymentSettings }: { paymentSettings?: any }) {
                   className="w-full rounded-lg border border-stone-300 p-3 text-base sm:text-sm outline-none focus:border-stone-900"
                 />
               </div>
+            </div>
+
+            {/* Fatura Adresi Tercihi */}
+            <div className="mt-6 pt-6 border-t border-stone-200">
+              <label className="flex items-center gap-3 cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={sameAsShipping}
+                  onChange={(e) => setSameAsShipping(e.target.checked)}
+                  className="h-4 w-4 rounded border-stone-300 text-stone-900 focus:ring-stone-900 accent-stone-900 cursor-pointer"
+                />
+                <span className="text-sm font-semibold text-stone-800">
+                  Fatura adresim teslimat adresim ile aynı
+                </span>
+              </label>
+
+              {!sameAsShipping && (
+                <div className="mt-4 p-5 rounded-xl border border-stone-200 bg-stone-50 space-y-4">
+                  <div className="flex gap-4 border-b border-stone-200 pb-3">
+                    <label className="flex items-center gap-2 cursor-pointer text-xs font-bold text-stone-800">
+                      <input
+                        type="radio"
+                        name="billingType"
+                        value="individual"
+                        checked={billingType === "individual"}
+                        onChange={() => setBillingType("individual")}
+                        className="accent-stone-900"
+                      />
+                      Bireysel Fatura
+                    </label>
+                    <label className="flex items-center gap-2 cursor-pointer text-xs font-bold text-stone-800">
+                      <input
+                        type="radio"
+                        name="billingType"
+                        value="corporate"
+                        checked={billingType === "corporate"}
+                        onChange={() => setBillingType("corporate")}
+                        className="accent-stone-900"
+                      />
+                      Kurumsal Fatura (Şirket)
+                    </label>
+                  </div>
+
+                  {billingType === "individual" ? (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-xs font-bold text-stone-700 mb-1">Fatura Ad-Soyad *</label>
+                        <input
+                          type="text"
+                          required={!sameAsShipping}
+                          value={billingData.recipientName}
+                          onChange={(e) => setBillingData({ ...billingData, recipientName: e.target.value })}
+                          placeholder={`${formData.firstName} ${formData.lastName}`.trim() || "Ahmet Yılmaz"}
+                          className="w-full rounded-lg border border-stone-300 p-2.5 text-sm outline-none focus:border-stone-900 bg-white"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-bold text-stone-700 mb-1">T.C. Kimlik No (Opsiyonel)</label>
+                        <input
+                          type="text"
+                          maxLength={11}
+                          value={billingData.idNumber}
+                          onChange={(e) => setBillingData({ ...billingData, idNumber: e.target.value })}
+                          placeholder="11 haneli TCKN"
+                          className="w-full rounded-lg border border-stone-300 p-2.5 text-sm outline-none focus:border-stone-900 bg-white"
+                        />
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div className="sm:col-span-2">
+                        <label className="block text-xs font-bold text-stone-700 mb-1">Şirket / Firma Tam Unvanı *</label>
+                        <input
+                          type="text"
+                          required={!sameAsShipping}
+                          value={billingData.companyName}
+                          onChange={(e) => setBillingData({ ...billingData, companyName: e.target.value })}
+                          placeholder="Örn: ABC Kozmetik Tic. Ltd. Şti."
+                          className="w-full rounded-lg border border-stone-300 p-2.5 text-sm outline-none focus:border-stone-900 bg-white"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-bold text-stone-700 mb-1">Vergi Dairesi *</label>
+                        <input
+                          type="text"
+                          required={!sameAsShipping}
+                          value={billingData.taxOffice}
+                          onChange={(e) => setBillingData({ ...billingData, taxOffice: e.target.value })}
+                          placeholder="Örn: Kadıköy V.D."
+                          className="w-full rounded-lg border border-stone-300 p-2.5 text-sm outline-none focus:border-stone-900 bg-white"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-bold text-stone-700 mb-1">Vergi Numarası (VKN) *</label>
+                        <input
+                          type="text"
+                          maxLength={10}
+                          required={!sameAsShipping}
+                          value={billingData.taxNumber}
+                          onChange={(e) => setBillingData({ ...billingData, taxNumber: e.target.value })}
+                          placeholder="10 haneli Vergi No"
+                          className="w-full rounded-lg border border-stone-300 p-2.5 text-sm outline-none focus:border-stone-900 bg-white"
+                        />
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs font-bold text-stone-700 mb-1">Fatura İli *</label>
+                      <input
+                        type="text"
+                        required={!sameAsShipping}
+                        value={billingData.city}
+                        onChange={(e) => setBillingData({ ...billingData, city: e.target.value })}
+                        placeholder="İstanbul"
+                        className="w-full rounded-lg border border-stone-300 p-2.5 text-sm outline-none focus:border-stone-900 bg-white"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold text-stone-700 mb-1">Fatura İlçesi *</label>
+                      <input
+                        type="text"
+                        required={!sameAsShipping}
+                        value={billingData.district}
+                        onChange={(e) => setBillingData({ ...billingData, district: e.target.value })}
+                        placeholder="Şişli"
+                        className="w-full rounded-lg border border-stone-300 p-2.5 text-sm outline-none focus:border-stone-900 bg-white"
+                      />
+                    </div>
+                    <div className="sm:col-span-2">
+                      <label className="block text-xs font-bold text-stone-700 mb-1">Fatura Açık Adresi *</label>
+                      <textarea
+                        rows={2}
+                        required={!sameAsShipping}
+                        value={billingData.addressLine}
+                        onChange={(e) => setBillingData({ ...billingData, addressLine: e.target.value })}
+                        placeholder="Faturada yer alacak açık adres"
+                        className="w-full rounded-lg border border-stone-300 p-2.5 text-sm outline-none focus:border-stone-900 bg-white"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold text-stone-700 mb-1">Posta Kodu</label>
+                      <input
+                        type="text"
+                        value={billingData.postalCode}
+                        onChange={(e) => setBillingData({ ...billingData, postalCode: e.target.value })}
+                        placeholder="34365"
+                        className="w-full rounded-lg border border-stone-300 p-2.5 text-sm outline-none focus:border-stone-900 bg-white"
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 

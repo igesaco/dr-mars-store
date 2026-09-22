@@ -38,6 +38,19 @@ type CheckoutFormData = {
     expiry: string;
     cvv: string;
   };
+  billingAddress?: {
+    type?: "individual" | "corporate";
+    recipientName?: string;
+    companyName?: string;
+    taxOffice?: string;
+    taxNumber?: string;
+    idNumber?: string;
+    city?: string;
+    district?: string;
+    addressLine?: string;
+    postalCode?: string;
+    phone?: string;
+  };
   items: CheckoutItem[];
 };
 
@@ -226,7 +239,10 @@ export async function createOrderAction(data: CheckoutFormData) {
           totalAmount: totalAmount.toFixed(2),
           couponCode: verifiedCoupon ? verifiedCoupon.code : null,
           shippingAddress,
-          billingAddress: shippingAddress,
+          billingAddress:
+            data.billingAddress && Object.keys(data.billingAddress).length > 0
+              ? data.billingAddress
+              : shippingAddress,
           cargoCompany: "Yurtiçi Kargo",
           customerNote: customerNote
             ? `${customerNote.slice(0, 450)} ${paymentNote ? `(${paymentNote})` : ""}`.trim()

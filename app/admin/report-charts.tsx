@@ -14,7 +14,7 @@ export function ReportCharts({ data }: { data: DayPoint[] }) {
   return <div className="report-charts">
     <section className="report-card report-chart">
       <div className="report-card-heading"><div><span>SATIŞ PERFORMANSI</span><h2>Günlük tahsil edilen ciro</h2></div><strong>₺</strong></div>
-      {hasSales ? <div className="report-chart-canvas"><ResponsiveContainer width="100%" height="100%">
+      {hasSales ? <div className="report-chart-canvas" style={{ minWidth: 0, minHeight: 260, height: 260 }}><ResponsiveContainer width="100%" height={260} minWidth={0} minHeight={260}>
         <AreaChart data={data} margin={{ top: 16, right: 16, left: 0, bottom: 0 }}>
           <defs><linearGradient id="revenueGradient" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#accb5e" stopOpacity={0.42} /><stop offset="100%" stopColor="#accb5e" stopOpacity={0} /></linearGradient></defs>
           <CartesianGrid vertical={false} stroke="#e9eef2" />
@@ -27,7 +27,7 @@ export function ReportCharts({ data }: { data: DayPoint[] }) {
     </section>
     <section className="report-card report-chart">
       <div className="report-card-heading"><div><span>SİPARİŞ AKIŞI</span><h2>Günlük sipariş sayısı</h2></div><strong>#</strong></div>
-      {hasOrders ? <div className="report-chart-canvas"><ResponsiveContainer width="100%" height="100%">
+      {hasOrders ? <div className="report-chart-canvas" style={{ minWidth: 0, minHeight: 260, height: 260 }}><ResponsiveContainer width="100%" height={260} minWidth={0} minHeight={260}>
         <BarChart data={data} margin={{ top: 16, right: 16, left: 0, bottom: 0 }}>
           <CartesianGrid vertical={false} stroke="#e9eef2" />
           <XAxis dataKey="label" tickLine={false} axisLine={false} minTickGap={28} tick={{ fill: "#8291a0", fontSize: 11 }} />

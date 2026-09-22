@@ -38,6 +38,7 @@ export default async function InvoicePage({ params }: Props) {
     .where(eq(orderItems.orderId, order.id));
 
   const address = order.shippingAddress as Record<string, string>;
+  const billing = (order.billingAddress as Record<string, string>) || address;
 
   // KDV hesaplamaları (Türkiye %20 KDV dahil standart)
   const totalAmount = Number(order.totalAmount);
@@ -121,19 +122,35 @@ export default async function InvoicePage({ params }: Props) {
         <div className="grid sm:grid-cols-2 gap-8 py-8 border-b border-stone-200 text-xs">
           <div>
             <h3 className="font-extrabold uppercase tracking-wider text-stone-400 mb-2">
-              Sayın (Alıcı Bilgileri)
+              Sayın (Fatura / Alıcı Bilgileri)
             </h3>
-            <p className="text-base font-black text-stone-900">{address.recipientName}</p>
-            <p className="text-stone-600 mt-1">{address.phone}</p>
-            {address.email && <p className="text-stone-600">{address.email}</p>}
-            <p className="text-stone-500 mt-1">T.C. / VKN: 11111111111 (Nihai Tüketici)</p>
+            <p className="text-base font-black text-stone-900">
+              {billing.companyName || billing.recipientName || address.recipientName}
+            </p>
+            <p className="text-stone-800 leading-relaxed font-medium mt-1">
+              {billing.addressLine || address.addressLine}
+            </p>
+            <p className="text-stone-800 font-bold">
+              {billing.district || address.district} / {billing.city || address.city} {billing.postalCode || address.postalCode}
+            </p>
+            <p className="text-stone-600 mt-2">
+              <strong>İletişim:</strong> {billing.phone || address.phone} {address.email ? `• ${address.email}` : ""}
+            </p>
+            <p className="text-stone-700 mt-1 font-mono font-medium">
+              {billing.taxNumber
+                ? `VKN: ${billing.taxNumber} (${billing.taxOffice || "Vergi Dairesi"})`
+                : billing.idNumber
+                ? `T.C. Kimlik No: ${billing.idNumber}`
+                : "T.C. / VKN: 11111111111 (Nihai Tüketici)"}
+            </p>
           </div>
 
           <div>
             <h3 className="font-extrabold uppercase tracking-wider text-stone-400 mb-2">
               Teslimat & Sevk Adresi
             </h3>
-            <p className="text-stone-800 leading-relaxed font-medium">
+            <p className="text-sm font-bold text-stone-900">{address.recipientName}</p>
+            <p className="text-stone-800 leading-relaxed font-medium mt-1">
               {address.addressLine}
             </p>
             <p className="text-stone-800 font-bold mt-1">

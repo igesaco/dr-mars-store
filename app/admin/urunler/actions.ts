@@ -30,9 +30,17 @@ const categoryId = (form: FormData) => {
 const imageUrl = (form: FormData) => {
   const value = read(form, "imageUrl");
   if (!value) return null;
-  const parsed = new URL(value);
-  if (!["http:", "https:"].includes(parsed.protocol)) throw new Error("Görsel bağlantısı geçersiz.");
-  return parsed.toString();
+  if (value.startsWith("/") || value.startsWith("data:")) {
+    return value;
+  }
+  try {
+    const parsed = new URL(value);
+    if (!["http:", "https:"].includes(parsed.protocol)) throw new Error("Görsel bağlantısı geçersiz.");
+    return parsed.toString();
+  } catch {
+    if (value.startsWith("/")) return value;
+    throw new Error("Görsel bağlantısı geçersiz.");
+  }
 };
 const refreshCatalog = () => {
   revalidatePath("/admin");

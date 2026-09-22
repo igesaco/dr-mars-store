@@ -15,6 +15,10 @@ import {
   Sparkles,
   AlertTriangle,
   CheckCircle2,
+  UploadCloud,
+  Image as ImageIcon,
+  X,
+  Loader2,
 } from "lucide-react";
 
 export type ProductFormData = {
@@ -69,6 +73,34 @@ export default function ProductForm({
   const [desi, setDesi] = useState<string>(String(data.desi ?? "1"));
   const [weightGrams, setWeightGrams] = useState<string>(String(data.weightGrams ?? "450"));
   const [deliveryTime, setDeliveryTime] = useState<string>(data.deliveryTime ?? "same-day");
+  const [currentImageUrl, setCurrentImageUrl] = useState<string>(data.imageUrl ?? "");
+  const [uploading, setUploading] = useState<boolean>(false);
+  const [uploadError, setUploadError] = useState<string>("");
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploading(true);
+    setUploadError("");
+    try {
+      const fd = new FormData();
+      fd.append("file", file);
+      const res = await fetch("/api/admin/upload", {
+        method: "POST",
+        body: fd,
+      });
+      const result = (await res.json()) as { url?: string; error?: string };
+      if (!res.ok || !result.url) {
+        throw new Error(result.error || "Görsel yüklenemedi.");
+      }
+      setCurrentImageUrl(result.url);
+    } catch (err: any) {
+      setUploadError(err?.message || "Görsel yüklenirken bir hata oluştu.");
+    } finally {
+      setUploading(false);
+      e.target.value = "";
+    }
+  };
 
   // Calculations
   const priceNum = parseFloat(price) || 0;
@@ -253,23 +285,223 @@ export default function ProductForm({
             <span>02</span>
             <div>
               <h2>Ürün Görseli</h2>
-              <p>Mağazada ve ürün detayında sergilenecek yüksek çözünürlüklü görsel bağlantısı.</p>
+              <p>Fotoğrafı doğrudan bilgisayarınızdan sisteme yükleyin veya hazır görsellerden seçin.</p>
             </div>
           </div>
-          <div className="editor-fields">
-            <label className="editor-wide">
-              Ana görsel URL
-              <input
-                name="imageUrl"
-                type="url"
-                defaultValue={data.imageUrl ?? ""}
-                placeholder="https://.../dr-mars-citrus.jpg"
-              />
-            </label>
-          </div>
-          {data.imageUrl && (
-            <div className="editor-image-preview">
-              <img src={data.imageUrl} alt={data.name ?? "Ürün görseli"} />
+
+          {/* Gizli form alanı - veritabanına aktarılır */}
+          <input type="hidden" name="imageUrl" value={currentImageUrl} />
+
+          {uploadError && (
+            <div
+              style={{
+                padding: "10px 14px",
+                marginBottom: "16px",
+                borderRadius: "8px",
+                backgroundColor: "#fef2f2",
+                border: "1px solid #fecaca",
+                color: "#b91c1c",
+                fontSize: "0.82rem",
+                fontWeight: 600,
+              }}
+            >
+              {uploadError}
+            </div>
+          )}
+
+          {currentImageUrl ? (
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                gap: "14px",
+                padding: "16px",
+                backgroundColor: "#f8fafc",
+                borderRadius: "12px",
+                border: "1px solid #e2e8f0",
+              }}
+            >
+              <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+                <div
+                  style={{
+                    width: "100px",
+                    height: "100px",
+                    borderRadius: "10px",
+                    overflow: "hidden",
+                    border: "1px solid #cbd5e1",
+                    backgroundColor: "#fff",
+                    flexShrink: 0,
+                  }}
+                >
+                  <img
+                    src={currentImageUrl}
+                    alt={data.name ?? "Ürün görseli"}
+                    style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                  />
+                </div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div
+                    style={{
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: "6px",
+                      padding: "3px 8px",
+                      borderRadius: "6px",
+                      backgroundColor: "#dcfce7",
+                      color: "#15803d",
+                      fontSize: "0.75rem",
+                      fontWeight: 700,
+                      marginBottom: "6px",
+                    }}
+                  >
+                    <CheckCircle2 size={13} /> Sistemde Yüklü
+                  </div>
+                  <p
+                    style={{
+                      fontSize: "0.82rem",
+                      color: "#475569",
+                      wordBreak: "break-all",
+                      margin: 0,
+                      fontFamily: "monospace",
+                    }}
+                  >
+                    {currentImageUrl}
+                  </p>
+                </div>
+              </div>
+
+              <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+                <label
+                  style={{
+                    cursor: uploading ? "not-allowed" : "pointer",
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: "6px",
+                    padding: "7px 14px",
+                    borderRadius: "8px",
+                    backgroundColor: "#1e293b",
+                    color: "#fff",
+                    fontSize: "0.8rem",
+                    fontWeight: 600,
+                  }}
+                >
+                  {uploading ? <Loader2 size={14} className="animate-spin" /> : <UploadCloud size={14} />}
+                  <span>{uploading ? "Yükleniyor..." : "Farklı Görsel Yükle"}</span>
+                  <input
+                    type="file"
+                    accept="image/png,image/jpeg,image/webp,image/gif"
+                    onChange={handleFileUpload}
+                    disabled={uploading}
+                    style={{ display: "none" }}
+                  />
+                </label>
+
+                <button
+                  type="button"
+                  onClick={() => setCurrentImageUrl("")}
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: "5px",
+                    padding: "7px 14px",
+                    borderRadius: "8px",
+                    backgroundColor: "#fff",
+                    border: "1px solid #cbd5e1",
+                    color: "#dc2626",
+                    fontSize: "0.8rem",
+                    fontWeight: 600,
+                    cursor: "pointer",
+                  }}
+                >
+                  <X size={14} /> Görseli Kaldır
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
+              <label
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  padding: "36px 20px",
+                  borderRadius: "12px",
+                  border: "2px dashed #cbd5e1",
+                  backgroundColor: "#f8fafc",
+                  cursor: uploading ? "not-allowed" : "pointer",
+                  textAlign: "center",
+                  transition: "border-color 0.2s, background-color 0.2s",
+                }}
+              >
+                {uploading ? (
+                  <>
+                    <Loader2 size={36} color="#0284c7" className="animate-spin" style={{ marginBottom: "10px" }} />
+                    <strong style={{ fontSize: "0.92rem", color: "#0f172a" }}>Görsel Yükleniyor...</strong>
+                    <span style={{ fontSize: "0.78rem", color: "#64748b", marginTop: "4px" }}>
+                      Lütfen dosya kaydedilene kadar bekleyin
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    <UploadCloud size={40} color="#64748b" style={{ marginBottom: "10px" }} />
+                    <strong style={{ fontSize: "0.92rem", color: "#0f172a" }}>
+                      Bilgisayarınızdan Görsel Seçin veya Buraya Bırakın
+                    </strong>
+                    <span style={{ fontSize: "0.78rem", color: "#64748b", marginTop: "4px" }}>
+                      PNG, JPG, WEBP, GIF (Maks. 10MB) • Ayrı bir linke gerek yok
+                    </span>
+                  </>
+                )}
+                <input
+                  type="file"
+                  accept="image/png,image/jpeg,image/webp,image/gif"
+                  onChange={handleFileUpload}
+                  disabled={uploading}
+                  style={{ display: "none" }}
+                />
+              </label>
+
+              {/* Hızlı Seçim: Hazır Galeri Görselleri */}
+              <div style={{ marginTop: "4px" }}>
+                <span style={{ fontSize: "0.76rem", fontWeight: 700, color: "#64748b", display: "block", marginBottom: "8px" }}>
+                  VEYA SİSTEMDEKİ HAZIR ÜRÜN GÖRSELLERİNDEN BİRİNİ SEÇİN:
+                </span>
+                <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
+                  {[
+                    { label: "Citrus No.1", url: "/images/citrus-no-01.jpg" },
+                    { label: "Mineral No.2", url: "/images/mineral-no-02.jpg" },
+                    { label: "Night No.3", url: "/images/night-no-03.jpg" },
+                    { label: "Amber No.4", url: "/images/amber-no-04.jpg" },
+                  ].map((preset) => (
+                    <button
+                      key={preset.url}
+                      type="button"
+                      onClick={() => setCurrentImageUrl(preset.url)}
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "8px",
+                        padding: "6px 10px",
+                        borderRadius: "8px",
+                        border: "1px solid #e2e8f0",
+                        backgroundColor: "#fff",
+                        fontSize: "0.78rem",
+                        fontWeight: 600,
+                        color: "#334155",
+                        cursor: "pointer",
+                      }}
+                    >
+                      <img
+                        src={preset.url}
+                        alt={preset.label}
+                        style={{ width: "24px", height: "24px", borderRadius: "4px", objectFit: "cover" }}
+                      />
+                      {preset.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
             </div>
           )}
         </section>
@@ -630,7 +862,7 @@ export default function ProductForm({
               <input
                 name="sku"
                 required
-                pattern="[A-Za-z0-9-]{3,100}"
+                pattern="[A-Za-z0-9\-]{3,100}"
                 defaultValue={data.sku ?? ""}
                 placeholder="DRM-CT-100"
               />

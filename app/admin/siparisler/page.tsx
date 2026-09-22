@@ -1,20 +1,11 @@
 import Link from "next/link";
-import { and, desc, eq, ilike, or } from "drizzle-orm";
+import { and, desc, eq, ilike, inArray, or } from "drizzle-orm";
 import { getDb } from "@/db";
-import { orders } from "@/db/schema";
+import { orderItems, orders } from "@/db/schema";
 import { requireAdmin } from "@/lib/admin-auth";
+import { OrdersListTable, OrderListItem } from "@/components/admin/orders-list-table";
 
 export const dynamic = "force-dynamic";
-
-const statuses: Record<string, { label: string; badgeClass: string }> = {
-  pending: { label: "Bekliyor", badgeClass: "bg-amber-100 text-amber-800" },
-  paid: { label: "Ödendi", badgeClass: "bg-blue-100 text-blue-800" },
-  preparing: { label: "Hazırlanıyor", badgeClass: "bg-indigo-100 text-indigo-800" },
-  shipped: { label: "Kargoda", badgeClass: "bg-purple-100 text-purple-800" },
-  delivered: { label: "Teslim Edildi", badgeClass: "bg-emerald-100 text-emerald-800" },
-  cancelled: { label: "İptal Edildi", badgeClass: "bg-red-100 text-red-800" },
-  refunded: { label: "İade", badgeClass: "bg-stone-200 text-stone-700" },
-};
 
 export default async function AdminOrdersPage({
   searchParams,
@@ -42,39 +33,102 @@ export default async function AdminOrdersPage({
     .orderBy(desc(orders.createdAt))
     .limit(100);
 
-  const totalRevenue = orderRows
-    .filter((o) => o.paymentStatus === "paid" && o.status !== "cancelled" && o.status !== "refunded")
-    .reduce((sum, o) => sum + Number(o.totalAmount), 0);
+  // Siparişlerin ürün maliyetlerini çek
+  const orderIds = orderRows.map((o) => o.id);
+  const allItems =
+    orderIds.length > 0
+      ? await db
+          .select({
+            orderId: orderItems.orderId,
+            unitCost: orderItems.unitCost,
+            quantity: orderItems.quantity,
+          })
+          .from(orderItems)
+          .where(inArray(orderItems.orderId, orderIds))
+      : [];
+
+  const costByOrder = new Map<string, number>();
+  for (const item of allItems) {
+    const cost = Number(item.unitCost) || 0;
+    const current = costByOrder.get(item.orderId) || 0;
+    costByOrder.set(item.orderId, current + cost * item.quantity);
+  }
+
+  // Genel Kâr ve Maliyet Raporu İstatistikleri
+  const validOrders = orderRows.filter(
+    (o) => o.paymentStatus === "paid" && o.status !== "cancelled" && o.status !== "refunded"
+  );
+  const totalRevenue = validOrders.reduce((sum, o) => sum + Number(o.totalAmount), 0);
+  const totalCOGS = validOrders.reduce((sum, o) => sum + (costByOrder.get(o.id) || 0), 0);
+  const totalNetProfit = totalRevenue - totalCOGS;
+  const overallMargin = totalRevenue > 0 ? (totalNetProfit / totalRevenue) * 100 : 0;
+
+  // Format orders for table client
+  const enrichedOrders: OrderListItem[] = orderRows.map((o) => {
+    const addr = o.shippingAddress as Record<string, string>;
+    const orderCost = costByOrder.get(o.id) || 0;
+    const rev = Number(o.totalAmount);
+    const profit = rev - orderCost;
+    const margin = rev > 0 ? (profit / rev) * 100 : 0;
+
+    return {
+      id: o.id,
+      orderNumber: o.orderNumber,
+      status: o.status,
+      paymentStatus: o.paymentStatus,
+      totalAmount: o.totalAmount,
+      subtotal: o.subtotal,
+      shippingAmount: o.shippingAmount,
+      createdAt: o.createdAt.toISOString(),
+      updatedAt: o.updatedAt.toISOString(),
+      cargoCompany: o.cargoCompany,
+      cargoTrackingNumber: o.cargoTrackingNumber,
+      recipientName: addr?.recipientName ?? "Misafir Müşteri",
+      phone: addr?.phone ?? "",
+      email: addr?.email ?? "",
+      cost: orderCost,
+      netProfit: profit,
+      profitMargin: margin,
+    };
+  });
 
   return (
     <main className="admin-main catalog-main">
       <header className="catalog-top">
         <div>
           <p className="admin-kicker">E-TİCARET / OPERASYON</p>
-          <h1>Siparişler</h1>
-          <p className="admin-lead">Gelen siparişleri görüntüle, kargo bilgilerini gir ve durumları güncelle.</p>
+          <h1>Siparişler & Kâr Raporu</h1>
+          <p className="admin-lead">
+            Gelen siparişleri görüntüle, 4 aşamalı durum çizelgesini takip et ve sipariş bazlı kâr-maliyet analizlerini incele.
+          </p>
         </div>
       </header>
 
-      {/* Metrics */}
-      <section className="catalog-metrics">
+      {/* Kâr ve Maliyet Raporu - Genel Metrik Kartları */}
+      <section className="catalog-metrics grid grid-cols-2 sm:grid-cols-5 gap-4">
         <article>
           <span>Toplam Sipariş</span>
           <strong>{orderRows.length}</strong>
         </article>
         <article>
-          <span>Bekleyen / Hazırlanan</span>
-          <strong>
-            {orderRows.filter((o) => o.status === "pending" || o.status === "paid" || o.status === "preparing").length}
+          <span>Toplam Ciro</span>
+          <strong>₺{totalRevenue.toLocaleString("tr-TR", { maximumFractionDigits: 0 })}</strong>
+        </article>
+        <article>
+          <span>Toplam Ürün Maliyeti</span>
+          <strong style={{ color: "#a83b24" }}>-₺{totalCOGS.toLocaleString("tr-TR", { maximumFractionDigits: 0 })}</strong>
+        </article>
+        <article>
+          <span>Net Tahmini Kâr</span>
+          <strong style={{ color: totalNetProfit >= 0 ? "#2e7d32" : "#c62828" }}>
+            ₺{totalNetProfit.toLocaleString("tr-TR", { maximumFractionDigits: 0 })}
           </strong>
         </article>
         <article>
-          <span>Kargodakiler</span>
-          <strong>{orderRows.filter((o) => o.status === "shipped").length}</strong>
-        </article>
-        <article>
-          <span>Seçili Tutar</span>
-          <strong>₺{totalRevenue.toLocaleString("tr-TR", { maximumFractionDigits: 0 })}</strong>
+          <span>Ortalama Kâr Marjı</span>
+          <strong style={{ color: overallMargin >= 30 ? "#2e7d32" : "#f57c00" }}>
+            %{overallMargin.toFixed(1)}
+          </strong>
         </article>
       </section>
 
@@ -95,85 +149,15 @@ export default async function AdminOrdersPage({
               <option value="shipped">Kargoda</option>
               <option value="delivered">Teslim Edildi</option>
               <option value="cancelled">İptal</option>
+              <option value="refunded">İade</option>
             </select>
           </label>
           <button type="submit">Filtrele</button>
           {(cleanQ || status !== "all") && <Link href="/admin/siparisler">Temizle</Link>}
         </form>
 
-        {/* Orders Table */}
-        {orderRows.length === 0 ? (
-          <p className="catalog-empty">Kayıtlı sipariş bulunamadı.</p>
-        ) : (
-          <div className="report-table">
-            <div className="report-table-head grid grid-cols-[1.5fr_1.5fr_1fr_1fr_1fr_auto] gap-4">
-              <span>Sipariş No / Tarih</span>
-              <span>Alıcı & İletişim</span>
-              <span>Durum</span>
-              <span>Ödeme</span>
-              <span>Tutar</span>
-              <span>İşlem</span>
-            </div>
-            {orderRows.map((o) => {
-              const addr = o.shippingAddress as Record<string, string>;
-              const st = statuses[o.status] ?? { label: o.status, badgeClass: "bg-stone-100" };
-              return (
-                <div
-                  key={o.id}
-                  className="report-table-row grid grid-cols-[1.5fr_1.5fr_1fr_1fr_1fr_auto] gap-4 items-center"
-                >
-                  <div>
-                    <strong className="block font-mono text-sm text-stone-900">
-                      {o.orderNumber}
-                    </strong>
-                    <small className="text-stone-400">
-                      {new Date(o.createdAt).toLocaleString("tr-TR", {
-                        dateStyle: "medium",
-                        timeStyle: "short",
-                      })}
-                    </small>
-                  </div>
-
-                  <div>
-                    <span className="font-bold block text-stone-800">{addr?.recipientName ?? "Misafir"}</span>
-                    <small className="text-stone-500">{addr?.phone ?? addr?.email}</small>
-                  </div>
-
-                  <div>
-                    <span className={`inline-block rounded-full px-2.5 py-0.5 text-xs font-bold ${st.badgeClass}`}>
-                      {st.label}
-                    </span>
-                  </div>
-
-                  <div>
-                    <span
-                      className={`inline-block text-xs font-bold ${
-                        o.paymentStatus === "paid" ? "text-emerald-700" : "text-amber-700"
-                      }`}
-                    >
-                      {o.paymentStatus === "paid" ? "Tahsil Edildi" : "Bekliyor"}
-                    </span>
-                  </div>
-
-                  <div>
-                    <strong className="text-sm font-black text-stone-900">
-                      ₺{Number(o.totalAmount).toLocaleString("tr-TR", { minimumFractionDigits: 2 })}
-                    </strong>
-                  </div>
-
-                  <div>
-                    <Link
-                      href={`/admin/siparisler/${o.id}`}
-                      className="rounded bg-stone-100 px-3 py-1 text-xs font-bold text-stone-800 hover:bg-[#101e2c] hover:text-white transition-colors"
-                    >
-                      İncele →
-                    </Link>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        )}
+        {/* Orders Table with Expandable 4-stage OrderTimeline and Profit Report */}
+        <OrdersListTable orders={enrichedOrders} />
       </section>
     </main>
   );
