@@ -428,12 +428,13 @@ export default function ProductForm({
                     style={{
                       fontSize: "0.82rem",
                       color: "#475569",
-                      wordBreak: "break-all",
                       margin: 0,
-                      fontFamily: "monospace",
+                      fontWeight: 500,
                     }}
                   >
-                    {currentImageUrl}
+                    {currentImageUrl.startsWith("data:")
+                      ? "Görsel başarıyla sisteme aktarıldı & optimize edildi."
+                      : currentImageUrl}
                   </p>
                 </div>
               </div>
