@@ -1,9 +1,9 @@
 import Link from "next/link";
 import { and, desc, eq, ilike, inArray, or } from "drizzle-orm";
 import { getDb } from "@/db";
-import { orderItems, orders } from "@/db/schema";
+import { orderItems, orders, productImages, productVariants } from "@/db/schema";
 import { requireAdmin } from "@/lib/admin-auth";
-import { OrdersListTable, OrderListItem } from "@/components/admin/orders-list-table";
+import { OrdersListTable, OrderListItem, OrderItemPreview } from "@/components/admin/orders-list-table";
 
 export const dynamic = "force-dynamic";
 
@@ -33,25 +33,48 @@ export default async function AdminOrdersPage({
     .orderBy(desc(orders.createdAt))
     .limit(100);
 
-  // Siparişlerin ürün maliyetlerini çek
+  // Siparişlerin kalemlerini, ürün görsellerini ve maliyetlerini çek
   const orderIds = orderRows.map((o) => o.id);
   const allItems =
     orderIds.length > 0
       ? await db
           .select({
             orderId: orderItems.orderId,
+            id: orderItems.id,
+            productName: orderItems.productName,
+            variantName: orderItems.variantName,
+            sku: orderItems.sku,
             unitCost: orderItems.unitCost,
             quantity: orderItems.quantity,
+            imageUrl: productImages.url,
           })
           .from(orderItems)
+          .leftJoin(productVariants, eq(orderItems.variantId, productVariants.id))
+          .leftJoin(
+            productImages,
+            and(eq(productVariants.productId, productImages.productId), eq(productImages.sortOrder, 0))
+          )
           .where(inArray(orderItems.orderId, orderIds))
       : [];
 
   const costByOrder = new Map<string, number>();
+  const itemsByOrder = new Map<string, OrderItemPreview[]>();
+
   for (const item of allItems) {
     const cost = Number(item.unitCost) || 0;
     const current = costByOrder.get(item.orderId) || 0;
     costByOrder.set(item.orderId, current + cost * item.quantity);
+
+    const list = itemsByOrder.get(item.orderId) || [];
+    list.push({
+      id: item.id,
+      productName: item.productName,
+      variantName: item.variantName,
+      sku: item.sku,
+      quantity: item.quantity,
+      imageUrl: item.imageUrl,
+    });
+    itemsByOrder.set(item.orderId, list);
   }
 
   // Genel Kâr ve Maliyet Raporu İstatistikleri
@@ -89,6 +112,7 @@ export default async function AdminOrdersPage({
       cost: orderCost,
       netProfit: profit,
       profitMargin: margin,
+      items: itemsByOrder.get(o.id) || [],
     };
   });
 
@@ -99,7 +123,7 @@ export default async function AdminOrdersPage({
           <p className="admin-kicker">E-TİCARET / OPERASYON</p>
           <h1>Siparişler & Kâr Raporu</h1>
           <p className="admin-lead">
-            Gelen siparişleri görüntüle, 4 aşamalı durum çizelgesini takip et ve sipariş bazlı kâr-maliyet analizlerini incele.
+            Gelen siparişleri görüntüle, sipariş kalemlerinin küçük fotoğraflarını ve durum çizelgesini incele.
           </p>
         </div>
       </header>
@@ -156,7 +180,7 @@ export default async function AdminOrdersPage({
           {(cleanQ || status !== "all") && <Link href="/admin/siparisler">Temizle</Link>}
         </form>
 
-        {/* Orders Table with Expandable 4-stage OrderTimeline and Profit Report */}
+        {/* Orders Table with Expandable 4-stage OrderTimeline and Product Thumbnails */}
         <OrdersListTable orders={enrichedOrders} />
       </section>
     </main>

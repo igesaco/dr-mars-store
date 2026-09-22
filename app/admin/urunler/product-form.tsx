@@ -77,25 +77,93 @@ export default function ProductForm({
   const [uploading, setUploading] = useState<boolean>(false);
   const [uploadError, setUploadError] = useState<string>("");
 
+  const compressImage = (file: File): Promise<{ blob: Blob; dataUrl: string }> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onerror = reject;
+      reader.onload = (e) => {
+        const img = new Image();
+        img.onerror = reject;
+        img.onload = () => {
+          let { width, height } = img;
+          const maxDim = 1200;
+          if (width > maxDim || height > maxDim) {
+            if (width > height) {
+              height = Math.round((height * maxDim) / width);
+              width = maxDim;
+            } else {
+              width = Math.round((width * maxDim) / height);
+              height = maxDim;
+            }
+          }
+
+          const canvas = document.createElement("canvas");
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext("2d");
+          if (!ctx) {
+            const rawUrl = e.target?.result as string;
+            resolve({ blob: file, dataUrl: rawUrl });
+            return;
+          }
+
+          ctx.fillStyle = "#ffffff";
+          ctx.fillRect(0, 0, width, height);
+          ctx.drawImage(img, 0, 0, width, height);
+
+          const dataUrl = canvas.toDataURL("image/jpeg", 0.85);
+          canvas.toBlob(
+            (b) => {
+              resolve({ blob: b || file, dataUrl });
+            },
+            "image/jpeg",
+            0.85
+          );
+        };
+        img.src = e.target?.result as string;
+      };
+      reader.readAsDataURL(file);
+    });
+  };
+
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
     setUploading(true);
     setUploadError("");
+
     try {
+      // 1. Tarayıcıda anında optimize et & sıkıştır (413 Request Entity Too Large önlemi)
+      const { blob, dataUrl } = await compressImage(file);
+
+      // Hemen önizlemeyi hazırla
+      setCurrentImageUrl(dataUrl);
+
+      // 2. Sunucuya da yüklemeyi dene
       const fd = new FormData();
-      fd.append("file", file);
+      fd.append("file", blob, file.name.replace(/\.[^/.]+$/, "") + ".jpg");
+
       const res = await fetch("/api/admin/upload", {
         method: "POST",
         body: fd,
       });
-      const result = (await res.json()) as { url?: string; error?: string };
-      if (!res.ok || !result.url) {
-        throw new Error(result.error || "Görsel yüklenemedi.");
+
+      if (res.ok) {
+        try {
+          const text = await res.text();
+          const result = JSON.parse(text) as { url?: string; error?: string };
+          if (result.url) {
+            setCurrentImageUrl(result.url);
+          }
+        } catch {
+          // JSON parse edilemediyse sıkıştırılmış dataUrl zaten devrededir
+        }
       }
-      setCurrentImageUrl(result.url);
+      // Eğer sunucu Vercel read-only sebebiyle hata verirse veya farklı yanıt dönerse,
+      // dataUrl veritabanına sorunsuz kaydedilir.
     } catch (err: any) {
-      setUploadError(err?.message || "Görsel yüklenirken bir hata oluştu.");
+      console.error("Görsel yükleme hatası:", err);
+      setUploadError(err?.message || "Görsel yüklenirken bir sorun oluştu.");
     } finally {
       setUploading(false);
       e.target.value = "";

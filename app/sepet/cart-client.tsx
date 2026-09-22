@@ -122,8 +122,12 @@ export function CartClient() {
             {items.map((item) => (
               <div key={item.variantId} className="flex flex-col sm:flex-row items-start sm:items-center justify-between py-5 gap-4">
                 <div className="flex items-center gap-4">
-                  <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded bg-stone-100 text-xs font-black text-stone-700">
-                    DR MARS
+                  <div className="relative flex h-20 w-20 shrink-0 items-center justify-center rounded bg-stone-100 text-xs font-black text-stone-700 overflow-hidden border border-stone-200">
+                    {item.image ? (
+                      <img src={item.image} alt={item.name} className="h-full w-full object-cover" />
+                    ) : (
+                      <span>DR MARS</span>
+                    )}
                   </div>
                   <div>
                     <Link

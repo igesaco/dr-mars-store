@@ -5,6 +5,15 @@ import Link from "next/link";
 import { ChevronDown, ChevronUp, Clock, TrendingUp, Package, ExternalLink } from "lucide-react";
 import { OrderTimeline } from "@/components/admin/order-timeline";
 
+export type OrderItemPreview = {
+  id: string;
+  productName: string;
+  variantName: string | null;
+  sku: string | null;
+  quantity: number;
+  imageUrl: string | null;
+};
+
 export type OrderListItem = {
   id: string;
   orderNumber: string;
@@ -23,6 +32,7 @@ export type OrderListItem = {
   cost: number;
   netProfit: number;
   profitMargin: number;
+  items?: OrderItemPreview[];
 };
 
 const statuses: Record<string, { label: string; badgeClass: string }> = {
@@ -130,9 +140,47 @@ export function OrdersListTable({ orders }: { orders: OrderListItem[] }) {
               </div>
             </div>
 
+            {/* Alt Kısım: Sipariş Edilen Ürünlerin Küçük Fotoğrafları (2. Fotoğraf Çözümü) */}
+            {o.items && o.items.length > 0 && (
+              <div className="px-6 py-2.5 bg-stone-50/60 flex items-center gap-2.5 border-t border-stone-100 flex-wrap">
+                <span className="text-[10px] font-extrabold text-stone-400 uppercase tracking-wider">
+                  Sipariş Kalemleri:
+                </span>
+                <div className="flex items-center gap-2 flex-wrap">
+                  {o.items.map((item) => (
+                    <div
+                      key={item.id}
+                      className="inline-flex items-center gap-2 rounded-lg border border-stone-200 bg-white p-1 pr-2.5 shadow-2xs hover:border-stone-400 transition-colors"
+                      title={`${item.productName} ${item.variantName ? `(${item.variantName})` : ""} - ${item.quantity} Adet`}
+                    >
+                      <div className="relative h-8 w-8 shrink-0 overflow-hidden rounded bg-stone-100 border border-stone-200 flex items-center justify-center">
+                        {item.imageUrl ? (
+                          <img
+                            src={item.imageUrl}
+                            alt={item.productName}
+                            className="h-full w-full object-cover"
+                          />
+                        ) : (
+                          <Package size={14} className="text-stone-400" />
+                        )}
+                      </div>
+                      <div className="flex items-baseline gap-1.5">
+                        <span className="text-xs font-bold text-stone-800 line-clamp-1 max-w-[170px]">
+                          {item.productName}
+                        </span>
+                        <span className="text-[10px] font-black text-stone-600 bg-stone-100 px-1.5 py-0.5 rounded">
+                          ×{item.quantity}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
             {/* Expandable Order Flow & Profit Quick View */}
             {isExpanded && (
-              <div className="bg-stone-50/80 p-5 border-t border-stone-200">
+              <div className="bg-stone-50/90 p-5 border-t border-stone-200">
                 <div className="grid md:grid-cols-2 gap-6 max-w-4xl">
                   {/* Left: 5. Fotoğraftaki Zaman Çizelgesi */}
                   <div>

@@ -105,8 +105,12 @@ export function CartDrawer() {
             <ul className="divide-y divide-[#e7e3d8]">
               {items.map((item) => (
                 <li key={item.variantId} className="flex gap-4 py-4">
-                  <div className="relative flex h-20 w-20 shrink-0 items-center justify-center rounded-xl bg-[#111722] border border-[#c5a880]/30 text-[9px] font-bold text-[#dfcca8] tracking-widest uppercase">
-                    DR. MARS
+                  <div className="relative flex h-20 w-20 shrink-0 items-center justify-center rounded-xl bg-[#111722] border border-[#c5a880]/30 text-[9px] font-bold text-[#dfcca8] tracking-widest uppercase overflow-hidden">
+                    {item.image ? (
+                      <img src={item.image} alt={item.name} className="h-full w-full object-cover" />
+                    ) : (
+                      <span>DR. MARS</span>
+                    )}
                   </div>
                   <div className="flex flex-1 flex-col justify-between">
                     <div>
