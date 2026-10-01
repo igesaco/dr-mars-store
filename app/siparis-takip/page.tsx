@@ -1,12 +1,14 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 import { and, eq } from "drizzle-orm";
-import { CheckCircle2, Clock, Package, Search, Truck } from "lucide-react";
+import { CheckCircle2, Clock, Package, Search, Truck, ExternalLink } from "lucide-react";
 import { getDb } from "@/db";
 import { orderItems, orders } from "@/db/schema";
 import { Header } from "@/components/storefront/header";
 import { Footer } from "@/components/storefront/footer";
 import { getStoreNavCategories, getStoreSettings } from "@/lib/storefront-data";
+import { getCargoTrackingUrl } from "@/lib/cargo-service";
+
 
 export const dynamic = "force-dynamic";
 
@@ -189,22 +191,46 @@ export default async function OrderTrackingPage({ searchParams }: Props) {
               </div>
 
               {/* Cargo Information Box */}
-              {orderData.cargoTrackingNumber && (
-                <div className="rounded-xl bg-purple-50 border border-purple-200 p-4 flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <Truck className="text-purple-700" size={24} />
-                    <div>
-                      <p className="font-bold text-xs text-purple-950">
-                        {orderData.cargoCompany ?? "Yurtiçi Kargo"} Takip Kodu
-                      </p>
-                      <p className="font-mono text-sm font-black text-purple-900 mt-0.5">
-                        {orderData.cargoTrackingNumber}
-                      </p>
+              {orderData.cargoTrackingNumber && (() => {
+                const customerTrackingUrl = getCargoTrackingUrl(
+                  orderData.cargoCompany,
+                  orderData.cargoTrackingNumber
+                );
+                return (
+                  <div className="rounded-xl bg-purple-50 border border-purple-200 p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                    <div className="flex items-center gap-3.5">
+                      <div className="h-10 w-10 rounded-full bg-purple-100 flex items-center justify-center shrink-0">
+                        <Truck className="text-purple-700" size={22} />
+                      </div>
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <p className="font-bold text-xs text-purple-950">
+                            {orderData.cargoCompany ?? "Yurtiçi Kargo"}
+                          </p>
+                          <span className="inline-block px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-purple-200/80 text-purple-900">
+                            Yolda / Dağıtımda
+                          </span>
+                        </div>
+                        <p className="font-mono text-base font-black text-purple-900 mt-0.5 tracking-wider">
+                          {orderData.cargoTrackingNumber}
+                        </p>
+                      </div>
                     </div>
+
+                    {customerTrackingUrl && (
+                      <a
+                        href={customerTrackingUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1.5 rounded-xl bg-purple-800 px-4 py-2.5 text-xs font-bold text-white hover:bg-purple-900 transition-colors shadow-xs shrink-0 w-full sm:w-auto justify-center"
+                      >
+                        <ExternalLink size={14} />
+                        <span>Kargo Şirketinde Sorgula</span>
+                      </a>
+                    )}
                   </div>
-                  <span className="text-xs font-bold text-purple-700">Yolda</span>
-                </div>
-              )}
+                );
+              })()}
 
               {/* Items List */}
               <div className="mt-8 border-t border-stone-100 pt-6">

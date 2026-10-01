@@ -64,6 +64,18 @@ export async function saveSiteSettingsAction(form: FormData) {
     });
   }
 
+  // Kargo & Lojistik API Ayarları
+  const cargoMode = form.get("cargoMode") === "live" ? "live" : "test";
+  const cargoProvider = String(form.get("cargoProvider") ?? "yurtici");
+  const cargoUsername = String(form.get("cargoUsername") ?? "").trim();
+  const cargoPassword = String(form.get("cargoPassword") ?? "").trim();
+  const cargoCustomerCode = String(form.get("cargoCustomerCode") ?? "").trim();
+  const cargoSenderName = String(form.get("cargoSenderName") ?? "Dr. Mars Parfüm Kozmetik Ltd. Şti.").trim();
+  const cargoSenderAddress = String(form.get("cargoSenderAddress") ?? "Şar Mah. 1. Cadde No: 284").trim();
+  const cargoSenderCity = String(form.get("cargoSenderCity") ?? "Mardin").trim();
+  const cargoSenderDistrict = String(form.get("cargoSenderDistrict") ?? "Artuklu").trim();
+  const cargoSenderPhone = String(form.get("cargoSenderPhone") ?? "+90 (482) 212 19 03").trim();
+
   const updates = [
     {
       key: "announcement",
@@ -72,6 +84,21 @@ export async function saveSiteSettingsAction(form: FormData) {
     {
       key: "shipping",
       value: { freeThreshold, standardCost, cargoCompany },
+    },
+    {
+      key: "cargo",
+      value: {
+        mode: cargoMode,
+        provider: cargoProvider,
+        yurticiUsername: cargoUsername,
+        yurticiPassword: cargoPassword,
+        yurticiCustomerCode: cargoCustomerCode,
+        senderName: cargoSenderName,
+        senderAddress: cargoSenderAddress,
+        senderCity: cargoSenderCity,
+        senderDistrict: cargoSenderDistrict,
+        senderPhone: cargoSenderPhone,
+      },
     },
     {
       key: "contact",
@@ -117,6 +144,7 @@ export async function saveSiteSettingsAction(form: FormData) {
   revalidatePath("/");
   revalidatePath("/admin");
   revalidatePath("/admin/ayarlar");
+  revalidatePath("/admin/siparisler");
   revalidatePath("/odeme");
 }
 
@@ -154,4 +182,40 @@ export async function togglePaymentModeAction() {
   revalidatePath("/admin/ayarlar");
   revalidatePath("/odeme");
 }
+
+export async function toggleCargoModeAction() {
+  await requireAdmin();
+  const db = getDb();
+
+  const [row] = await db
+    .select()
+    .from(siteSettings)
+    .where(eq(siteSettings.key, "cargo"))
+    .limit(1);
+
+  const currentVal = (row?.value as any) ?? {};
+  const newMode = currentVal.mode === "live" ? "test" : "live";
+
+  const updatedVal = {
+    ...currentVal,
+    mode: newMode,
+  };
+
+  await db
+    .insert(siteSettings)
+    .values({
+      key: "cargo",
+      value: updatedVal,
+      updatedAt: new Date(),
+    })
+    .onConflictDoUpdate({
+      target: siteSettings.key,
+      set: { value: updatedVal, updatedAt: new Date() },
+    });
+
+  revalidatePath("/admin");
+  revalidatePath("/admin/ayarlar");
+  revalidatePath("/admin/siparisler");
+}
+
 

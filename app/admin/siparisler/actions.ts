@@ -3,8 +3,9 @@
 import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { getDb } from "@/db";
-import { orders } from "@/db/schema";
+import { orders, orderItems } from "@/db/schema";
 import { requireAdmin } from "@/lib/admin-auth";
+
 
 export async function updateOrderStatusAction(form: FormData) {
   await requireAdmin();
@@ -58,3 +59,54 @@ export async function updateCargoAction(form: FormData) {
   revalidatePath("/admin/siparisler");
   revalidatePath(`/admin/siparisler/${orderId}`);
 }
+
+export async function createShipmentForOrderAction(form: FormData) {
+  await requireAdmin();
+  const orderId = String(form.get("orderId") ?? "").trim();
+  if (!orderId) throw new Error("Sipariş ID eksik.");
+
+  const db = getDb();
+  const [order] = await db.select().from(orders).where(eq(orders.id, orderId)).limit(1);
+  if (!order) throw new Error("Sipariş bulunamadı.");
+
+  const items = await db.select().from(orderItems).where(eq(orderItems.orderId, orderId));
+  const totalItemCount = items.reduce((sum, it) => sum + (it.quantity || 1), 0);
+
+  const addr = (order.shippingAddress as Record<string, string>) || {};
+
+  const shipmentData = {
+    orderNumber: order.orderNumber,
+    recipientName: addr.recipientName || "Müşteri",
+    recipientPhone: addr.phone || "05550000000",
+    recipientEmail: addr.email,
+    addressLine: addr.addressLine || "",
+    district: addr.district || "",
+    city: addr.city || "",
+    totalAmount: Number(order.totalAmount) || 0,
+    paymentMethod: order.paymentStatus === "paid" ? "credit_card" : "cash_on_delivery",
+    itemsCount: totalItemCount || 1,
+  };
+
+  const { createCargoShipment } = await import("@/lib/cargo-service");
+  const result = await createCargoShipment(shipmentData);
+
+  if (result.success && result.trackingNumber) {
+    await db
+      .update(orders)
+      .set({
+        cargoCompany: result.cargoCompany,
+        cargoTrackingNumber: result.trackingNumber,
+        status: "shipped",
+        updatedAt: new Date(),
+      })
+      .where(eq(orders.id, orderId));
+
+    revalidatePath("/admin");
+    revalidatePath("/admin/siparisler");
+    revalidatePath(`/admin/siparisler/${orderId}`);
+    revalidatePath("/siparis-takip");
+    revalidatePath(`/siparis-tamamlandi/${order.orderNumber}`);
+  }
+}
+
+

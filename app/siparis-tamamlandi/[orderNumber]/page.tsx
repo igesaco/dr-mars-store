@@ -11,6 +11,8 @@ import { getStoreNavCategories, getStoreSettings } from "@/lib/storefront-data";
 import { getPaymentSettings } from "@/lib/payment-service";
 import { generateWhatsAppOrderUrl } from "@/lib/notification-service";
 import { OrderBankTransferBox } from "@/components/storefront/order-bank-transfer-box";
+import { getCargoTrackingUrl } from "@/lib/cargo-service";
+
 
 export const dynamic = "force-dynamic";
 
@@ -97,6 +99,21 @@ export default async function OrderSuccessPage({ params }: Props) {
               <strong className="text-sm font-black text-stone-900">
                 {order.cargoCompany ?? "Yurtiçi Kargo"}
               </strong>
+              {order.cargoTrackingNumber && (
+                <div className="mt-1">
+                  <span className="font-mono text-xs text-blue-700 font-bold block">
+                    {order.cargoTrackingNumber}
+                  </span>
+                  <a
+                    href={getCargoTrackingUrl(order.cargoCompany, order.cargoTrackingNumber) || "#"}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-[11px] font-bold text-blue-600 underline mt-0.5 inline-block"
+                  >
+                    Kargo Takibi ↗
+                  </a>
+                </div>
+              )}
             </div>
             <div className="rounded-xl bg-stone-50 p-4">
               <span className="text-stone-500 font-bold block mb-1">Ödeme Durumu</span>

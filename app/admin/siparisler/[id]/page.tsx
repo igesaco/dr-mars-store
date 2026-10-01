@@ -3,10 +3,12 @@ import { notFound } from "next/navigation";
 import { and, eq } from "drizzle-orm";
 import { getDb } from "@/db";
 import { orderItems, orders, productImages, productVariants } from "@/db/schema";
-import { Building, Package, Printer, Receipt, TrendingUp } from "lucide-react";
+import { Building, Package, Printer, Receipt, TrendingUp, Truck, ExternalLink, QrCode } from "lucide-react";
 import { requireAdmin } from "@/lib/admin-auth";
-import { updateCargoAction, updateOrderStatusAction } from "../actions";
+import { updateCargoAction, updateOrderStatusAction, createShipmentForOrderAction } from "../actions";
+import { getCargoTrackingUrl } from "@/lib/cargo-service";
 import { OrderTimeline } from "@/components/admin/order-timeline";
+
 
 export const dynamic = "force-dynamic";
 
@@ -70,6 +72,7 @@ export default async function AdminOrderDetailPage({ params }: Props) {
   const shippingAmount = Number(order.shippingAmount) || 0;
   const netProfit = totalRevenue - totalProductCost;
   const profitMargin = totalRevenue > 0 ? (netProfit / totalRevenue) * 100 : 0;
+  const trackingUrl = getCargoTrackingUrl(order.cargoCompany, order.cargoTrackingNumber);
 
   return (
     <main className="admin-main catalog-main">
@@ -352,37 +355,158 @@ export default async function AdminOrderDetailPage({ params }: Props) {
             </form>
           </div>
 
-          {/* Cargo Tracking Form */}
-          <div className="admin-panel p-6">
-            <h2 className="text-base font-bold text-stone-900 mb-4">Kargo & Takip Bilgisi</h2>
-            <form action={updateCargoAction} className="space-y-3">
-              <input type="hidden" name="orderId" value={order.id} />
-              <label className="block text-xs font-bold text-stone-700">
-                Kargo Şirketi
-                <input
-                  name="cargoCompany"
-                  defaultValue={order.cargoCompany ?? "Yurtiçi Kargo"}
-                  className="mt-1 w-full rounded border p-2 text-xs outline-none focus:border-stone-900"
-                />
-              </label>
+          {/* Yurtiçi Kargo & Gönderi Yönetimi Paneli */}
+          <div className="admin-panel p-6 space-y-4">
+            <div className="flex items-center justify-between border-b border-stone-100 pb-3">
+              <h2 className="text-base font-bold text-stone-900 flex items-center gap-2">
+                <Truck size={18} className="text-blue-700" />
+                <span>Kargo & Lojistik</span>
+              </h2>
+              {order.cargoTrackingNumber ? (
+                <span className="inline-flex items-center gap-1 rounded-full bg-blue-100 px-2.5 py-0.5 text-[10px] font-black uppercase text-blue-800 tracking-wider">
+                  Kargoya Verildi
+                </span>
+              ) : (
+                <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2.5 py-0.5 text-[10px] font-black uppercase text-amber-800 tracking-wider">
+                  Kargo Bekleniyor
+                </span>
+              )}
+            </div>
 
-              <label className="block text-xs font-bold text-stone-700">
-                Kargo Takip Kodu
-                <input
-                  name="cargoTrackingNumber"
-                  defaultValue={order.cargoTrackingNumber ?? ""}
-                  placeholder="Örn: 123456789012"
-                  className="mt-1 w-full rounded border p-2 text-xs font-mono outline-none focus:border-stone-900"
-                />
-              </label>
+            {/* Kargo Takip Kodu Mevcutsa: Canlı Takip & Barkod Butonları */}
+            {order.cargoTrackingNumber ? (
+              <div className="space-y-4">
+                <div className="rounded-xl bg-blue-50/70 border border-blue-200 p-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-[11px] font-bold uppercase text-blue-900">
+                        {order.cargoCompany ?? "Yurtiçi Kargo"}
+                      </p>
+                      <p className="text-base font-mono font-black text-blue-950 mt-0.5 tracking-wider">
+                        {order.cargoTrackingNumber}
+                      </p>
+                    </div>
+                    <span className="h-8 w-8 rounded-full bg-blue-200/60 flex items-center justify-center text-blue-800">
+                      <Truck size={16} />
+                    </span>
+                  </div>
 
-              <button
-                type="submit"
-                className="w-full rounded bg-[#849649] py-2.5 text-xs font-bold text-white hover:bg-[#6b7b39] transition-colors cursor-pointer"
-              >
-                Kargo Kodunu Kaydet
-              </button>
-            </form>
+                  <div className="mt-4 pt-3 border-t border-blue-200/60 flex flex-col sm:flex-row gap-2">
+                    {trackingUrl && (
+                      <a
+                        href={trackingUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-lg bg-blue-700 px-3 py-2 text-xs font-bold text-white hover:bg-blue-800 transition-colors"
+                      >
+                        <ExternalLink size={13} />
+                        <span>Canlı Takip Sayfası</span>
+                      </a>
+                    )}
+                    <Link
+                      href={`/admin/siparisler/${order.id}/kargo-etiketi`}
+                      target="_blank"
+                      className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-lg bg-[#101e2c] px-3 py-2 text-xs font-bold text-white hover:bg-black transition-colors"
+                    >
+                      <Printer size={13} />
+                      <span>Kargo Etiketi / Barkod</span>
+                    </Link>
+                  </div>
+                </div>
+
+                {/* Kargo Bilgisi Güncelleme / Düzeltme */}
+                <details className="group pt-2">
+                  <summary className="text-[11px] font-bold text-stone-500 hover:text-stone-800 cursor-pointer list-none flex items-center gap-1">
+                    <span>⚙️ Kargo Bilgilerini Manuel Düzenle</span>
+                  </summary>
+                  <form action={updateCargoAction} className="mt-3 space-y-3 pt-2 border-t border-stone-100">
+                    <input type="hidden" name="orderId" value={order.id} />
+                    <label className="block text-xs font-bold text-stone-700">
+                      Kargo Şirketi
+                      <input
+                        name="cargoCompany"
+                        defaultValue={order.cargoCompany ?? "Yurtiçi Kargo"}
+                        className="mt-1 w-full rounded border p-2 text-xs outline-none focus:border-stone-900"
+                      />
+                    </label>
+
+                    <label className="block text-xs font-bold text-stone-700">
+                      Kargo Takip Kodu
+                      <input
+                        name="cargoTrackingNumber"
+                        defaultValue={order.cargoTrackingNumber ?? ""}
+                        placeholder="Örn: 123456789012"
+                        className="mt-1 w-full rounded border p-2 text-xs font-mono outline-none focus:border-stone-900"
+                      />
+                    </label>
+
+                    <button
+                      type="submit"
+                      className="w-full rounded bg-stone-800 py-2 text-xs font-bold text-white hover:bg-black transition-colors cursor-pointer"
+                    >
+                      Kodu Güncelle
+                    </button>
+                  </form>
+                </details>
+              </div>
+            ) : (
+              /* Kargo Henüz Oluşturulmamışsa: 1-Tıkla Yurtiçi Kargo Gönderisi Oluştur */
+              <div className="space-y-4">
+                <div className="rounded-xl bg-stone-50 p-4 border border-stone-200">
+                  <div className="flex items-start gap-3">
+                    <div className="p-2 rounded-lg bg-blue-100 text-blue-800 shrink-0 mt-0.5">
+                      <QrCode size={18} />
+                    </div>
+                    <div>
+                      <h3 className="text-xs font-black uppercase text-stone-900 tracking-wide">
+                        Yurtiçi Kargo API Entegrasyonu
+                      </h3>
+                      <p className="text-[11px] text-stone-600 mt-1">
+                        Sipariş teslimat bilgilerini tek tıkla Yurtiçi Kargo sistemine iletin, takip kodunu anında sisteme kaydedin ve barkod etiketi yazdırın.
+                      </p>
+                    </div>
+                  </div>
+
+                  <form action={createShipmentForOrderAction} className="mt-4">
+                    <input type="hidden" name="orderId" value={order.id} />
+                    <button
+                      type="submit"
+                      className="w-full rounded-xl bg-blue-700 py-3 text-xs font-black uppercase tracking-wider text-white hover:bg-blue-800 transition-colors shadow-xs flex items-center justify-center gap-2 cursor-pointer"
+                    >
+                      <Truck size={15} />
+                      <span>🚀 Yurtiçi Kargo Gönderisi Oluştur</span>
+                    </button>
+                  </form>
+                </div>
+
+                {/* Manuel Giriş Seçeneği */}
+                <div className="pt-2">
+                  <p className="text-[10px] uppercase font-bold text-stone-400 mb-2">Veya Manuel Kod Girin</p>
+                  <form action={updateCargoAction} className="space-y-3">
+                    <input type="hidden" name="orderId" value={order.id} />
+                    <div className="grid grid-cols-2 gap-2">
+                      <input
+                        name="cargoCompany"
+                        defaultValue={order.cargoCompany ?? "Yurtiçi Kargo"}
+                        placeholder="Kargo Şirketi"
+                        className="rounded border p-2 text-xs outline-none focus:border-stone-900"
+                      />
+                      <input
+                        name="cargoTrackingNumber"
+                        placeholder="Takip Numarası"
+                        className="rounded border p-2 text-xs font-mono outline-none focus:border-stone-900"
+                      />
+                    </div>
+                    <button
+                      type="submit"
+                      className="w-full rounded bg-stone-700 py-2 text-xs font-bold text-white hover:bg-stone-900 transition-colors cursor-pointer"
+                    >
+                      Manuel Kaydet
+                    </button>
+                  </form>
+                </div>
+              </div>
+            )}
           </div>
         </aside>
       </div>
