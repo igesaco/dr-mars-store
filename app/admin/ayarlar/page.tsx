@@ -291,54 +291,126 @@ export default async function AdminSettingsPage() {
           </div>
 
           {/* Yurtiçi Kargo Web Servis API Bilgileri */}
-          <div className="rounded-xl border border-stone-200 bg-stone-50/50 p-4 space-y-3">
-            <div className="flex items-center justify-between">
-              <h3 className="text-xs font-black uppercase tracking-wider text-stone-800">
-                Yurtiçi Kargo Web Servis Bilgileri (ShippingOrderDispatcher)
-              </h3>
-              <span className="text-[11px] text-blue-700 font-bold bg-blue-50 px-2 py-0.5 rounded">
+          <div className="rounded-xl border border-stone-200 bg-stone-50/50 p-4 space-y-4">
+            <div className="flex items-center justify-between border-b border-stone-200 pb-2">
+              <div>
+                <h3 className="text-xs font-black uppercase tracking-wider text-stone-800">
+                  Yurtiçi Kargo Web Servis API Kullanıcıları (MET-37507)
+                </h3>
+                <p className="text-[11px] text-stone-500">
+                  Müşteri Kodu: <strong>334695105</strong> · Çıkış Birimi: <strong>8077 (ARTUKLU)</strong>
+                </p>
+              </div>
+              <span className="text-[11px] text-blue-700 font-bold bg-blue-50 border border-blue-200 px-2 py-0.5 rounded">
                 Yurtiçi Kargo Entegre
               </span>
             </div>
-            <div className="grid sm:grid-cols-3 gap-3">
-              <div>
-                <label className="block text-[11px] font-bold text-stone-600 mb-1">
-                  Kullanıcı Adı (wsUserName)
-                </label>
-                <input
-                  name="cargoUsername"
-                  defaultValue={cargo.yurticiUsername}
-                  placeholder="Örn: YURTICI_WS_USER"
-                  className="w-full rounded border border-stone-300 bg-white p-2 text-xs font-mono outline-none focus:border-stone-900"
-                />
+
+            {/* 1. Gönderici Ödemeli (GÖ) */}
+            <div className="bg-white p-3.5 rounded-lg border border-stone-200 space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-black text-emerald-800 flex items-center gap-1.5">
+                  <span className="h-2 w-2 rounded-full bg-emerald-500" />
+                  1. Gönderici Ödemeli API Hesabı (GÖ - Normal)
+                </span>
+                <span className="text-[10px] font-mono font-bold text-stone-400">MET-37507</span>
               </div>
-              <div>
-                <label className="block text-[11px] font-bold text-stone-600 mb-1">
-                  Web Servis Şifresi (wsPassword)
-                </label>
-                <input
-                  name="cargoPassword"
-                  type="password"
-                  defaultValue={cargo.yurticiPassword}
-                  placeholder="••••••••••••"
-                  className="w-full rounded border border-stone-300 bg-white p-2 text-xs font-mono outline-none focus:border-stone-900"
-                />
+              <p className="text-[11px] text-stone-500">
+                1.500 ₺ üzeri ücretsiz kargo veya sipariş anında kargo ücreti peşin tahsil edilen siparişlerde kullanılır. Kargo bedeli satıcı carisine yansır.
+              </p>
+              <div className="grid sm:grid-cols-2 gap-3 pt-1">
+                <div>
+                  <label className="block text-[11px] font-bold text-stone-600 mb-1">
+                    GÖ Web Servis Kullanıcı Adı
+                  </label>
+                  <input
+                    name="cargoGoUsername"
+                    defaultValue={cargo.yurticiGoUsername || "8077N334695105G"}
+                    className="w-full rounded border border-stone-300 bg-stone-50/50 p-2 text-xs font-mono font-bold outline-none focus:border-stone-900"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[11px] font-bold text-stone-600 mb-1">
+                    GÖ Web Servis Şifresi
+                  </label>
+                  <input
+                    name="cargoGoPassword"
+                    defaultValue={cargo.yurticiGoPassword || "604dMr40JY9g32Dd"}
+                    className="w-full rounded border border-stone-300 bg-stone-50/50 p-2 text-xs font-mono font-bold outline-none focus:border-stone-900"
+                  />
+                </div>
               </div>
+            </div>
+
+            {/* 2. Alıcı Ödemeli (AÖ) */}
+            <div className="bg-white p-3.5 rounded-lg border border-stone-200 space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-black text-blue-800 flex items-center gap-1.5">
+                  <span className="h-2 w-2 rounded-full bg-blue-500" />
+                  2. Alıcı Ödemeli API Hesabı (AÖ - Normal)
+                </span>
+                <span className="text-[10px] font-mono font-bold text-stone-400">MET-37507</span>
+              </div>
+              <p className="text-[11px] text-stone-500">
+                Kargo ücreti teslimat anında müşteriden kargo görevlisince tahsil edilecek siparişlerde kullanılır.
+              </p>
+              <div className="grid sm:grid-cols-2 gap-3 pt-1">
+                <div>
+                  <label className="block text-[11px] font-bold text-stone-600 mb-1">
+                    AÖ Web Servis Kullanıcı Adı
+                  </label>
+                  <input
+                    name="cargoAoUsername"
+                    defaultValue={cargo.yurticiAoUsername || "8077N334695105A"}
+                    className="w-full rounded border border-stone-300 bg-stone-50/50 p-2 text-xs font-mono font-bold outline-none focus:border-stone-900"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[11px] font-bold text-stone-600 mb-1">
+                    AÖ Web Servis Şifresi
+                  </label>
+                  <input
+                    name="cargoAoPassword"
+                    defaultValue={cargo.yurticiAoPassword || "2Ax622DSE9H6F1Uh"}
+                    className="w-full rounded border border-stone-300 bg-stone-50/50 p-2 text-xs font-mono font-bold outline-none focus:border-stone-900"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Sözleşme & Şube Parametreleri */}
+            <div className="grid sm:grid-cols-3 gap-3 pt-1">
               <div>
                 <label className="block text-[11px] font-bold text-stone-600 mb-1">
-                  Müşteri / Sözleşme No (customerCode)
+                  Müşteri No (customerCode)
                 </label>
                 <input
                   name="cargoCustomerCode"
-                  defaultValue={cargo.yurticiCustomerCode}
-                  placeholder="Örn: 123456789"
+                  defaultValue={cargo.yurticiCustomerCode || "334695105"}
                   className="w-full rounded border border-stone-300 bg-white p-2 text-xs font-mono outline-none focus:border-stone-900"
                 />
               </div>
+              <div>
+                <label className="block text-[11px] font-bold text-stone-600 mb-1">
+                  Çıkış Birim Kodu
+                </label>
+                <input
+                  name="cargoUnitCode"
+                  defaultValue={cargo.yurticiUnitCode || "8077"}
+                  className="w-full rounded border border-stone-300 bg-white p-2 text-xs font-mono outline-none focus:border-stone-900"
+                />
+              </div>
+              <div>
+                <label className="block text-[11px] font-bold text-stone-600 mb-1">
+                  Çıkış Birim Adı
+                </label>
+                <input
+                  name="cargoUnitName"
+                  defaultValue={cargo.yurticiUnitName || "ARTUKLU"}
+                  className="w-full rounded border border-stone-300 bg-white p-2 text-xs outline-none focus:border-stone-900"
+                />
+              </div>
             </div>
-            <p className="text-[11px] text-stone-500">
-              * Bu bilgileri Yurtiçi Kargo bölge müdürlüğünüzden veya acentenizden temin ettiğiniz entegrasyon formundan alabilirsiniz.
-            </p>
           </div>
 
           {/* Gönderici Depo / Mağaza Çıkış Bilgileri */}

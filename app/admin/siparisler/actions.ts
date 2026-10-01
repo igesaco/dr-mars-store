@@ -73,6 +73,7 @@ export async function createShipmentForOrderAction(form: FormData) {
   const totalItemCount = items.reduce((sum, it) => sum + (it.quantity || 1), 0);
 
   const addr = (order.shippingAddress as Record<string, string>) || {};
+  const payerType = (form.get("payerType") === "receiver" ? "receiver" : "sender") as "sender" | "receiver";
 
   const shipmentData = {
     orderNumber: order.orderNumber,
@@ -85,6 +86,7 @@ export async function createShipmentForOrderAction(form: FormData) {
     totalAmount: Number(order.totalAmount) || 0,
     paymentMethod: order.paymentStatus === "paid" ? "credit_card" : "cash_on_delivery",
     itemsCount: totalItemCount || 1,
+    payerType,
   };
 
   const { createCargoShipment } = await import("@/lib/cargo-service");

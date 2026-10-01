@@ -67,10 +67,14 @@ export async function saveSiteSettingsAction(form: FormData) {
   // Kargo & Lojistik API Ayarları
   const cargoMode = form.get("cargoMode") === "live" ? "live" : "test";
   const cargoProvider = String(form.get("cargoProvider") ?? "yurtici");
-  const cargoUsername = String(form.get("cargoUsername") ?? "").trim();
-  const cargoPassword = String(form.get("cargoPassword") ?? "").trim();
-  const cargoCustomerCode = String(form.get("cargoCustomerCode") ?? "").trim();
-  const cargoSenderName = String(form.get("cargoSenderName") ?? "Dr. Mars Parfüm Kozmetik Ltd. Şti.").trim();
+  const cargoGoUsername = String(form.get("cargoGoUsername") ?? "8077N334695105G").trim();
+  const cargoGoPassword = String(form.get("cargoGoPassword") ?? "604dMr40JY9g32Dd").trim();
+  const cargoAoUsername = String(form.get("cargoAoUsername") ?? "8077N334695105A").trim();
+  const cargoAoPassword = String(form.get("cargoAoPassword") ?? "2Ax622DSE9H6F1Uh").trim();
+  const cargoCustomerCode = String(form.get("cargoCustomerCode") ?? "334695105").trim();
+  const cargoUnitCode = String(form.get("cargoUnitCode") ?? "8077").trim();
+  const cargoUnitName = String(form.get("cargoUnitName") ?? "ARTUKLU").trim();
+  const cargoSenderName = String(form.get("cargoSenderName") ?? "LAVİN KİMYA KOZMETİK PLASTİK SANAYİ VE TİCARET LİMİTED ŞİRKETİ").trim();
   const cargoSenderAddress = String(form.get("cargoSenderAddress") ?? "Şar Mah. 1. Cadde No: 284").trim();
   const cargoSenderCity = String(form.get("cargoSenderCity") ?? "Mardin").trim();
   const cargoSenderDistrict = String(form.get("cargoSenderDistrict") ?? "Artuklu").trim();
@@ -90,9 +94,15 @@ export async function saveSiteSettingsAction(form: FormData) {
       value: {
         mode: cargoMode,
         provider: cargoProvider,
-        yurticiUsername: cargoUsername,
-        yurticiPassword: cargoPassword,
+        yurticiGoUsername: cargoGoUsername,
+        yurticiGoPassword: cargoGoPassword,
+        yurticiAoUsername: cargoAoUsername,
+        yurticiAoPassword: cargoAoPassword,
         yurticiCustomerCode: cargoCustomerCode,
+        yurticiUnitCode: cargoUnitCode,
+        yurticiUnitName: cargoUnitName,
+        yurticiUsername: cargoGoUsername,
+        yurticiPassword: cargoGoPassword,
         senderName: cargoSenderName,
         senderAddress: cargoSenderAddress,
         senderCity: cargoSenderCity,

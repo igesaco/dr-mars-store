@@ -128,8 +128,23 @@ export default async function CargoLabelPage({ params }: Props) {
           </div>
         </div>
 
-        {/* Ödeme Durumu / Tahsilat Kutusu */}
-        <div className="py-3 border-b-2 border-black">
+        {/* Ödeme Durumu & Kargo Taşıma Bedeli Kutusu */}
+        <div className="py-3 border-b-2 border-black space-y-2">
+          {/* Taşıma Ücreti (GÖ veya AÖ) */}
+          <div className="flex items-center justify-between border border-black bg-stone-50 p-2 text-xs">
+            <span className="font-bold text-stone-700">Kargo Taşıma Bedeli:</span>
+            {(order.cargoCompany || "").includes("AÖ") || (order.cargoCompany || "").includes("Alıcı Ödemeli") ? (
+              <span className="font-black bg-blue-100 text-blue-950 px-2 py-0.5 rounded border border-blue-300">
+                ALICI ÖDEMELİ (AÖ - MET-37507)
+              </span>
+            ) : (
+              <span className="font-black bg-emerald-100 text-emerald-950 px-2 py-0.5 rounded border border-emerald-300">
+                GÖNDERİCİ ÖDEMELİ (GÖ - MET-37507)
+              </span>
+            )}
+          </div>
+
+          {/* Kapıda Tahsilat (Ürün Bedeli) */}
           {isCod ? (
             <div className="border-2 border-black bg-stone-100 p-2 text-center rounded">
               <div className="flex items-center justify-center gap-1.5 text-xs font-black text-red-600 uppercase">
@@ -137,13 +152,13 @@ export default async function CargoLabelPage({ params }: Props) {
                 <span>KAPIDA ÖDEMELİ GÖNDERİ</span>
               </div>
               <p className="text-base font-black mt-0.5 text-black">
-                TAHSİL EDİLECEK TUTAR: ₺{Number(order.totalAmount).toLocaleString("tr-TR", { minimumFractionDigits: 2 })}
+                TAHSİL EDİLECEK ÜRÜN TUTARI: ₺{Number(order.totalAmount).toLocaleString("tr-TR", { minimumFractionDigits: 2 })}
               </p>
             </div>
           ) : (
-            <div className="border border-black bg-stone-50 p-2 text-center rounded">
-              <p className="text-xs font-black uppercase text-emerald-800 tracking-wider">
-                ✓ PEŞİN ÖDENDİ (ÜCRET TAHSİL EDİLMEYECEK)
+            <div className="border border-black bg-stone-50 p-1.5 text-center rounded">
+              <p className="text-[11px] font-black uppercase text-emerald-800 tracking-wider">
+                ✓ SİPARİŞ TUTARI PEŞİN ÖDENDİ (TAHSİLAT YAPILMAYACAK)
               </p>
             </div>
           )}
@@ -154,13 +169,15 @@ export default async function CargoLabelPage({ params }: Props) {
           <p className="text-[10px] font-black uppercase tracking-wider text-stone-500 mb-1">
             GÖNDERİCİ (MAĞAZA ÇIKIŞ)
           </p>
-          <p className="font-bold text-stone-900">{cargoSettings.senderName}</p>
-          <p className="text-[11px] text-stone-700 leading-snug">
+          <p className="font-bold text-stone-900 leading-snug">{cargoSettings.senderName}</p>
+          <p className="text-[11px] text-stone-700 leading-snug mt-0.5">
             {cargoSettings.senderAddress}, {cargoSettings.senderDistrict} / {cargoSettings.senderCity}
           </p>
-          <p className="text-[11px] text-stone-700 font-mono mt-0.5">
-            Tel: {cargoSettings.senderPhone} {cargoSettings.yurticiCustomerCode ? `| Müşteri No: ${cargoSettings.yurticiCustomerCode}` : ""}
-          </p>
+          <div className="mt-1 flex flex-wrap gap-x-3 text-[10px] font-mono text-stone-600 font-bold">
+            <span>Çıkış Birimi: 8077 - ARTUKLU</span>
+            <span>Müşteri No: {cargoSettings.yurticiCustomerCode || "334695105"}</span>
+            <span>Tel: {cargoSettings.senderPhone}</span>
+          </div>
         </div>
 
         {/* Sipariş İçerik Özeti & Kırılabilir Uyarısı */}

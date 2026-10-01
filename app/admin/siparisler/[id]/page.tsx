@@ -467,8 +467,49 @@ export default async function AdminOrderDetailPage({ params }: Props) {
                     </div>
                   </div>
 
-                  <form action={createShipmentForOrderAction} className="mt-4">
+                  <form action={createShipmentForOrderAction} className="mt-4 space-y-3">
                     <input type="hidden" name="orderId" value={order.id} />
+                    
+                    {/* Ödeme Türü Seçimi: Gönderici Ödemeli (GÖ) vs Alıcı Ödemeli (AÖ) */}
+                    <div className="pt-2 border-t border-stone-200">
+                      <label className="block text-[11px] font-bold text-stone-700 mb-1.5">
+                        Kargo Taşıma Ücreti Tipi (Yurtiçi Kargo API Hesabı):
+                      </label>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                        <label className="flex items-start gap-2 p-2.5 rounded-lg border border-stone-200 bg-white cursor-pointer hover:border-emerald-500 has-checked:border-emerald-600 has-checked:bg-emerald-50/50 font-bold text-stone-800">
+                          <input
+                            type="radio"
+                            name="payerType"
+                            value="sender"
+                            defaultChecked={shippingAmount === 0 || order.paymentStatus === "paid"}
+                            className="mt-0.5 accent-emerald-700"
+                          />
+                          <div>
+                            <span className="block font-black text-emerald-950 text-xs">GÖ (Gönderici Ödemeli)</span>
+                            <span className="block text-[10px] text-stone-500 font-normal leading-tight mt-0.5">
+                              8077N334695105G (Kargo mağaza carisine yansır)
+                            </span>
+                          </div>
+                        </label>
+
+                        <label className="flex items-start gap-2 p-2.5 rounded-lg border border-stone-200 bg-white cursor-pointer hover:border-blue-500 has-checked:border-blue-600 has-checked:bg-blue-50/50 font-bold text-stone-800">
+                          <input
+                            type="radio"
+                            name="payerType"
+                            value="receiver"
+                            defaultChecked={shippingAmount > 0 && order.paymentStatus !== "paid"}
+                            className="mt-0.5 accent-blue-700"
+                          />
+                          <div>
+                            <span className="block font-black text-blue-950 text-xs">AÖ (Alıcı Ödemeli)</span>
+                            <span className="block text-[10px] text-stone-500 font-normal leading-tight mt-0.5">
+                              8077N334695105A (Kargo ücreti teslimatta alıcıdan alınır)
+                            </span>
+                          </div>
+                        </label>
+                      </div>
+                    </div>
+
                     <button
                       type="submit"
                       className="w-full rounded-xl bg-blue-700 py-3 text-xs font-black uppercase tracking-wider text-white hover:bg-blue-800 transition-colors shadow-xs flex items-center justify-center gap-2 cursor-pointer"

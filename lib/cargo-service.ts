@@ -4,13 +4,25 @@ import { eq } from "drizzle-orm";
 
 export type CargoProvider = "yurtici" | "simulation" | "aras" | "mng";
 export type CargoMode = "test" | "live";
+export type CargoPayerType = "sender" | "receiver"; // "sender" = GÖ (Gönderici Ödemeli), "receiver" = AÖ (Alıcı Ödemeli)
 
 export interface CargoSettings {
   mode: CargoMode;
   provider: CargoProvider;
-  yurticiUsername: string;
-  yurticiPassword: string;
+  // Gönderici Ödemeli (GÖ) Web Servis Bilgileri
+  yurticiGoUsername: string;
+  yurticiGoPassword: string;
+  // Alıcı Ödemeli (AÖ) Web Servis Bilgileri
+  yurticiAoUsername: string;
+  yurticiAoPassword: string;
+  // Müşteri & Çıkış Şubesi
   yurticiCustomerCode: string;
+  yurticiUnitCode: string;
+  yurticiUnitName: string;
+  // Geriye dönük uyumluluk
+  yurticiUsername?: string;
+  yurticiPassword?: string;
+  // Gönderici Firma Bilgileri
   senderName: string;
   senderAddress: string;
   senderCity: string;
@@ -21,15 +33,20 @@ export interface CargoSettings {
 export const DEFAULT_CARGO_SETTINGS: CargoSettings = {
   mode: "test",
   provider: "yurtici",
-  yurticiUsername: "",
-  yurticiPassword: "",
-  yurticiCustomerCode: "",
-  senderName: "Dr. Mars Parfüm Kozmetik Ltd. Şti.",
+  yurticiGoUsername: "8077N334695105G",
+  yurticiGoPassword: "604dMr40JY9g32Dd",
+  yurticiAoUsername: "8077N334695105A",
+  yurticiAoPassword: "2Ax622DSE9H6F1Uh",
+  yurticiCustomerCode: "334695105",
+  yurticiUnitCode: "8077",
+  yurticiUnitName: "ARTUKLU",
+  senderName: "LAVİN KİMYA KOZMETİK PLASTİK SANAYİ VE TİCARET LİMİTED ŞİRKETİ",
   senderAddress: "Şar Mah. 1. Cadde No: 284",
   senderCity: "Mardin",
   senderDistrict: "Artuklu",
   senderPhone: "+90 (482) 212 19 03",
 };
+
 
 /**
  * Veritabanından güncel kargo yapılandırmasını alır.
@@ -103,6 +120,7 @@ export interface ShipmentOrderData {
   totalAmount: number;
   paymentMethod?: string;
   itemsCount: number;
+  payerType?: CargoPayerType; // "sender" = GÖ (Gönderici Ödemeli), "receiver" = AÖ (Alıcı Ödemeli)
 }
 
 export interface ShipmentResult {
@@ -112,10 +130,13 @@ export interface ShipmentResult {
   message: string;
   barcode?: string;
   trackingUrl?: string;
+  payerType?: CargoPayerType;
+  payerLabel?: string;
 }
 
 /**
  * Sipariş için Kargo Gönderisi Oluşturur.
+ * Gönderici Ödemeli (GÖ) veya Alıcı Ödemeli (AÖ) seçimine göre ilgili Yurtiçi Kargo API hesabını kullanır.
  * Test modunda veya API bilgisi girilmediğinde güvenli Yurtiçi Kargo simülasyonu çalıştırır.
  * Canlı modda doğrudan Yurtiçi Kargo SOAP Web Servisine istek atar.
  */
@@ -126,9 +147,23 @@ export async function createCargoShipment(
   const settings = customSettings || (await getCargoSettings());
 
   const isLive = settings.mode === "live";
+  const payerType: CargoPayerType = order.payerType || "sender";
+  const isReceiverPaying = payerType === "receiver";
+
+  // GÖ veya AÖ seçimine göre ilgili web servis kullanıcısını seç
+  const activeUsername = isReceiverPaying
+    ? (settings.yurticiAoUsername || settings.yurticiUsername || "8077N334695105A")
+    : (settings.yurticiGoUsername || settings.yurticiUsername || "8077N334695105G");
+
+  const activePassword = isReceiverPaying
+    ? (settings.yurticiAoPassword || settings.yurticiPassword || "2Ax622DSE9H6F1Uh")
+    : (settings.yurticiGoPassword || settings.yurticiPassword || "604dMr40JY9g32Dd");
+
+  const payerLabel = isReceiverPaying ? "Alıcı Ödemeli (AÖ)" : "Gönderici Ödemeli (GÖ)";
+
   const hasYurticiCredentials =
-    Boolean(settings.yurticiUsername?.trim()) &&
-    Boolean(settings.yurticiPassword?.trim()) &&
+    Boolean(activeUsername?.trim()) &&
+    Boolean(activePassword?.trim()) &&
     Boolean(settings.yurticiCustomerCode?.trim());
 
   // Eğer Canlı Mod ve API bilgileri varsa gerçek Yurtiçi SOAP Web Servisi
@@ -145,8 +180,8 @@ export async function createCargoShipment(
   <soapenv:Header/>
   <soapenv:Body>
     <ship:createShipment>
-      <wsUserName>${escapeXml(settings.yurticiUsername)}</wsUserName>
-      <wsPassword>${escapeXml(settings.yurticiPassword)}</wsPassword>
+      <wsUserName>${escapeXml(activeUsername)}</wsUserName>
+      <wsPassword>${escapeXml(activePassword)}</wsPassword>
       <userLanguage>TR</userLanguage>
       <ShippingOrderVO>
         <cargoKey>${escapeXml(order.orderNumber)}</cargoKey>
@@ -187,8 +222,10 @@ export async function createCargoShipment(
         console.error("Yurtiçi Kargo SOAP Hatası:", errDetail, responseText);
         return {
           success: false,
-          cargoCompany: "Yurtiçi Kargo",
+          cargoCompany: `Yurtiçi Kargo (${payerLabel})`,
           message: `Yurtiçi Kargo API Hatası: ${errDetail}`,
+          payerType,
+          payerLabel,
         };
       }
 
@@ -201,36 +238,41 @@ export async function createCargoShipment(
 
       return {
         success: true,
-        cargoCompany: "Yurtiçi Kargo",
+        cargoCompany: `Yurtiçi Kargo (${payerLabel})`,
         trackingNumber,
         trackingUrl: getCargoTrackingUrl("Yurtiçi Kargo", trackingNumber) || undefined,
         barcode: trackingNumber,
-        message: "Yurtiçi Kargo sistemine gönderi başarıyla iletildi.",
+        payerType,
+        payerLabel,
+        message: `Yurtiçi Kargo sistemine gönderi başarıyla iletildi (${payerLabel}).`,
       };
     } catch (apiError: any) {
       console.error("Yurtiçi Kargo bağlantı hatası:", apiError);
       return {
         success: false,
-        cargoCompany: "Yurtiçi Kargo",
+        cargoCompany: `Yurtiçi Kargo (${payerLabel})`,
         message: `Kargo sunucusuna ulaşılamadı: ${apiError?.message || "Ağ hatası"}`,
+        payerType,
+        payerLabel,
       };
     }
   }
 
-  // TEST / SİMÜLASYON MODU (Gerçek API anahtarı girilene kadar veya test modunda)
-  // Gerçekçi 12 haneli Yurtiçi Kargo takip no formatı üret
+  // TEST / SİMÜLASYON MODU
   const randomSuffix = Math.floor(10000000 + Math.random() * 90000000).toString();
   const simulatedTrackingNumber = `YK${randomSuffix}`;
 
   return {
     success: true,
-    cargoCompany: "Yurtiçi Kargo",
+    cargoCompany: `Yurtiçi Kargo (${payerLabel})`,
     trackingNumber: simulatedTrackingNumber,
     trackingUrl: getCargoTrackingUrl("Yurtiçi Kargo", simulatedTrackingNumber) || undefined,
     barcode: simulatedTrackingNumber,
+    payerType,
+    payerLabel,
     message: isLive && !hasYurticiCredentials
-      ? "Canlı mod seçili ancak Yurtiçi Kargo API anahtarları tanımlanmadığı için test kodu üretildi."
-      : "Yurtiçi Kargo gönderisi (Test Modu) başarıyla oluşturuldu.",
+      ? `Canlı mod seçili ancak API bilgileri eksik olduğu için test kodu üretildi (${payerLabel}).`
+      : `Yurtiçi Kargo gönderisi (Test Modu) başarıyla oluşturuldu (${payerLabel}).`,
   };
 }
 
