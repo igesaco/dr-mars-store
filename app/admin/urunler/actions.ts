@@ -86,6 +86,15 @@ export async function createProduct(form: FormData) {
     });
     const url = imageUrl(form);
     if (url) await tx.insert(productImages).values({ productId: product.id, url, altText: name, sortOrder: 0 });
+
+    const { logAuditEvent } = await import("@/lib/audit-log");
+    await logAuditEvent({
+      action: "ÜRÜN_EKLENDİ",
+      entityType: "product",
+      entityId: product.id,
+      description: `"${name}" adlı yeni ürün oluşturuldu. Fiyat: ₺${price}, Stok: ${stock} adet.`,
+      details: { name, slug, price, stock, sku, volumeMl },
+    });
   });
   refreshCatalog();
   redirect("/admin/urunler?created=1");
@@ -128,6 +137,15 @@ export async function updateProduct(form: FormData) {
     const url = imageUrl(form);
     await tx.delete(productImages).where(eq(productImages.productId, id));
     if (url) await tx.insert(productImages).values({ productId: id, url, altText: name, sortOrder: 0 });
+
+    const { logAuditEvent } = await import("@/lib/audit-log");
+    await logAuditEvent({
+      action: "ÜRÜN_GÜNCELLENDİ",
+      entityType: "product",
+      entityId: id,
+      description: `"${name}" adlı ürün güncellendi. Yeni Fiyat: ₺${price}, Stok: ${stock} adet.`,
+      details: { name, slug, price, stock, sku, volumeMl },
+    });
   });
   refreshCatalog();
   redirect("/admin/urunler?updated=1");

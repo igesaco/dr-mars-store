@@ -16,8 +16,10 @@ import {
   Tag,
   Tags,
   Users,
+  ShieldAlert,
+  UserCheck,
 } from "lucide-react";
-import { isAdmin } from "@/lib/admin-auth";
+import { getCurrentAdmin, isAdmin } from "@/lib/admin-auth";
 import { logoutAction } from "@/app/yonetici-giris/actions";
 
 const groups = [
@@ -47,8 +49,10 @@ const groups = [
     ],
   },
   {
-    title: "YÖNETİM & AYARLAR",
+    title: "YÖNETİM & GÜVENLİK",
     links: [
+      ["İşlem & Güvenlik Logları", "/admin/loglar", ShieldAlert],
+      ["Personel Hesapları", "/admin/personel", UserCheck],
       ["E-ticaret genel", "/admin/e-ticaret", ShoppingBag],
       ["Site ayarları", "/admin/ayarlar", Settings],
       ["Web tasarımı", "/admin/tasarim", LayoutTemplate],
@@ -57,7 +61,8 @@ const groups = [
 ] as const;
 
 export default async function AdminLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  if (!(await isAdmin())) redirect("/yonetici-giris");
+  const currentAdmin = await getCurrentAdmin();
+  if (!currentAdmin) redirect("/yonetici-giris");
   return (
     <div className="admin-shell">
       <aside className="admin-sidebar">
@@ -66,6 +71,25 @@ export default async function AdminLayout({ children }: Readonly<{ children: Rea
           <i />
           <span>MARS</span>
         </Link>
+        <div style={{ margin: "-20px 12px 24px", padding: "10px 12px", background: "rgba(255,255,255,0.06)", borderRadius: 10, border: "1px solid rgba(255,255,255,0.1)" }}>
+          <p style={{ margin: 0, fontSize: "0.8rem", fontWeight: 800, color: "#fff", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+            {currentAdmin.name}
+          </p>
+          <span style={{
+            display: "inline-block",
+            fontSize: "0.62rem",
+            fontWeight: 800,
+            letterSpacing: "0.08em",
+            textTransform: "uppercase",
+            marginTop: 4,
+            padding: "2px 6px",
+            borderRadius: 4,
+            background: currentAdmin.isSuperAdmin ? "#caff73" : "#3b82f6",
+            color: currentAdmin.isSuperAdmin ? "#101e2c" : "#fff",
+          }}>
+            {currentAdmin.isSuperAdmin ? "★ PATRON (ANA YÖNETİCİ)" : "PERSONEL"}
+          </span>
+        </div>
         {groups.map((group) => (
           <div key={group.title}>
             <p className="admin-store-label">{group.title}</p>

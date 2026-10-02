@@ -29,6 +29,15 @@ export async function updateOrderStatusAction(form: FormData) {
 
   await db.update(orders).set(updates).where(eq(orders.id, orderId));
 
+  const { logAuditEvent } = await import("@/lib/audit-log");
+  await logAuditEvent({
+    action: "SİPARİŞ_DURUMU_GÜNCELLENDİ",
+    entityType: "order",
+    entityId: orderId,
+    description: `Sipariş (${orderId}) durumu "${status}" olarak güncellendi.${paymentStatus ? ` Ödeme durumu: "${paymentStatus}".` : ""}`,
+    details: updates,
+  });
+
   revalidatePath("/admin");
   revalidatePath("/admin/siparisler");
   revalidatePath(`/admin/siparisler/${orderId}`);
@@ -54,6 +63,15 @@ export async function updateCargoAction(form: FormData) {
       updatedAt: new Date(),
     })
     .where(eq(orders.id, orderId));
+
+  const { logAuditEvent } = await import("@/lib/audit-log");
+  await logAuditEvent({
+    action: "KARGO_TAKİP_GİRİLDİ",
+    entityType: "order",
+    entityId: orderId,
+    description: `Sipariş (${orderId}) için ${cargoCompany || "Kargo"} takip numarası (${cargoTrackingNumber || "kaldırıldı"}) girildi.`,
+    details: { cargoCompany, cargoTrackingNumber },
+  });
 
   revalidatePath("/admin");
   revalidatePath("/admin/siparisler");
@@ -102,6 +120,15 @@ export async function createShipmentForOrderAction(form: FormData) {
         updatedAt: new Date(),
       })
       .where(eq(orders.id, orderId));
+
+    const { logAuditEvent: logAudit } = await import("@/lib/audit-log");
+    await logAudit({
+      action: "KARGO_ETİKETİ_YAZDIRILDI",
+      entityType: "order",
+      entityId: orderId,
+      description: `Sipariş #${order.orderNumber} için Yurtiçi Kargo sevkiyat kodu (${result.trackingNumber}) oluşturuldu.`,
+      details: { ...shipmentData, trackingNumber: result.trackingNumber },
+    });
 
     revalidatePath("/admin");
     revalidatePath("/admin/siparisler");

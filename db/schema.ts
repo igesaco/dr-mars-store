@@ -27,6 +27,7 @@ export const users = pgTable("users", {
   firstName: varchar("first_name", { length: 80 }), lastName: varchar("last_name", { length: 80 }),
   email: varchar("email", { length: 255 }).notNull().unique(), phone: varchar("phone", { length: 32 }),
   passwordHash: text("password_hash").notNull(), role: userRole("role").default("customer").notNull(),
+  isSuperAdmin: boolean("is_super_admin").default(false).notNull(),
   isActive: boolean("is_active").default(true).notNull(), lastLoginAt: timestamp("last_login_at", { withTimezone: true }), ...timestamps,
 });
 
@@ -114,4 +115,19 @@ export const productReviews = pgTable("product_reviews", {
   comment: text("comment").notNull(),
   isApproved: boolean("is_approved").default(true).notNull(),
   ...timestamps,
+});
+
+export const adminAuditLogs = pgTable("admin_audit_logs", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  userId: uuid("user_id").references(() => users.id, { onDelete: "set null" }),
+  userName: varchar("user_name", { length: 160 }).notNull(),
+  userEmail: varchar("user_email", { length: 255 }).notNull(),
+  userRole: varchar("user_role", { length: 40 }).default("admin").notNull(),
+  action: varchar("action", { length: 80 }).notNull(),
+  entityType: varchar("entity_type", { length: 80 }).notNull(),
+  entityId: varchar("entity_id", { length: 120 }),
+  description: text("description").notNull(),
+  details: jsonb("details"),
+  ipAddress: varchar("ip_address", { length: 64 }),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
 });
