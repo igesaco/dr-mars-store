@@ -80,13 +80,15 @@ export default async function ProductPage({ params }: Props) {
     .where(eq(productVariants.productId, product.id))
     .orderBy(asc(productVariants.volumeMl));
 
-  // Resim
-  const [img] = await db
+  // Resimler
+  const imageRows = await db
     .select({ url: productImages.url })
     .from(productImages)
     .where(eq(productImages.productId, product.id))
-    .orderBy(asc(productImages.sortOrder))
-    .limit(1);
+    .orderBy(asc(productImages.sortOrder));
+
+  const imageUrls = imageRows.map((i) => i.url).filter(Boolean);
+  const primaryImage = imageUrls[0] ?? null;
 
   // Onaylanmış Yorumlar
   let reviews: {
@@ -130,7 +132,8 @@ export default async function ProductPage({ params }: Props) {
         product={{
           ...product,
           variants,
-          imageUrl: img?.url ?? "/images/dr-mars-hero.png",
+          imageUrl: primaryImage,
+          images: imageUrls,
         }}
         reviews={reviews}
       />

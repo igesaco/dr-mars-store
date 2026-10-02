@@ -52,6 +52,7 @@ type ProductProps = {
     categorySlug?: string | null;
     variants: Variant[];
     imageUrl: string | null;
+    images?: string[];
   };
   reviews?: ReviewItem[];
 };
@@ -74,6 +75,13 @@ export function ProductView({ product, reviews = [] }: ProductProps) {
   );
   const [quantity, setQuantity] = useState(1);
   const [added, setAdded] = useState(false);
+
+  // Görsel Galerisi Yönetimi
+  const allImages = (product.images && product.images.length > 0)
+    ? product.images
+    : (product.imageUrl ? [product.imageUrl] : []);
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+  const activeImage = allImages[selectedImageIndex] ?? allImages[0] ?? null;
 
   // Review Form States
   const [showReviewForm, setShowReviewForm] = useState(false);
@@ -173,35 +181,84 @@ export function ProductView({ product, reviews = [] }: ProductProps) {
   return (
     <>
       <section className="grid min-h-[calc(100vh-130px)] lg:grid-cols-2">
-        {/* Product Image / Art Showcase */}
-        <div className="relative flex min-h-[480px] lg:min-h-full items-center justify-center p-8 bg-gradient-to-br from-[#d7ff99] to-[#849649] text-white">
-          <div className="text-center">
-            <span className="text-sm font-black tracking-widest uppercase opacity-80">
-              DR MARS · MODERN COLOGNE
-            </span>
-            <h2 className="mt-4 text-6xl sm:text-8xl font-black tracking-tighter">
-              {product.name}
-            </h2>
-            <p className="mt-4 text-sm font-semibold tracking-wider text-black/60 uppercase">
-              {selectedVariant.name} · %80 ALKOL BAZLI FORMÜL
-            </p>
+        {/* Product Image / Luxury Art Showcase */}
+        <div className="relative flex flex-col min-h-[500px] lg:min-h-full items-center justify-between p-6 sm:p-10 bg-gradient-to-b from-[#fbfbfa] via-[#f7f6f2] to-[#eeebe2] border-b lg:border-b-0 lg:border-r border-[#e7e3d8]">
+          {/* Top Brand Tag & Wishlist Button */}
+          <div className="w-full flex items-center justify-between z-10">
+            <div className="flex items-center gap-2 rounded-full border border-stone-200/80 bg-white/80 px-3.5 py-1.5 backdrop-blur-md shadow-xs">
+              <span className="h-1.5 w-1.5 rounded-full bg-[#8f7351] animate-pulse" />
+              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-stone-700">
+                DR. MARS · HAUTE PARFUMERIE
+              </span>
+            </div>
+
+            {/* Quick Wishlist Float Button */}
+            <button
+              onClick={handleToggleWishlist}
+              className="flex h-11 w-11 items-center justify-center rounded-full border border-stone-200/80 bg-white/90 text-stone-900 shadow-sm backdrop-blur transition-transform hover:scale-110"
+              aria-label="Favorilere ekle"
+            >
+              <Heart
+                size={18}
+                className={favorited ? "fill-rose-500 text-rose-500" : "text-stone-700"}
+              />
+            </button>
           </div>
 
-          <div className="absolute bottom-6 left-6 text-2xl font-black tracking-tighter opacity-70">
-            DR MARS
+          {/* Main Visual Display (Center) */}
+          <div className="relative my-auto flex w-full max-w-[480px] h-[360px] sm:h-[480px] lg:h-[560px] items-center justify-center py-4">
+            {/* Ambient subtle warm glow */}
+            <div className="absolute inset-0 bg-radial from-amber-100/40 via-transparent to-transparent blur-2xl pointer-events-none" />
+
+            {activeImage ? (
+              <img
+                src={activeImage}
+                alt={product.name}
+                className="relative z-10 max-h-full max-w-full object-contain drop-shadow-[0_20px_35px_rgba(0,0,0,0.12)] transition-transform duration-500 hover:scale-105"
+              />
+            ) : (
+              <div className="relative flex flex-col items-center justify-center text-center p-8">
+                <div className="relative flex h-64 w-44 flex-col items-center justify-center rounded-2xl border-2 border-[#c5a880]/40 bg-gradient-to-b from-white to-amber-50/40 p-6 shadow-xl backdrop-blur">
+                  <div className="h-8 w-12 rounded-t-lg bg-gradient-to-r from-[#dfcca8] to-[#c5a880]" />
+                  <div className="my-auto text-center">
+                    <span className="text-[10px] font-black tracking-[0.3em] text-[#8f7351]">DR. MARS</span>
+                    <p className="mt-2 text-xs font-serif font-bold text-stone-900 line-clamp-2">{product.name}</p>
+                    <span className="mt-2 block text-[9px] font-semibold text-stone-500 uppercase tracking-widest">%80 ALKOL</span>
+                  </div>
+                </div>
+                <p className="mt-5 text-xs font-bold uppercase tracking-widest text-stone-400">Ürün Görseli</p>
+              </div>
+            )}
           </div>
 
-          {/* Quick Wishlist Float Button */}
-          <button
-            onClick={handleToggleWishlist}
-            className="absolute top-6 right-6 flex h-12 w-12 items-center justify-center rounded-full bg-white/90 text-stone-900 shadow-md backdrop-blur transition-transform hover:scale-110"
-            aria-label="Favorilere ekle"
-          >
-            <Heart
-              size={20}
-              className={favorited ? "fill-rose-500 text-rose-500" : "text-stone-700"}
-            />
-          </button>
+          {/* Bottom Thumbnails or Product Features */}
+          <div className="w-full flex flex-col items-center gap-3 z-10 mt-4">
+            {allImages.length > 1 ? (
+              <div className="flex items-center gap-2.5 bg-white/80 p-1.5 rounded-2xl border border-stone-200 backdrop-blur-md shadow-xs max-w-full overflow-x-auto">
+                {allImages.map((img, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => setSelectedImageIndex(idx)}
+                    className={`relative h-14 w-14 rounded-xl overflow-hidden border-2 transition-all p-1 bg-white ${
+                      selectedImageIndex === idx
+                        ? "border-[#8f7351] scale-105 shadow-sm"
+                        : "border-transparent opacity-60 hover:opacity-100"
+                    }`}
+                  >
+                    <img src={img} alt={`${product.name} - ${idx + 1}`} className="h-full w-full object-contain" />
+                  </button>
+                ))}
+              </div>
+            ) : null}
+
+            <div className="flex items-center gap-2 text-[10px] font-bold text-stone-400 uppercase tracking-wider">
+              <span>%80 Alkol Bazlı Formül</span>
+              <span>·</span>
+              <span>Patentli Akik Taşı</span>
+              <span>·</span>
+              <span>Özel Cam Şişe</span>
+            </div>
+          </div>
         </div>
 
         {/* Product Details & Actions */}
