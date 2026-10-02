@@ -89,18 +89,32 @@ export default async function ProductPage({ params }: Props) {
     .limit(1);
 
   // Onaylanmış Yorumlar
-  const reviews = await db
-    .select({
-      id: productReviews.id,
-      authorName: productReviews.authorName,
-      rating: productReviews.rating,
-      title: productReviews.title,
-      comment: productReviews.comment,
-      createdAt: productReviews.createdAt,
-    })
-    .from(productReviews)
-    .where(and(eq(productReviews.productId, product.id), eq(productReviews.isApproved, true)))
-    .orderBy(desc(productReviews.createdAt));
+  let reviews: {
+    id: string;
+    authorName: string;
+    rating: number;
+    title: string | null;
+    comment: string;
+    createdAt: Date;
+  }[] = [];
+
+  try {
+    reviews = await db
+      .select({
+        id: productReviews.id,
+        authorName: productReviews.authorName,
+        rating: productReviews.rating,
+        title: productReviews.title,
+        comment: productReviews.comment,
+        createdAt: productReviews.createdAt,
+      })
+      .from(productReviews)
+      .where(and(eq(productReviews.productId, product.id), eq(productReviews.isApproved, true)))
+      .orderBy(desc(productReviews.createdAt));
+  } catch (error) {
+    console.error("Yorumlar yüklenirken hata:", error);
+    reviews = [];
+  }
 
   const [navCategories, settings] = await Promise.all([
     getStoreNavCategories(),

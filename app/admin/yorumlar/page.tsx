@@ -7,22 +7,28 @@ export const dynamic = "force-dynamic";
 
 export default async function AdminReviewsPage() {
   const db = getDb();
-  const rawReviews = await db
-    .select({
-      id: productReviews.id,
-      productId: productReviews.productId,
-      productName: products.name,
-      productSlug: products.slug,
-      authorName: productReviews.authorName,
-      rating: productReviews.rating,
-      title: productReviews.title,
-      comment: productReviews.comment,
-      isApproved: productReviews.isApproved,
-      createdAt: productReviews.createdAt,
-    })
-    .from(productReviews)
-    .leftJoin(products, eq(productReviews.productId, products.id))
-    .orderBy(desc(productReviews.createdAt));
+  let rawReviews: any[] = [];
+  try {
+    rawReviews = await db
+      .select({
+        id: productReviews.id,
+        productId: productReviews.productId,
+        productName: products.name,
+        productSlug: products.slug,
+        authorName: productReviews.authorName,
+        rating: productReviews.rating,
+        title: productReviews.title,
+        comment: productReviews.comment,
+        isApproved: productReviews.isApproved,
+        createdAt: productReviews.createdAt,
+      })
+      .from(productReviews)
+      .leftJoin(products, eq(productReviews.productId, products.id))
+      .orderBy(desc(productReviews.createdAt));
+  } catch (error) {
+    console.error("Yorumlar çekilemedi:", error);
+    rawReviews = [];
+  }
 
   return (
     <div className="space-y-6">
