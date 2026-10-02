@@ -34,8 +34,8 @@ export default async function CargoLabelPage({ params }: Props) {
 
   // Code-128 SVG Barkodu oluştur
   const barcodeSvg = generateBarcodeSvg(trackingNumber, {
-    height: 70,
-    width: 320,
+    height: 55,
+    width: 300,
     showText: true,
   });
 
@@ -48,7 +48,58 @@ export default async function CargoLabelPage({ params }: Props) {
   });
 
   return (
-    <div className="min-h-screen bg-stone-100 p-4 sm:p-8 print:bg-white print:p-0">
+    <div className="min-h-screen bg-stone-100 p-4 sm:p-8 print:bg-white print:p-0 print:m-0 print:min-h-0">
+      {/* Özel Termal Yazdırma CSS Kuralı */}
+      <style
+        dangerouslySetInnerHTML={{
+          __html: `
+            @media print {
+              @page {
+                size: 100mm 150mm;
+                margin: 0;
+              }
+              html, body {
+                width: 100% !important;
+                height: auto !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                background: #ffffff !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+              }
+              .admin-sidebar, .admin-help, .brand, .admin-brand, .admin-shell > aside, [class*="admin-sidebar"] {
+                display: none !important;
+                visibility: hidden !important;
+                width: 0 !important;
+                height: 0 !important;
+                margin: 0 !important;
+                padding: 0 !important;
+              }
+              .admin-shell, .admin-content {
+                display: block !important;
+                width: 100% !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                background: #ffffff !important;
+              }
+              .cargo-label-sheet {
+                width: 100mm !important;
+                max-width: 100mm !important;
+                height: auto !important;
+                max-height: 148mm !important;
+                margin: 0 auto !important;
+                padding: 4mm 5mm !important;
+                box-sizing: border-box !important;
+                border: 2px solid #000 !important;
+                page-break-after: avoid !important;
+                page-break-inside: avoid !important;
+                break-inside: avoid !important;
+              }
+            }
+          `,
+        }}
+      />
+
       {/* Üst Yönetim Araç Çubuğu (Yazdırma esnasında gizlenir) */}
       <div className="max-w-[420px] mx-auto mb-6 flex items-center justify-between gap-4 print:hidden">
         <Link
@@ -60,7 +111,6 @@ export default async function CargoLabelPage({ params }: Props) {
         </Link>
 
         <button
-          onClick={undefined}
           id="print-btn"
           className="inline-flex items-center gap-2 rounded-xl bg-[#101e2c] px-4 py-2.5 text-xs font-black uppercase tracking-wider text-white shadow-md hover:bg-black transition-all cursor-pointer"
         >
@@ -73,8 +123,8 @@ export default async function CargoLabelPage({ params }: Props) {
         STANDART KARGO GÖNDERİ ETİKETİ (100x150 mm / A6 Termal Etiket Formatı)
       */}
       <div
-        className="max-w-[420px] mx-auto bg-white border-2 border-black rounded-lg p-5 shadow-lg print:shadow-none print:border-2 print:border-black print:rounded-none print:max-w-none print:w-full print:m-0 font-sans text-black"
-        style={{ minHeight: "600px" }}
+        className="cargo-label-sheet max-w-[420px] mx-auto bg-white border-2 border-black rounded-lg p-5 shadow-lg print:shadow-none print:border-2 print:border-black print:rounded-none font-sans text-black"
+        style={{ breakInside: "avoid", pageBreakInside: "avoid" }}
       >
         {/* Üst Başlık & Taşıyıcı Firma Bilgisi */}
         <div className="border-b-2 border-black pb-3">
