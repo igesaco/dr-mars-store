@@ -103,7 +103,7 @@ export function StaffClient({ initialStaff, isSuperAdmin }: Props) {
 
   const handleDelete = async (user: StaffItem) => {
     if (!isSuperAdmin) {
-      toast.error("Personel silme yetkisi yalnızca Ana Yöneticiye (Patron) aittir.");
+      toast.error("Personel silme yetkisi yalnızca Admin'e aittir.");
       return;
     }
     if (!confirm(`${user.firstName || user.email} adlı personeli kalıcı olarak silmek istediğinize emin misiniz?`)) {
@@ -147,7 +147,7 @@ export function StaffClient({ initialStaff, isSuperAdmin }: Props) {
             </span>
           </h2>
           <p className="text-xs text-stone-500 mt-1">
-            Panelinize erişebilen yetkilileri tanımlayın; her personelin yaptığı tüm hareketler denetim günlüğünde kayıt altına alınır.
+            Panelinize erişebilen yetkilileri tanımlayın; personelin yaptığı tüm hareketler denetim günlüğünde kayıt altına alınır.
           </p>
         </div>
 
@@ -170,14 +170,14 @@ export function StaffClient({ initialStaff, isSuperAdmin }: Props) {
             <div>
               <div className="flex items-center gap-2">
                 <h3 className="text-sm font-black tracking-tight text-white">
-                  Ana Yönetici (Patron Hesabı)
+                  Admin Hesabı (Ana Yönetici)
                 </h3>
                 <span className="px-2 py-0.5 rounded bg-[#c5a880]/30 border border-[#c5a880]/50 text-[#dfcca8] text-[9px] font-black uppercase tracking-widest">
                   MUTLAK YETKİLİ
                 </span>
               </div>
               <p className="text-xs text-stone-300 mt-0.5 font-mono">
-                patron@drmars.com.tr (veya doğrudan sunucu ana şifreniz)
+                admin@drmars.com.tr (veya doğrudan sunucu ana şifreniz)
               </p>
             </div>
           </div>
@@ -388,7 +388,7 @@ export function StaffClient({ initialStaff, isSuperAdmin }: Props) {
                       className="rounded text-amber-700 focus:ring-amber-500 h-4 w-4"
                     />
                     <span className="text-xs font-bold text-amber-950">
-                      ★ Bu kullanıcıya Ana Yönetici (Super Admin) yetkisi ver
+                      ★ Bu kullanıcıya Admin yetkisi ver
                     </span>
                   </label>
                   <p className="text-[11px] text-amber-800 mt-1 pl-6">

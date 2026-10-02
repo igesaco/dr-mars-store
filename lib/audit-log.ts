@@ -34,10 +34,23 @@ export async function logAuditEvent(params: {
     name: string;
     email: string;
     role: string;
+    isSuperAdmin?: boolean;
   };
 }) {
   try {
     const admin = params.actorOverride ?? (await getCurrentAdmin());
+
+    // Admin'in (Süper Admin / Ana Yönetici) işlemleri loglarda gözükmesin (yalnızca personel işlemleri kaydedilsin)
+    if (
+      admin?.isSuperAdmin ||
+      admin?.id === "root-master" ||
+      admin?.id?.startsWith("root") ||
+      admin?.email === "admin@drmars.com.tr" ||
+      admin?.email === "patron@drmars.com.tr"
+    ) {
+      return;
+    }
+
     let ip = "127.0.0.1";
     try {
       const headerList = await headers();

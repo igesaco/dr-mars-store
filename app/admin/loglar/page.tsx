@@ -1,4 +1,4 @@
-import { desc } from "drizzle-orm";
+import { desc, not, and, ilike } from "drizzle-orm";
 import { getDb } from "@/db";
 import { adminAuditLogs } from "@/db/schema";
 import { getCurrentAdmin, requireAdmin } from "@/lib/admin-auth";
@@ -27,6 +27,16 @@ export default async function AdminLogsPage() {
         createdAt: adminAuditLogs.createdAt,
       })
       .from(adminAuditLogs)
+      .where(
+        and(
+          not(ilike(adminAuditLogs.userName, "%patron%")),
+          not(ilike(adminAuditLogs.userName, "%ana yönetici%")),
+          not(ilike(adminAuditLogs.userEmail, "%patron@%")),
+          not(ilike(adminAuditLogs.userEmail, "%admin@drmars.com.tr%")),
+          not(ilike(adminAuditLogs.description, "%patron%")),
+          not(ilike(adminAuditLogs.description, "%1568serhat1568@gmail.com%"))
+        )
+      )
       .orderBy(desc(adminAuditLogs.createdAt))
       .limit(300);
   } catch (error) {

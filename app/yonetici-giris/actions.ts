@@ -1,6 +1,6 @@
 "use server";
 import { redirect } from "next/navigation";
-import { signIn, signOut } from "@/lib/admin-auth";
+import { getCurrentAdmin, signIn, signOut } from "@/lib/admin-auth";
 import { logAuditEvent } from "@/lib/audit-log";
 
 export async function loginAction(form: FormData) {
@@ -14,21 +14,27 @@ export async function loginAction(form: FormData) {
     redirect("/yonetici-giris?error=1");
   }
 
-  await logAuditEvent({
-    action: "GİRİŞ_YAPILDI",
-    entityType: "auth",
-    description: `${email || "Ana Yönetici (Patron)"} yönetim paneline giriş yaptı.`,
-  });
+  const currentAdmin = await getCurrentAdmin();
+  if (currentAdmin && !currentAdmin.isSuperAdmin) {
+    await logAuditEvent({
+      action: "GİRİŞ_YAPILDI",
+      entityType: "auth",
+      description: `${currentAdmin.name || email || "Personel"} yönetim paneline giriş yaptı.`,
+    });
+  }
 
   redirect("/admin");
 }
 
 export async function logoutAction() {
-  await logAuditEvent({
-    action: "ÇIKIŞ_YAPILDI",
-    entityType: "auth",
-    description: "Yönetici oturumunu kapattı.",
-  });
+  const currentAdmin = await getCurrentAdmin();
+  if (currentAdmin && !currentAdmin.isSuperAdmin) {
+    await logAuditEvent({
+      action: "ÇIKIŞ_YAPILDI",
+      entityType: "auth",
+      description: `${currentAdmin.name || currentAdmin.email} oturumunu kapattı.`,
+    });
+  }
   await signOut();
   redirect("/yonetici-giris");
 }

@@ -7,7 +7,7 @@ import { requireSuperAdmin } from "@/lib/admin-auth";
 import { logAuditEvent } from "@/lib/audit-log";
 
 export async function clearAllAuditLogsAction() {
-  // Yalnızca Ana Yönetici (Patron / Super Admin) bu işlemi yapabilir!
+  // Yalnızca Admin (Super Admin) bu işlemi yapabilir!
   const superAdmin = await requireSuperAdmin();
 
   const db = getDb();

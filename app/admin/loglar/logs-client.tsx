@@ -138,7 +138,7 @@ export function LogsClient({ initialLogs, isSuperAdmin }: Props) {
           ) : (
             <div className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-amber-50 border border-amber-200 text-[11px] font-bold text-amber-800">
               <Info size={14} className="shrink-0" />
-              <span>Log silme yetkisi sadece Ana Yöneticiye (Patron) aittir.</span>
+              <span>Log silme yetkisi sadece Admin'e aittir.</span>
             </div>
           )}
         </div>

@@ -61,7 +61,7 @@ export default async function AdminLogin({
                 name="email"
                 type="text"
                 autoComplete="username"
-                placeholder="Örn: patron@drmars.com.tr"
+                placeholder="Örn: admin@drmars.com.tr"
                 className="w-full rounded-xl border border-stone-700/80 bg-[#0c141d]/80 py-3 pl-10 pr-4 text-xs font-medium text-white placeholder-stone-500 transition-colors focus:border-[#c5a880] focus:outline-none focus:ring-1 focus:ring-[#c5a880]"
               />
             </div>

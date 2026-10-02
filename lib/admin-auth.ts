@@ -71,8 +71,8 @@ export async function getCurrentAdmin(): Promise<AdminUserSession | null> {
   if (cookieVal === legacy) {
     return {
       id: "root-master",
-      email: "patron@drmars.com.tr",
-      name: "Ana Yönetici (Patron)",
+      email: "admin@drmars.com.tr",
+      name: "Admin",
       role: "admin",
       isSuperAdmin: true,
     };
@@ -97,7 +97,7 @@ export async function requireAdmin(): Promise<AdminUserSession> {
 export async function requireSuperAdmin(): Promise<AdminUserSession> {
   const admin = await requireAdmin();
   if (!admin.isSuperAdmin) {
-    throw new Error("Bu işlem için yalnızca Ana Yönetici (Patron) yetkilidir.");
+    throw new Error("Bu işlem için yalnızca Admin yetkilidir.");
   }
   return admin;
 }
@@ -115,8 +115,8 @@ export async function signIn(identifierOrPassword: string, optionalPassword?: st
   if (isMasterPass) {
     const rootSession: AdminUserSession = {
       id: "root-master",
-      email: "patron@drmars.com.tr",
-      name: "Ana Yönetici (Patron)",
+      email: "admin@drmars.com.tr",
+      name: "Admin",
       role: "admin",
       isSuperAdmin: true,
     };
@@ -161,7 +161,7 @@ export async function signIn(identifierOrPassword: string, optionalPassword?: st
       email: user.email,
       name: fullName || user.email,
       role: user.role as "admin" | "manager" | "editor",
-      isSuperAdmin: user.isSuperAdmin || user.role === "admin",
+      isSuperAdmin: Boolean(user.isSuperAdmin),
     };
 
     const signed = signSession(session);

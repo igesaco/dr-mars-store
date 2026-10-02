@@ -87,7 +87,7 @@ export default async function AdminLayout({ children }: Readonly<{ children: Rea
             background: currentAdmin.isSuperAdmin ? "#caff73" : "#3b82f6",
             color: currentAdmin.isSuperAdmin ? "#101e2c" : "#fff",
           }}>
-            {currentAdmin.isSuperAdmin ? "★ PATRON (ANA YÖNETİCİ)" : "PERSONEL"}
+            {currentAdmin.isSuperAdmin ? "★ ADMİN" : "PERSONEL"}
           </span>
         </div>
         {groups.map((group) => (
