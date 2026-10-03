@@ -27,21 +27,62 @@ const categoryId = (form: FormData) => {
   if (value && !uuid.test(value)) throw new Error("Kategori geçersiz.");
   return value || null;
 };
-const imageUrl = (form: FormData) => {
-  const value = read(form, "imageUrl");
-  if (!value) return null;
-  if (value.startsWith("/") || value.startsWith("data:")) {
-    return value;
+const sanitizeUrl = (val: string): string | null => {
+  const v = String(val || "").trim();
+  if (!v) return null;
+  if (v.startsWith("/") || v.startsWith("data:")) {
+    return v;
   }
   try {
-    const parsed = new URL(value);
-    if (!["http:", "https:"].includes(parsed.protocol)) throw new Error("Görsel bağlantısı geçersiz.");
-    return parsed.toString();
+    const parsed = new URL(v);
+    if (["http:", "https:"].includes(parsed.protocol)) {
+      return parsed.toString();
+    }
   } catch {
-    if (value.startsWith("/")) return value;
-    throw new Error("Görsel bağlantısı geçersiz.");
+    if (v.startsWith("/")) return v;
   }
+  return null;
 };
+
+const getFormImages = (form: FormData): string[] => {
+  const list: string[] = [];
+
+  // 1. JSON array olarak gönderilmişse (imageUrls)
+  const jsonRaw = read(form, "imageUrls");
+  if (jsonRaw) {
+    try {
+      const parsed = JSON.parse(jsonRaw);
+      if (Array.isArray(parsed)) {
+        for (const item of parsed) {
+          const sanitized = sanitizeUrl(item);
+          if (sanitized && !list.includes(sanitized)) {
+            list.push(sanitized);
+          }
+        }
+      }
+    } catch {
+      // JSON parse başarısız olursa devam et
+    }
+  }
+
+  // 2. Birden fazla 'productImages' form alanı
+  const allImages = form.getAll("productImages");
+  for (const item of allImages) {
+    const sanitized = sanitizeUrl(String(item));
+    if (sanitized && !list.includes(sanitized)) {
+      list.push(sanitized);
+    }
+  }
+
+  // 3. Fallback: Tekil 'imageUrl' alanı
+  const single = sanitizeUrl(read(form, "imageUrl"));
+  if (single && !list.includes(single)) {
+    list.unshift(single);
+  }
+
+  return list;
+};
+
 const refreshCatalog = () => {
   revalidatePath("/admin");
   revalidatePath("/admin/urunler");
@@ -84,8 +125,15 @@ export async function createProduct(form: FormData) {
     if (stock) await tx.insert(inventoryMovements).values({
       variantId: variant.id, type: "in", quantity: stock, note: "Ürün oluşturulurken ilk stok",
     });
-    const url = imageUrl(form);
-    if (url) await tx.insert(productImages).values({ productId: product.id, url, altText: name, sortOrder: 0 });
+    const imagesToSave = getFormImages(form);
+    for (let i = 0; i < imagesToSave.length; i++) {
+      await tx.insert(productImages).values({
+        productId: product.id,
+        url: imagesToSave[i],
+        altText: `${name} - Görsel ${i + 1}`,
+        sortOrder: i,
+      });
+    }
 
     const { logAuditEvent } = await import("@/lib/audit-log");
     await logAuditEvent({
@@ -134,9 +182,16 @@ export async function updateProduct(form: FormData) {
     if (delta) await tx.insert(inventoryMovements).values({
       variantId, type: "adjustment", quantity: delta, note: "Ürün düzenleme ekranında stok güncellemesi",
     });
-    const url = imageUrl(form);
+    const imagesToSave = getFormImages(form);
     await tx.delete(productImages).where(eq(productImages.productId, id));
-    if (url) await tx.insert(productImages).values({ productId: id, url, altText: name, sortOrder: 0 });
+    for (let i = 0; i < imagesToSave.length; i++) {
+      await tx.insert(productImages).values({
+        productId: id,
+        url: imagesToSave[i],
+        altText: `${name} - Görsel ${i + 1}`,
+        sortOrder: i,
+      });
+    }
 
     const { logAuditEvent } = await import("@/lib/audit-log");
     await logAuditEvent({

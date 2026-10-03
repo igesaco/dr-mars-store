@@ -12,7 +12,7 @@ export default async function EditProductPage({ params }: { params: Promise<{ id
   let categoryRows: { id: string; name: string }[] = [];
   try {
     const db = getDb();
-    const [rows, list] = await Promise.all([
+    const [rows, list, imgRows] = await Promise.all([
       db.select({
         id: products.id, variantId: productVariants.id, name: products.name, slug: products.slug,
         shortDescription: products.shortDescription, description: products.description, fragranceNotes: products.fragranceNotes,
@@ -26,13 +26,23 @@ export default async function EditProductPage({ params }: { params: Promise<{ id
         .leftJoin(productImages, and(eq(products.id, productImages.productId), eq(productImages.sortOrder, 0)))
         .where(eq(products.id, id)).limit(1),
       db.select({ id: categories.id, name: categories.name }).from(categories).orderBy(asc(categories.sortOrder), asc(categories.name)),
+      db.select({ url: productImages.url }).from(productImages)
+        .where(eq(productImages.productId, id))
+        .orderBy(asc(productImages.sortOrder)),
     ]);
     product = rows[0];
     categoryRows = list;
+    const allImages = imgRows.map(r => r.url).filter(Boolean);
+    if (product) {
+      (product as any).images = allImages;
+      if (allImages.length > 0 && !product.imageUrl) {
+        product.imageUrl = allImages[0];
+      }
+    }
   } catch { /* not found page below */ }
   if (!product?.variantId) notFound();
   return <main className="admin-main catalog-main">
     <header className="editor-page-head"><div><Link href="/admin/urunler">← Ürünlere dön</Link><p className="admin-kicker">KATALOG / ÜRÜN DÜZENLE</p><h1>{product.name}</h1><p>Ürün bilgisi, fiyat, maliyet, stok ve SEO ayarlarını tek ekrandan güncelle.</p></div></header>
-    <ProductForm categories={categoryRows} action={updateProduct} mode="edit" data={{ ...product, variantId: product.variantId }} />
+    <ProductForm categories={categoryRows} action={updateProduct} mode="edit" data={{ ...product, variantId: product.variantId, images: (product as any).images }} />
   </main>;
 }

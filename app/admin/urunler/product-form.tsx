@@ -19,6 +19,11 @@ import {
   Image as ImageIcon,
   X,
   Loader2,
+  Star,
+  Trash2,
+  ArrowLeft,
+  ArrowRight,
+  Plus,
 } from "lucide-react";
 
 export type ProductFormData = {
@@ -40,6 +45,7 @@ export type ProductFormData = {
   stock?: number | null;
   lowStockThreshold?: number | null;
   imageUrl?: string | null;
+  images?: string[];
   seoTitle?: string | null;
   seoDescription?: string | null;
   shippingPolicy?: string | null;
@@ -73,8 +79,12 @@ export default function ProductForm({
   const [desi, setDesi] = useState<string>(String(data.desi ?? "1"));
   const [weightGrams, setWeightGrams] = useState<string>(String(data.weightGrams ?? "450"));
   const [deliveryTime, setDeliveryTime] = useState<string>(data.deliveryTime ?? "same-day");
-  const [currentImageUrl, setCurrentImageUrl] = useState<string>(data.imageUrl ?? "");
+  const initialImages: string[] = Array.isArray(data.images) && data.images.length > 0
+    ? data.images
+    : (data.imageUrl ? [data.imageUrl] : []);
+  const [imageList, setImageList] = useState<string[]>(initialImages);
   const [uploading, setUploading] = useState<boolean>(false);
+  const [uploadProgress, setUploadProgress] = useState<string>("");
   const [uploadError, setUploadError] = useState<string>("");
 
   const compressImage = (file: File): Promise<{ blob: Blob; dataUrl: string }> => {
@@ -127,47 +137,89 @@ export default function ProductForm({
   };
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
     setUploading(true);
     setUploadError("");
 
     try {
-      // 1. Tarayıcıda anında optimize et & sıkıştır (413 Request Entity Too Large önlemi)
-      const { blob, dataUrl } = await compressImage(file);
+      const uploadedUrls: string[] = [];
+      const total = files.length;
 
-      // Hemen önizlemeyi hazırla
-      setCurrentImageUrl(dataUrl);
+      for (let i = 0; i < total; i++) {
+        const file = files[i];
+        if (!file.type.startsWith("image/")) continue;
+        setUploadProgress(`${i + 1}/${total} görsel işleniyor...`);
 
-      // 2. Sunucuya da yüklemeyi dene
-      const fd = new FormData();
-      fd.append("file", blob, file.name.replace(/\.[^/.]+$/, "") + ".jpg");
+        // 1. Tarayıcıda anında optimize et & sıkıştır
+        const { blob, dataUrl } = await compressImage(file);
 
-      const res = await fetch("/api/admin/upload", {
-        method: "POST",
-        body: fd,
-      });
-
-      if (res.ok) {
+        // 2. Sunucuya da yüklemeyi dene
+        let finalUrl = dataUrl;
         try {
-          const text = await res.text();
-          const result = JSON.parse(text) as { url?: string; error?: string };
-          if (result.url) {
-            setCurrentImageUrl(result.url);
+          const fd = new FormData();
+          fd.append("file", blob, file.name.replace(/\.[^/.]+$/, "") + ".jpg");
+
+          const res = await fetch("/api/admin/upload", {
+            method: "POST",
+            body: fd,
+          });
+
+          if (res.ok) {
+            const result = (await res.json()) as { url?: string; error?: string };
+            if (result.url) {
+              finalUrl = result.url;
+            }
           }
         } catch {
-          // JSON parse edilemediyse sıkıştırılmış dataUrl zaten devrededir
+          // Sunucu yükleme hatası durumunda sıkıştırılmış dataUrl fallback
         }
+
+        uploadedUrls.push(finalUrl);
       }
-      // Eğer sunucu Vercel read-only sebebiyle hata verirse veya farklı yanıt dönerse,
-      // dataUrl veritabanına sorunsuz kaydedilir.
+
+      if (uploadedUrls.length > 0) {
+        setImageList((prev) => [...prev, ...uploadedUrls]);
+      }
     } catch (err: any) {
       console.error("Görsel yükleme hatası:", err);
-      setUploadError(err?.message || "Görsel yüklenirken bir sorun oluştu.");
+      setUploadError(err?.message || "Görseller yüklenirken bir sorun oluştu.");
     } finally {
       setUploading(false);
+      setUploadProgress("");
       e.target.value = "";
     }
+  };
+
+  const handleRemoveImage = (indexToRemove: number) => {
+    setImageList((prev) => prev.filter((_, idx) => idx !== indexToRemove));
+  };
+
+  const handleSetPrimary = (indexToPrimary: number) => {
+    if (indexToPrimary === 0) return;
+    setImageList((prev) => {
+      const target = prev[indexToPrimary];
+      const rest = prev.filter((_, idx) => idx !== indexToPrimary);
+      return [target, ...rest];
+    });
+  };
+
+  const handleMoveImage = (fromIndex: number, direction: -1 | 1) => {
+    const toIndex = fromIndex + direction;
+    setImageList((prev) => {
+      if (toIndex < 0 || toIndex >= prev.length) return prev;
+      const copy = [...prev];
+      const [moved] = copy.splice(fromIndex, 1);
+      copy.splice(toIndex, 0, moved);
+      return copy;
+    });
+  };
+
+  const handleAddPresetImage = (url: string) => {
+    setImageList((prev) => {
+      if (prev.includes(url)) return prev;
+      return [...prev, url];
+    });
   };
 
   // Calculations
@@ -347,18 +399,22 @@ export default function ProductForm({
           </div>
         </section>
 
-        {/* SECTION 02: GÖRSEL */}
+        {/* SECTION 02: GÖRSEL & ÇOKLU FOTOĞRAF GALERİSİ */}
         <section className="editor-card">
           <div className="editor-title">
             <span>02</span>
             <div>
-              <h2>Ürün Görseli</h2>
-              <p>Fotoğrafı doğrudan bilgisayarınızdan sisteme yükleyin veya hazır görsellerden seçin.</p>
+              <h2>Ürün Fotoğrafları & Galeri</h2>
+              <p>Her ürün için 2-3 veya daha fazla fotoğraf yükleyin. İlk sıradaki görsel vitrin kapak fotoğrafı olur.</p>
             </div>
           </div>
 
-          {/* Gizli form alanı - veritabanına aktarılır */}
-          <input type="hidden" name="imageUrl" value={currentImageUrl} />
+          {/* Gizli form alanları - veritabanına aktarılır */}
+          <input type="hidden" name="imageUrl" value={imageList[0] ?? ""} />
+          <input type="hidden" name="imageUrls" value={JSON.stringify(imageList)} />
+          {imageList.map((url, i) => (
+            <input key={i} type="hidden" name="productImages" value={url} />
+          ))}
 
           {uploadError && (
             <div
@@ -377,187 +433,329 @@ export default function ProductForm({
             </div>
           )}
 
-          {currentImageUrl ? (
+          {uploading && (
             <div
               style={{
                 display: "flex",
-                flexDirection: "column",
-                gap: "14px",
-                padding: "16px",
-                backgroundColor: "#f8fafc",
-                borderRadius: "12px",
-                border: "1px solid #e2e8f0",
+                alignItems: "center",
+                gap: "10px",
+                padding: "12px 16px",
+                marginBottom: "16px",
+                borderRadius: "8px",
+                backgroundColor: "#f0f9ff",
+                border: "1px solid #bae6fd",
+                color: "#0369a1",
+                fontSize: "0.85rem",
+                fontWeight: 600,
               }}
             >
-              <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
-                <div
-                  style={{
-                    width: "100px",
-                    height: "100px",
-                    borderRadius: "10px",
-                    overflow: "hidden",
-                    border: "1px solid #cbd5e1",
-                    backgroundColor: "#fff",
-                    flexShrink: 0,
-                  }}
-                >
-                  <img
-                    src={currentImageUrl}
-                    alt={data.name ?? "Ürün görseli"}
-                    style={{ width: "100%", height: "100%", objectFit: "cover" }}
-                  />
-                </div>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div
-                    style={{
-                      display: "inline-flex",
-                      alignItems: "center",
-                      gap: "6px",
-                      padding: "3px 8px",
-                      borderRadius: "6px",
-                      backgroundColor: "#dcfce7",
-                      color: "#15803d",
-                      fontSize: "0.75rem",
-                      fontWeight: 700,
-                      marginBottom: "6px",
-                    }}
-                  >
-                    <CheckCircle2 size={13} /> Sistemde Yüklü
-                  </div>
-                  <p
-                    style={{
-                      fontSize: "0.82rem",
-                      color: "#475569",
-                      margin: 0,
-                      fontWeight: 500,
-                    }}
-                  >
-                    {currentImageUrl.startsWith("data:")
-                      ? "Görsel başarıyla sisteme aktarıldı & optimize edildi."
-                      : currentImageUrl}
-                  </p>
-                </div>
-              </div>
-
-              <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
-                <label
-                  style={{
-                    cursor: uploading ? "not-allowed" : "pointer",
-                    display: "inline-flex",
-                    alignItems: "center",
-                    gap: "6px",
-                    padding: "7px 14px",
-                    borderRadius: "8px",
-                    backgroundColor: "#1e293b",
-                    color: "#fff",
-                    fontSize: "0.8rem",
-                    fontWeight: 600,
-                  }}
-                >
-                  {uploading ? <Loader2 size={14} className="animate-spin" /> : <UploadCloud size={14} />}
-                  <span>{uploading ? "Yükleniyor..." : "Farklı Görsel Yükle"}</span>
-                  <input
-                    type="file"
-                    accept="image/png,image/jpeg,image/webp,image/gif"
-                    onChange={handleFileUpload}
-                    disabled={uploading}
-                    style={{ display: "none" }}
-                  />
-                </label>
-
-                <button
-                  type="button"
-                  onClick={() => setCurrentImageUrl("")}
-                  style={{
-                    display: "inline-flex",
-                    alignItems: "center",
-                    gap: "5px",
-                    padding: "7px 14px",
-                    borderRadius: "8px",
-                    backgroundColor: "#fff",
-                    border: "1px solid #cbd5e1",
-                    color: "#dc2626",
-                    fontSize: "0.8rem",
-                    fontWeight: 600,
-                    cursor: "pointer",
-                  }}
-                >
-                  <X size={14} /> Görseli Kaldır
-                </button>
-              </div>
+              <Loader2 size={18} className="animate-spin" />
+              <span>{uploadProgress || "Görseller optimize edilip yükleniyor, lütfen bekleyin..."}</span>
             </div>
-          ) : (
-            <div style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
-              <label
+          )}
+
+          {/* Yüklenmiş Görseller Listesi / Izgara */}
+          {imageList.length > 0 && (
+            <div style={{ marginBottom: "20px" }}>
+              <div
                 style={{
                   display: "flex",
-                  flexDirection: "column",
                   alignItems: "center",
-                  justifyContent: "center",
-                  padding: "36px 20px",
-                  borderRadius: "12px",
-                  border: "2px dashed #cbd5e1",
-                  backgroundColor: "#f8fafc",
-                  cursor: uploading ? "not-allowed" : "pointer",
-                  textAlign: "center",
-                  transition: "border-color 0.2s, background-color 0.2s",
+                  justifyContent: "space-between",
+                  marginBottom: "12px",
+                  paddingBottom: "8px",
+                  borderBottom: "1px solid #e2e8f0",
                 }}
               >
-                {uploading ? (
-                  <>
-                    <Loader2 size={36} color="#0284c7" className="animate-spin" style={{ marginBottom: "10px" }} />
-                    <strong style={{ fontSize: "0.92rem", color: "#0f172a" }}>Görsel Yükleniyor...</strong>
-                    <span style={{ fontSize: "0.78rem", color: "#64748b", marginTop: "4px" }}>
-                      Lütfen dosya kaydedilene kadar bekleyin
-                    </span>
-                  </>
-                ) : (
-                  <>
-                    <UploadCloud size={40} color="#64748b" style={{ marginBottom: "10px" }} />
-                    <strong style={{ fontSize: "0.92rem", color: "#0f172a" }}>
-                      Bilgisayarınızdan Görsel Seçin veya Buraya Bırakın
-                    </strong>
-                    <span style={{ fontSize: "0.78rem", color: "#64748b", marginTop: "4px" }}>
-                      PNG, JPG, WEBP, GIF (Maks. 10MB) • Ayrı bir linke gerek yok
-                    </span>
-                  </>
-                )}
-                <input
-                  type="file"
-                  accept="image/png,image/jpeg,image/webp,image/gif"
-                  onChange={handleFileUpload}
-                  disabled={uploading}
-                  style={{ display: "none" }}
-                />
-              </label>
-
-              {/* Hızlı Seçim: Hazır Galeri Görselleri */}
-              <div style={{ marginTop: "4px" }}>
-                <span style={{ fontSize: "0.76rem", fontWeight: 700, color: "#64748b", display: "block", marginBottom: "8px" }}>
-                  VEYA SİSTEMDEKİ HAZIR ÜRÜN GÖRSELLERİNDEN BİRİNİ SEÇİN:
+                <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                  <span style={{ fontSize: "0.88rem", fontWeight: 700, color: "#1e293b" }}>
+                    Yüklü Görseller ({imageList.length})
+                  </span>
+                  <span
+                    style={{
+                      fontSize: "0.72rem",
+                      fontWeight: 600,
+                      backgroundColor: "#dcfce7",
+                      color: "#15803d",
+                      padding: "2px 8px",
+                      borderRadius: "6px",
+                    }}
+                  >
+                    1. Görsel = Kapak
+                  </span>
+                </div>
+                <span style={{ fontSize: "0.76rem", color: "#64748b" }}>
+                  Sıralamayı oklarla değiştirebilir veya istediğiniz görseli kapak yapabilirsiniz.
                 </span>
-                <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
-                  {[
-                    { label: "Citrus No.1", url: "/images/citrus-no-01.jpg" },
-                    { label: "Mineral No.2", url: "/images/mineral-no-02.jpg" },
-                    { label: "Night No.3", url: "/images/night-no-03.jpg" },
-                    { label: "Amber No.4", url: "/images/amber-no-04.jpg" },
-                  ].map((preset) => (
+              </div>
+
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "repeat(auto-fill, minmax(170px, 1fr))",
+                  gap: "14px",
+                }}
+              >
+                {imageList.map((url, idx) => {
+                  const isPrimary = idx === 0;
+                  return (
+                    <div
+                      key={idx}
+                      style={{
+                        position: "relative",
+                        display: "flex",
+                        flexDirection: "column",
+                        borderRadius: "12px",
+                        border: isPrimary ? "2px solid #059669" : "1px solid #cbd5e1",
+                        backgroundColor: "#fff",
+                        overflow: "hidden",
+                        boxShadow: isPrimary
+                          ? "0 4px 12px rgba(5, 150, 105, 0.12)"
+                          : "0 1px 3px rgba(0,0,0,0.05)",
+                        transition: "all 0.2s ease",
+                      }}
+                    >
+                      {/* Rozet */}
+                      <div
+                        style={{
+                          position: "absolute",
+                          top: "8px",
+                          left: "8px",
+                          zIndex: 2,
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: "4px",
+                          padding: "3px 8px",
+                          borderRadius: "6px",
+                          backgroundColor: isPrimary ? "#059669" : "rgba(15, 23, 42, 0.75)",
+                          color: "#fff",
+                          fontSize: "0.68rem",
+                          fontWeight: 700,
+                          backdropFilter: "blur(4px)",
+                        }}
+                      >
+                        {isPrimary ? (
+                          <>
+                            <Star size={11} fill="#fff" /> KAPAK GÖRSELİ
+                          </>
+                        ) : (
+                          `Fotoğraf ${idx + 1}`
+                        )}
+                      </div>
+
+                      {/* Görsel Önizleme */}
+                      <div
+                        style={{
+                          width: "100%",
+                          height: "150px",
+                          backgroundColor: "#f8fafc",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          padding: "8px",
+                          borderBottom: "1px solid #f1f5f9",
+                        }}
+                      >
+                        <img
+                          src={url}
+                          alt={`Ürün görseli ${idx + 1}`}
+                          style={{
+                            maxHeight: "100%",
+                            maxWidth: "100%",
+                            objectFit: "contain",
+                          }}
+                        />
+                      </div>
+
+                      {/* Kontrol Butonları */}
+                      <div
+                        style={{
+                          display: "flex",
+                          flexDirection: "column",
+                          gap: "6px",
+                          padding: "10px",
+                          backgroundColor: isPrimary ? "#f0fdf4" : "#f8fafc",
+                        }}
+                      >
+                        {!isPrimary && (
+                          <button
+                            type="button"
+                            onClick={() => handleSetPrimary(idx)}
+                            style={{
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              gap: "4px",
+                              width: "100%",
+                              padding: "5px 8px",
+                              borderRadius: "6px",
+                              border: "1px solid #86efac",
+                              backgroundColor: "#fff",
+                              color: "#166534",
+                              fontSize: "0.74rem",
+                              fontWeight: 700,
+                              cursor: "pointer",
+                            }}
+                          >
+                            <Star size={12} /> Kapak Yap
+                          </button>
+                        )}
+
+                        <div style={{ display: "flex", gap: "6px" }}>
+                          <button
+                            type="button"
+                            onClick={() => handleMoveImage(idx, -1)}
+                            disabled={idx === 0}
+                            title="Sola taşı"
+                            style={{
+                              flex: 1,
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              padding: "5px",
+                              borderRadius: "6px",
+                              border: "1px solid #cbd5e1",
+                              backgroundColor: "#fff",
+                              color: idx === 0 ? "#cbd5e1" : "#475569",
+                              cursor: idx === 0 ? "not-allowed" : "pointer",
+                            }}
+                          >
+                            <ArrowLeft size={13} />
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={() => handleMoveImage(idx, 1)}
+                            disabled={idx === imageList.length - 1}
+                            title="Sağa taşı"
+                            style={{
+                              flex: 1,
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              padding: "5px",
+                              borderRadius: "6px",
+                              border: "1px solid #cbd5e1",
+                              backgroundColor: "#fff",
+                              color: idx === imageList.length - 1 ? "#cbd5e1" : "#475569",
+                              cursor: idx === imageList.length - 1 ? "not-allowed" : "pointer",
+                            }}
+                          >
+                            <ArrowRight size={13} />
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveImage(idx)}
+                            title="Fotoğrafı sil"
+                            style={{
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              padding: "5px 8px",
+                              borderRadius: "6px",
+                              border: "1px solid #fecaca",
+                              backgroundColor: "#fff",
+                              color: "#dc2626",
+                              cursor: "pointer",
+                            }}
+                          >
+                            <Trash2 size={13} />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* Yeni Fotoğraf / Fotoğraflar Ekleme Alanı */}
+          <div style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
+            <label
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center",
+                padding: imageList.length > 0 ? "24px 20px" : "36px 20px",
+                borderRadius: "12px",
+                border: "2px dashed #cbd5e1",
+                backgroundColor: "#f8fafc",
+                cursor: uploading ? "not-allowed" : "pointer",
+                textAlign: "center",
+                transition: "border-color 0.2s, background-color 0.2s",
+              }}
+            >
+              {uploading ? (
+                <>
+                  <Loader2 size={32} color="#0284c7" className="animate-spin" style={{ marginBottom: "8px" }} />
+                  <strong style={{ fontSize: "0.9rem", color: "#0f172a" }}>Görseller Yükleniyor...</strong>
+                  <span style={{ fontSize: "0.78rem", color: "#64748b", marginTop: "4px" }}>
+                    {uploadProgress || "Lütfen işlem tamamlanana kadar bekleyin"}
+                  </span>
+                </>
+              ) : (
+                <>
+                  <UploadCloud size={36} color="#64748b" style={{ marginBottom: "8px" }} />
+                  <strong style={{ fontSize: "0.92rem", color: "#0f172a" }}>
+                    {imageList.length > 0
+                      ? "➕ Başka Fotoğraf(lar) Ekle (2-3 veya daha fazla seçebilirsiniz)"
+                      : "Bilgisayarınızdan Ürün Fotoğraflarını Seçin (Toplu Seçim Yapabilirsiniz)"}
+                  </strong>
+                  <span style={{ fontSize: "0.78rem", color: "#64748b", marginTop: "4px" }}>
+                    PNG, JPG, WEBP • Birden fazla dosyayı aynı anda seçebilirsiniz • Otomatik sıkıştırılır
+                  </span>
+                </>
+              )}
+              <input
+                type="file"
+                multiple
+                accept="image/png,image/jpeg,image/webp,image/gif"
+                onChange={handleFileUpload}
+                disabled={uploading}
+                style={{ display: "none" }}
+              />
+            </label>
+
+            {/* Hızlı Seçim: Hazır Galeri Görselleri */}
+            <div style={{ marginTop: "4px" }}>
+              <span
+                style={{
+                  fontSize: "0.76rem",
+                  fontWeight: 700,
+                  color: "#64748b",
+                  display: "block",
+                  marginBottom: "8px",
+                }}
+              >
+                VEYA SİSTEMDEKİ HAZIR ÜRÜN GÖRSELLERİNDEN EKLEYİN:
+              </span>
+              <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
+                {[
+                  { label: "Citrus No.1", url: "/images/citrus-no-01.jpg" },
+                  { label: "Mineral No.2", url: "/images/mineral-no-02.jpg" },
+                  { label: "Night No.3", url: "/images/night-no-03.jpg" },
+                  { label: "Amber No.4", url: "/images/amber-no-04.jpg" },
+                ].map((preset) => {
+                  const alreadyAdded = imageList.includes(preset.url);
+                  return (
                     <button
                       key={preset.url}
                       type="button"
-                      onClick={() => setCurrentImageUrl(preset.url)}
+                      onClick={() => handleAddPresetImage(preset.url)}
                       style={{
                         display: "flex",
                         alignItems: "center",
                         gap: "8px",
-                        padding: "6px 10px",
+                        padding: "6px 12px",
                         borderRadius: "8px",
-                        border: "1px solid #e2e8f0",
-                        backgroundColor: "#fff",
+                        border: alreadyAdded ? "1px solid #86efac" : "1px solid #e2e8f0",
+                        backgroundColor: alreadyAdded ? "#f0fdf4" : "#fff",
                         fontSize: "0.78rem",
                         fontWeight: 600,
-                        color: "#334155",
+                        color: alreadyAdded ? "#166534" : "#334155",
                         cursor: "pointer",
                       }}
                     >
@@ -566,13 +764,14 @@ export default function ProductForm({
                         alt={preset.label}
                         style={{ width: "24px", height: "24px", borderRadius: "4px", objectFit: "cover" }}
                       />
-                      {preset.label}
+                      <span>{preset.label}</span>
+                      {alreadyAdded && <CheckCircle2 size={13} color="#166534" />}
                     </button>
-                  ))}
-                </div>
+                  );
+                })}
               </div>
             </div>
-          )}
+          </div>
         </section>
 
         {/* SECTION 03: ÜCRETLENDİRME & KDV */}
