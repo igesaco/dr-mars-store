@@ -88,6 +88,8 @@ const refreshCatalog = () => {
   revalidatePath("/admin/urunler");
   revalidatePath("/admin/urunler/yeni");
   revalidatePath("/admin/kategoriler");
+  revalidatePath("/");
+  revalidatePath("/kategori/[slug]", "page");
 };
 
 export async function createProduct(form: FormData) {
@@ -245,5 +247,17 @@ export async function toggleCategory(form: FormData) {
   await getDb().update(categories).set({
     isActive: read(form, "active") === "true", updatedAt: new Date(),
   }).where(eq(categories.id, id));
+  refreshCatalog();
+}
+
+export async function deleteCategory(form: FormData) {
+  await requireAdmin();
+  const id = read(form, "id");
+  if (!uuid.test(id)) throw new Error("Kategori geçersiz.");
+  const db = getDb();
+  await db.transaction(async (tx) => {
+    await tx.update(products).set({ categoryId: null }).where(eq(products.categoryId, id));
+    await tx.delete(categories).where(eq(categories.id, id));
+  });
   refreshCatalog();
 }

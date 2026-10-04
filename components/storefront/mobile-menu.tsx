@@ -4,6 +4,15 @@ import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import Link from "next/link";
 import { ArrowRight, Box, HelpCircle, Package, User, X } from "lucide-react";
+import { getCategoryIcon } from "./header";
+
+const DEFAULT_CATEGORIES = [
+  { id: "def-1", name: "Kolonyalar", slug: "kolonyalar" },
+  { id: "def-2", name: "Oda Kokuları", slug: "oda-kokulari" },
+  { id: "def-3", name: "Oto Kokuları", slug: "oto-kokulari" },
+  { id: "def-4", name: "Parfümler", slug: "parfumler" },
+  { id: "def-5", name: "Hediye Setleri", slug: "hediye-setleri" },
+];
 
 export function MobileMenu({
   isOpen,
@@ -156,67 +165,20 @@ export function MobileMenu({
                 <span>✨ Tüm Koleksiyon</span>
                 <ArrowRight size={13} className="text-stone-600" />
               </Link>
-              <Link
-                href="/kategori/kolonyalar"
-                onClick={onClose}
-                className="flex items-center justify-between py-2 text-xs font-semibold text-stone-300 hover:text-[#dfcca8] transition-colors"
-              >
-                <span>🌿 Kolonyalar</span>
-                <ArrowRight size={13} className="text-stone-600" />
-              </Link>
-              <Link
-                href="/kategori/oda-kokulari"
-                onClick={onClose}
-                className="flex items-center justify-between py-2 text-xs font-semibold text-stone-300 hover:text-[#dfcca8] transition-colors"
-              >
-                <span>🏠 Oda Kokuları</span>
-                <ArrowRight size={13} className="text-stone-600" />
-              </Link>
-              <Link
-                href="/kategori/oto-kokulari"
-                onClick={onClose}
-                className="flex items-center justify-between py-2 text-xs font-semibold text-stone-300 hover:text-[#dfcca8] transition-colors"
-              >
-                <span>🚗 Oto Kokuları</span>
-                <ArrowRight size={13} className="text-stone-600" />
-              </Link>
-              <Link
-                href="/kategori/parfumler"
-                onClick={onClose}
-                className="flex items-center justify-between py-2 text-xs font-semibold text-stone-300 hover:text-[#dfcca8] transition-colors"
-              >
-                <span>💎 Parfümler</span>
-                <ArrowRight size={13} className="text-stone-600" />
-              </Link>
-              <Link
-                href="/kategori/hediye-setleri"
-                onClick={onClose}
-                className="flex items-center justify-between py-2 text-xs font-semibold text-[#dfcca8] hover:text-white transition-colors"
-              >
-                <span>🎁 Hediye Setleri</span>
-                <ArrowRight size={13} className="text-[#c5a880]" />
-              </Link>
-              {Array.isArray(categories) &&
-                categories
-                  .filter(
-                    (c) =>
-                      c &&
-                      c.slug &&
-                      !["kolonyalar", "oda-kokulari", "oto-kokulari", "parfumler", "hediye-setleri"].includes(
-                        c.slug
-                      )
-                  )
-                  .map((cat) => (
-                    <Link
-                      key={cat.id}
-                      href={`/kategori/${cat.slug}`}
-                      onClick={onClose}
-                      className="flex items-center justify-between py-2 text-xs font-semibold text-stone-300 hover:text-[#dfcca8] transition-colors"
-                    >
-                      <span>{cat.name}</span>
-                      <ArrowRight size={13} className="text-stone-600" />
-                    </Link>
-                  ))}
+              {(Array.isArray(categories) && categories.length > 0 ? categories : DEFAULT_CATEGORIES).map((cat) => (
+                <Link
+                  key={cat.id}
+                  href={`/kategori/${cat.slug}`}
+                  onClick={onClose}
+                  className="flex items-center justify-between py-2 text-xs font-semibold text-stone-300 hover:text-[#dfcca8] transition-colors"
+                >
+                  <span className="flex items-center gap-2">
+                    <span className="text-xs">{getCategoryIcon(cat.slug, cat.name)}</span>
+                    <span>{cat.name}</span>
+                  </span>
+                  <ArrowRight size={13} className="text-stone-600" />
+                </Link>
+              ))}
             </div>
           </div>
 

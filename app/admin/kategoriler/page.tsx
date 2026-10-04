@@ -2,7 +2,7 @@ import Link from "next/link";
 import { asc, count, eq } from "drizzle-orm";
 import { getDb } from "@/db";
 import { categories, products } from "@/db/schema";
-import { saveCategory, toggleCategory } from "../urunler/actions";
+import { deleteCategory, saveCategory, toggleCategory } from "../urunler/actions";
 
 export default async function CategoriesPage() {
   let rows: { id: string; name: string; slug: string; description: string | null; sortOrder: number; active: boolean; productCount: number }[] = [];
@@ -45,7 +45,8 @@ export default async function CategoriesPage() {
             <button type="submit">Kaydet</button>
           </form>
           <div className="category-meta"><span>{row.productCount} ürün</span><span className={row.active ? "catalog-status active" : "catalog-status"}>{row.active ? "Aktif" : "Pasif"}</span>
-            <form action={toggleCategory}><input type="hidden" name="id" value={row.id} /><input type="hidden" name="active" value={row.active ? "false" : "true"} /><button>{row.active ? "Pasife al" : "Aktifleştir"}</button></form>
+            <form action={toggleCategory}><input type="hidden" name="id" value={row.id} /><input type="hidden" name="active" value={row.active ? "false" : "true"} /><button type="submit">{row.active ? "Pasife al" : "Aktifleştir"}</button></form>
+            <form action={deleteCategory}><input type="hidden" name="id" value={row.id} /><button type="submit" style={{ color: "#dc2626", borderColor: "#fecaca" }}>Sil</button></form>
           </div>
         </article>)}
         {!rows.length && <p className="catalog-empty">Henüz kategori oluşturulmadı.</p>}

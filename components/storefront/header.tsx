@@ -14,6 +14,27 @@ export type NavCategory = {
   slug: string;
 };
 
+export const getCategoryIcon = (slug: string, name: string) => {
+  const s = `${slug} ${name}`.toLowerCase();
+  if (s.includes("kolonya")) return "🌿";
+  if (s.includes("oda")) return "🏠";
+  if (s.includes("oto") || s.includes("arac") || s.includes("araç")) return "🚗";
+  if (s.includes("parfum") || s.includes("parfüm")) return "💎";
+  if (s.includes("hediye") || s.includes("set")) return "🎁";
+  if (s.includes("özel") || s.includes("ozel")) return "✨";
+  if (s.includes("mum")) return "🕯️";
+  if (s.includes("sabun") || s.includes("banyo")) return "🫧";
+  return "🏷️";
+};
+
+const DEFAULT_CATEGORIES: NavCategory[] = [
+  { id: "def-1", name: "KOLONYALAR", slug: "kolonyalar" },
+  { id: "def-2", name: "ODA KOKULARI", slug: "oda-kokulari" },
+  { id: "def-3", name: "OTO KOKULARI", slug: "oto-kokulari" },
+  { id: "def-4", name: "PARFÜMLER", slug: "parfumler" },
+  { id: "def-5", name: "HEDİYE SETLERİ", slug: "hediye-setleri" },
+];
+
 export function Header({
   categories = [],
   announcementText = "MARDİN OSB LABORATUVARLARINDAN · 1500 TL VE ÜZERİ SİPARİŞLERDE KARGO ÜCRETSİZ",
@@ -25,6 +46,8 @@ export function Header({
   const { count: wishlistCount } = useWishlist();
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  const navList = categories && categories.length > 0 ? categories : DEFAULT_CATEGORIES;
 
   return (
     <>
@@ -162,66 +185,19 @@ export function Header({
               <span className="text-xs">✨</span>
               <span>TÜM ÜRÜNLER</span>
             </Link>
-            <span className="text-stone-300 select-none">•</span>
-            <Link
-              href="/kategori/kolonyalar"
-              className="px-3.5 py-1.5 rounded-full hover:bg-white hover:text-stone-950 transition-all flex items-center gap-1.5 text-stone-900"
-            >
-              <span className="text-xs">🌿</span>
-              <span>KOLONYALAR</span>
-            </Link>
-            <span className="text-stone-300 select-none">•</span>
-            <Link
-              href="/kategori/oda-kokulari"
-              className="px-3.5 py-1.5 rounded-full hover:bg-white hover:text-stone-950 transition-all flex items-center gap-1.5"
-            >
-              <span className="text-xs">🏠</span>
-              <span>ODA KOKULARI</span>
-            </Link>
-            <span className="text-stone-300 select-none">•</span>
-            <Link
-              href="/kategori/oto-kokulari"
-              className="px-3.5 py-1.5 rounded-full hover:bg-white hover:text-stone-950 transition-all flex items-center gap-1.5"
-            >
-              <span className="text-xs">🚗</span>
-              <span>OTO KOKULARI</span>
-            </Link>
-            <span className="text-stone-300 select-none">•</span>
-            <Link
-              href="/kategori/parfumler"
-              className="px-3.5 py-1.5 rounded-full hover:bg-white hover:text-stone-950 transition-all flex items-center gap-1.5"
-            >
-              <span className="text-xs">💎</span>
-              <span>PARFÜMLER</span>
-            </Link>
-            <span className="text-stone-300 select-none">•</span>
-            <Link
-              href="/kategori/hediye-setleri"
-              className="px-3.5 py-1.5 rounded-full hover:bg-white hover:text-[#91754f] transition-all flex items-center gap-1.5 text-[#91754f]"
-            >
-              <span className="text-xs">🎁</span>
-              <span>HEDİYE SETLERİ</span>
-            </Link>
 
-            {/* Dinamik Ek Kategoriler (Varsa) */}
-            {categories
-              .filter(
-                (c) =>
-                  !["kolonyalar", "oda-kokulari", "oto-kokulari", "parfumler", "hediye-setleri"].includes(
-                    c.slug
-                  )
-              )
-              .map((cat) => (
-                <span key={cat.id} className="flex items-center gap-1 sm:gap-4">
-                  <span className="text-stone-300 select-none">•</span>
-                  <Link
-                    href={`/kategori/${cat.slug}`}
-                    className="px-3.5 py-1.5 rounded-full hover:bg-white hover:text-stone-950 transition-all flex items-center gap-1.5"
-                  >
-                    <span>{cat.name}</span>
-                  </Link>
-                </span>
-              ))}
+            {navList.map((cat) => (
+              <span key={cat.id} className="flex items-center gap-1 sm:gap-3">
+                <span className="text-stone-300 select-none">•</span>
+                <Link
+                  href={`/kategori/${cat.slug}`}
+                  className="px-3.5 py-1.5 rounded-full hover:bg-white hover:text-stone-950 transition-all flex items-center gap-1.5"
+                >
+                  <span className="text-xs">{getCategoryIcon(cat.slug, cat.name)}</span>
+                  <span>{cat.name}</span>
+                </Link>
+              </span>
+            ))}
           </div>
         </nav>
       </header>

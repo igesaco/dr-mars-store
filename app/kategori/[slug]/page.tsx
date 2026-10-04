@@ -58,7 +58,7 @@ export default async function CategoryPage({ params }: Props) {
 
   let currentCategory: { id: string; name: string; slug: string; description: string | null } | null = null;
 
-  if (slug !== "all" && slug !== "kolonyalar") {
+  if (slug !== "all") {
     const [found] = await db
       .select({
         id: categories.id,
@@ -74,7 +74,7 @@ export default async function CategoryPage({ params }: Props) {
   }
 
   const conditions = [eq(products.isActive, true)];
-  if (currentCategory && slug !== "kolonyalar") {
+  if (currentCategory) {
     conditions.push(eq(products.categoryId, currentCategory.id));
   }
 
@@ -127,7 +127,7 @@ export default async function CategoryPage({ params }: Props) {
   ]);
 
   const announcement = settings.announcement?.text ?? "MARDİN OSB LABORATUVARLARINDAN · 1.500 TL VE ÜZERİ SİPARİŞLERDE KARGO ÜCRETSİZ";
-  const title = currentCategory ? currentCategory.name : "Kolonya";
+  const title = currentCategory ? currentCategory.name : (slug === "all" ? "Tüm Koleksiyon" : "Özel Koleksiyon");
 
   return (
     <main className="min-h-screen bg-white text-[#111620]">
@@ -167,17 +167,17 @@ export default async function CategoryPage({ params }: Props) {
         {/* Alt Satır: [ EN ÇOK SATAN ]  [ TÜM ÜRÜNLER ] */}
         <div className="flex items-center justify-center gap-3 pt-2 pb-4">
           <Link
-            href="/kategori/kolonyalar"
+            href={currentCategory ? `/kategori/${currentCategory.slug}` : "/kategori/all"}
             className="px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider bg-[#27382f] text-white shadow-xs"
           >
-            EN ÇOK SATAN
+            {currentCategory ? currentCategory.name : "EN ÇOK SATAN"}
           </Link>
 
           <Link
-            href="/kategori/kolonyalar"
+            href="/kategori/all"
             className="px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider text-stone-600 hover:text-stone-900"
           >
-            TÜM ÜRÜNLER
+            TÜM ÜRÜNLER ({items.length})
           </Link>
         </div>
 
