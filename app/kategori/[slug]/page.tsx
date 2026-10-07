@@ -85,11 +85,12 @@ export default async function CategoryPage({ params }: Props) {
       slug: products.slug,
       shortDescription: products.shortDescription,
       fragranceNotes: products.fragranceNotes,
+      sortOrder: products.sortOrder,
       isFeatured: products.isFeatured,
     })
     .from(products)
     .where(and(...conditions))
-    .orderBy(desc(products.isFeatured), desc(products.createdAt));
+    .orderBy(asc(products.sortOrder), desc(products.isFeatured), desc(products.createdAt));
 
   const items = [];
   for (const prod of prods) {

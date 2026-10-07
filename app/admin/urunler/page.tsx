@@ -23,6 +23,7 @@ export default async function ProductManagement({ searchParams }: {
     const [results, categoryList, allCount, activeCount, lowCount, draftCount] = await Promise.all([
       db.select({
         id: products.id, name: products.name, slug: products.slug, category: categories.name,
+        sortOrder: products.sortOrder,
         sku: productVariants.sku, volumeMl: productVariants.volumeMl, price: productVariants.price,
         unitCost: productVariants.unitCost, stock: productVariants.stockQuantity,
         lowStockThreshold: productVariants.lowStockThreshold, active: products.isActive, imageUrl: productImages.url,
@@ -30,7 +31,7 @@ export default async function ProductManagement({ searchParams }: {
         .leftJoin(categories, eq(products.categoryId, categories.id))
         .leftJoin(productVariants, eq(products.id, productVariants.productId))
         .leftJoin(productImages, and(eq(products.id, productImages.productId), eq(productImages.sortOrder, 0)))
-        .where(conditions.length ? and(...conditions) : undefined).orderBy(desc(products.updatedAt)).limit(250),
+        .where(conditions.length ? and(...conditions) : undefined).orderBy(asc(products.sortOrder), desc(products.updatedAt)).limit(250),
       db.select({ id: categories.id, name: categories.name }).from(categories).orderBy(asc(categories.sortOrder), asc(categories.name)),
       db.select({ value: count() }).from(products),
       db.select({ value: count() }).from(products).where(eq(products.isActive, true)),

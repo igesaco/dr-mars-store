@@ -396,7 +396,14 @@ export function ProductView({ product, reviews = [] }: ProductProps) {
           {/* Stock Status */}
           <div className="mt-4 flex items-center gap-2 text-xs font-bold">
             {isOutOfStock ? (
-              <span className="text-rose-600">Tükendi</span>
+              <div className="flex flex-col gap-1.5">
+                <span className="inline-flex items-center gap-1.5 text-rose-600 font-bold">
+                  <span className="h-2 w-2 rounded-full bg-rose-500" /> Tükendi
+                </span>
+                <span className="text-xs font-semibold text-[#8f7351] bg-[#fbf8f2] border border-[#c5a880]/30 px-3 py-1.5 rounded-lg">
+                  ✨ Yeni üretim parti hazırlanıyor · Çok yakında tekrar stoklarımızda olacaktır.
+                </span>
+              </div>
             ) : selectedVariant.stock <= 5 ? (
               <span className="text-amber-600">Son {selectedVariant.stock} adet stokta!</span>
             ) : (

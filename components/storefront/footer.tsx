@@ -18,6 +18,7 @@ import {
   Truck,
 } from "lucide-react";
 import { InstagramIcon } from "@/components/icons/instagram-icon";
+import { BrandLogo } from "./brand-logo";
 import { toast } from "sonner";
 
 export function Footer() {
@@ -148,16 +149,7 @@ export function Footer() {
         <div className="mx-auto max-w-7xl grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10 text-xs">
           {/* Kolon 1: Marka & Resmi Tescil */}
           <div className="space-y-4 lg:col-span-1">
-            <Link className="flex flex-col items-start leading-none group" href="/">
-              <div className="flex items-center gap-1.5 text-2xl font-black tracking-widest text-white">
-                <span>DR</span>
-                <span className="inline-block w-1.5 h-1.5 bg-[#c5a880] rounded-full mx-0.5" />
-                <span>MARS</span>
-              </div>
-              <span className="text-[8px] font-bold tracking-[0.28em] text-[#c5a880] uppercase mt-1">
-                HAUTE PARFUMERIE · MARDİN
-              </span>
-            </Link>
+            <BrandLogo variant="dark" size="md" href="/" />
 
             <p className="text-stone-400 leading-relaxed text-xs">
               Mardinli Kimya Mühendisi Hamdullah Adsoy tarafından kurulan Dr. Mars; Mezopotamya&apos;nın binlerce yıllık koku mirasını ve akik taşı enerjisini çağdaş parfümeriyle harmanlar.

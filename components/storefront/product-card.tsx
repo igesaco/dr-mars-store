@@ -41,10 +41,12 @@ export function ProductCard({
   const priceNum = defaultVariant ? Number(defaultVariant.price) : 0;
   const compareNum = defaultVariant?.compareAtPrice ? Number(defaultVariant.compareAtPrice) : 0;
 
+  const isOutOfStock = !defaultVariant || defaultVariant.stock <= 0;
+
   const handleQuickAdd = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    if (!defaultVariant) return;
+    if (!defaultVariant || isOutOfStock) return;
 
     addItem({
       variantId: defaultVariant.id,
@@ -74,6 +76,12 @@ export function ProductCard({
         href={`/urun/${slug}`}
         className="relative h-64 sm:h-80 w-full flex items-center justify-center mb-3 bg-white overflow-hidden"
       >
+        {isOutOfStock && (
+          <div className="absolute top-2 left-2 z-10 rounded-md bg-[#0e131a]/90 backdrop-blur-md px-2.5 py-1 text-[9.5px] font-black uppercase tracking-wider text-[#dfcca8] border border-[#c5a880]/40 shadow-sm">
+            Tükendi · Yakında Stokta
+          </div>
+        )}
+
         {imageUrl ? (
           <div className="relative h-full w-full">
             <Image
@@ -116,7 +124,7 @@ export function ProductCard({
         )}
       </div>
 
-      {/* Butonlar: [ 🔍 (İncele) ] [ Sepete Ekle ] */}
+      {/* Butonlar: [ 🔍 (İncele) ] [ Sepete Ekle / Tükendi ] */}
       <div className="w-full flex items-center justify-center gap-2 max-w-[230px]">
         <Link
           href={`/urun/${slug}`}
@@ -128,9 +136,16 @@ export function ProductCard({
 
         <button
           onClick={handleQuickAdd}
-          className="flex-1 h-10 flex items-center justify-center rounded-lg bg-[#27382f] text-white hover:bg-[#1a2620] text-xs font-semibold tracking-wide transition-colors cursor-pointer shadow-xs"
+          disabled={isOutOfStock}
+          className={`flex-1 h-10 flex items-center justify-center rounded-lg text-xs font-semibold tracking-wide transition-colors shadow-xs ${
+            isOutOfStock
+              ? "bg-stone-200 text-stone-500 cursor-not-allowed hover:bg-stone-200"
+              : "bg-[#27382f] text-white hover:bg-[#1a2620] cursor-pointer"
+          }`}
         >
-          {added ? (
+          {isOutOfStock ? (
+            <span className="text-stone-500 font-medium">Tükendi</span>
+          ) : added ? (
             <span className="flex items-center gap-1 text-emerald-300 font-bold">
               <Check size={14} className="stroke-[3]" /> Eklendi
             </span>
@@ -139,6 +154,12 @@ export function ProductCard({
           )}
         </button>
       </div>
+
+      {isOutOfStock && (
+        <p className="mt-2 text-[10.5px] font-bold text-[#8f7351] tracking-wide">
+          ✨ Çok yakında tekrar stoklarımızda
+        </p>
+      )}
     </article>
   );
 }

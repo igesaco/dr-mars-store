@@ -48,11 +48,12 @@ export async function getFeaturedProducts() {
         categoryId: products.categoryId,
         shortDescription: products.shortDescription,
         fragranceNotes: products.fragranceNotes,
+        sortOrder: products.sortOrder,
         isFeatured: products.isFeatured,
       })
       .from(products)
       .where(eq(products.isActive, true))
-      .orderBy(desc(products.isFeatured), desc(products.createdAt));
+      .orderBy(asc(products.sortOrder), desc(products.isFeatured), desc(products.createdAt));
 
     const result = [];
     for (const prod of prods) {

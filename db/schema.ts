@@ -48,6 +48,7 @@ export const products = pgTable("products", {
   id: uuid("id").defaultRandom().primaryKey(), categoryId: uuid("category_id").references(() => categories.id, { onDelete: "set null" }),
   name: varchar("name", { length: 180 }).notNull(), slug: varchar("slug", { length: 200 }).notNull().unique(),
   shortDescription: varchar("short_description", { length: 500 }), description: text("description"), fragranceNotes: jsonb("fragrance_notes").$type<string[]>(),
+  sortOrder: integer("sort_order").default(0).notNull(),
   isFeatured: boolean("is_featured").default(false).notNull(), isActive: boolean("is_active").default(true).notNull(),
   seoTitle: varchar("seo_title", { length: 160 }), seoDescription: varchar("seo_description", { length: 320 }), ...timestamps,
 });

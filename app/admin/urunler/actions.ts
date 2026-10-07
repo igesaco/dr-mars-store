@@ -106,6 +106,7 @@ export async function createProduct(form: FormData) {
   }
   const fragranceNotesRaw = read(form, "fragranceNotes");
   const fragranceNotes = fragranceNotesRaw ? fragranceNotesRaw.split(",").map(s => s.trim()).filter(Boolean) : null;
+  const sortOrder = integer(form, "sortOrder", 0);
   const db = getDb();
   await db.transaction(async tx => {
     const [product] = await tx.insert(products).values({
@@ -113,6 +114,7 @@ export async function createProduct(form: FormData) {
       shortDescription: read(form, "shortDescription").slice(0, 500) || null,
       description: read(form, "description") || null,
       fragranceNotes,
+      sortOrder,
       isFeatured: read(form, "isFeatured") === "on",
       isActive: read(form, "status") !== "draft",
       seoTitle: read(form, "seoTitle").slice(0, 160) || null,
@@ -165,12 +167,14 @@ export async function updateProduct(form: FormData) {
     if (!old) throw new Error("Ürün varyantı bulunamadı.");
     const fragranceNotesRaw = read(form, "fragranceNotes");
     const fragranceNotes = fragranceNotesRaw ? fragranceNotesRaw.split(",").map(s => s.trim()).filter(Boolean) : null;
+    const sortOrder = integer(form, "sortOrder", 0);
     const active = read(form, "status") !== "draft";
     await tx.update(products).set({
       name, slug, categoryId: categoryId(form),
       shortDescription: read(form, "shortDescription").slice(0, 500) || null,
       description: read(form, "description") || null,
       fragranceNotes,
+      sortOrder,
       isFeatured: read(form, "isFeatured") === "on", isActive: active,
       seoTitle: read(form, "seoTitle").slice(0, 160) || null,
       seoDescription: read(form, "seoDescription").slice(0, 320) || null, updatedAt: new Date(),
@@ -212,13 +216,123 @@ export async function bulkProductAction(form: FormData) {
   await requireAdmin();
   const ids = form.getAll("productIds").map(String).filter(id => uuid.test(id)).slice(0, 200);
   const action = read(form, "bulkAction");
-  if (!ids.length || !["activate", "archive"].includes(action)) throw new Error("Ürün veya toplu işlem seçilmedi.");
-  const active = action === "activate";
+  if (!ids.length || !action) throw new Error("Ürün veya toplu işlem seçilmedi.");
+
   const db = getDb();
-  await db.transaction(async tx => {
-    await tx.update(products).set({ isActive: active, updatedAt: new Date() }).where(inArray(products.id, ids));
-    await tx.update(productVariants).set({ isActive: active, updatedAt: new Date() }).where(inArray(productVariants.productId, ids));
-  });
+  const { logAuditEvent } = await import("@/lib/audit-log");
+
+  if (action === "activate" || action === "archive") {
+    const active = action === "activate";
+    await db.transaction(async tx => {
+      await tx.update(products).set({ isActive: active, updatedAt: new Date() }).where(inArray(products.id, ids));
+      await tx.update(productVariants).set({ isActive: active, updatedAt: new Date() }).where(inArray(productVariants.productId, ids));
+    });
+    await logAuditEvent({
+      action: active ? "TOPLU_YAYINA_ALMA" : "TOPLU_ARSIVLEME",
+      entityType: "product",
+      description: `${ids.length} adet ürün topluca ${active ? "yayına alındı" : "arşivlendi"}.`,
+      details: { ids, action },
+    });
+  } else if (action === "set_stock") {
+    const stockVal = Math.max(0, parseInt(read(form, "bulkStockValue") || "0", 10));
+    await db.transaction(async tx => {
+      await tx.update(productVariants).set({ stockQuantity: stockVal, updatedAt: new Date() }).where(inArray(productVariants.productId, ids));
+    });
+    await logAuditEvent({
+      action: "TOPLU_STOK_GUNCELLEME",
+      entityType: "product",
+      description: `${ids.length} adet ürünün stoku topluca ${stockVal} adet olarak ayarlandı.`,
+      details: { ids, stockVal },
+    });
+  } else if (action === "add_stock") {
+    const addVal = parseInt(read(form, "bulkStockValue") || "0", 10);
+    await db.transaction(async tx => {
+      const variants = await tx.select({ id: productVariants.id, stock: productVariants.stockQuantity }).from(productVariants).where(inArray(productVariants.productId, ids));
+      for (const v of variants) {
+        const newStock = Math.max(0, v.stock + addVal);
+        await tx.update(productVariants).set({ stockQuantity: newStock, updatedAt: new Date() }).where(eq(productVariants.id, v.id));
+      }
+    });
+    await logAuditEvent({
+      action: "TOPLU_STOK_ARTIRIMI",
+      entityType: "product",
+      description: `${ids.length} adet ürünün stokuna topluca ${addVal} adet eklendi.`,
+      details: { ids, addVal },
+    });
+  } else if (action === "increase_price_percent") {
+    const percent = parseFloat(read(form, "bulkPriceValue") || "0");
+    if (isNaN(percent) || percent <= -100) throw new Error("Geçerli bir yüzde artış oranı girin.");
+    await db.transaction(async tx => {
+      const variants = await tx.select({ id: productVariants.id, price: productVariants.price }).from(productVariants).where(inArray(productVariants.productId, ids));
+      for (const v of variants) {
+        const currentPrice = parseFloat(v.price || "0");
+        const newPrice = Math.round((currentPrice * (1 + percent / 100)) * 100) / 100;
+        await tx.update(productVariants).set({ price: newPrice.toFixed(2), updatedAt: new Date() }).where(eq(productVariants.id, v.id));
+      }
+    });
+    await logAuditEvent({
+      action: "TOPLU_FIYAT_KAR_ARTISI",
+      entityType: "product",
+      description: `${ids.length} adet ürüne %${percent} oranında kâr marjı / fiyat artışı uygulandı.`,
+      details: { ids, percent },
+    });
+  } else if (action === "increase_price_amount") {
+    const amount = parseFloat(read(form, "bulkPriceValue") || "0");
+    if (isNaN(amount)) throw new Error("Geçerli bir tutar girin.");
+    await db.transaction(async tx => {
+      const variants = await tx.select({ id: productVariants.id, price: productVariants.price }).from(productVariants).where(inArray(productVariants.productId, ids));
+      for (const v of variants) {
+        const currentPrice = parseFloat(v.price || "0");
+        const newPrice = Math.max(0, Math.round((currentPrice + amount) * 100) / 100);
+        await tx.update(productVariants).set({ price: newPrice.toFixed(2), updatedAt: new Date() }).where(eq(productVariants.id, v.id));
+      }
+    });
+    await logAuditEvent({
+      action: "TOPLU_SABIT_FIYAT_ARTISI",
+      entityType: "product",
+      description: `${ids.length} adet ürüne ${amount} TL fiyat artışı uygulandı.`,
+      details: { ids, amount },
+    });
+  } else if (action === "set_margin_from_cost") {
+    const marginPercent = parseFloat(read(form, "bulkPriceValue") || "0");
+    if (isNaN(marginPercent) || marginPercent < 0) throw new Error("Geçerli bir kâr marjı yüzdesi girin.");
+    await db.transaction(async tx => {
+      const variants = await tx.select({ id: productVariants.id, unitCost: productVariants.unitCost, price: productVariants.price }).from(productVariants).where(inArray(productVariants.productId, ids));
+      for (const v of variants) {
+        const cost = parseFloat(v.unitCost || "0");
+        if (cost > 0) {
+          const newPrice = Math.round((cost * (1 + marginPercent / 100)) * 100) / 100;
+          await tx.update(productVariants).set({ price: newPrice.toFixed(2), updatedAt: new Date() }).where(eq(productVariants.id, v.id));
+        }
+      }
+    });
+    await logAuditEvent({
+      action: "MALIYETTEN_KAR_MARJI_BELIRLEME",
+      entityType: "product",
+      description: `${ids.length} adet ürüne maliyet üzerinden %${marginPercent} kâr marjı belirlendi.`,
+      details: { ids, marginPercent },
+    });
+  } else if (action === "move_to_top") {
+    await db.transaction(async tx => {
+      await tx.update(products).set({ sortOrder: 1, updatedAt: new Date() }).where(inArray(products.id, ids));
+    });
+    await logAuditEvent({
+      action: "TOPLU_VITRIN_SIRALAMA",
+      entityType: "product",
+      description: `${ids.length} adet ürün vitrinde en üst sıraya (sıra: 1) taşındı.`,
+      details: { ids },
+    });
+  }
+
+  refreshCatalog();
+}
+
+export async function updateProductSortOrder(form: FormData) {
+  await requireAdmin();
+  const id = read(form, "id");
+  const sortOrder = parseInt(read(form, "sortOrder") || "0", 10);
+  if (!uuid.test(id)) throw new Error("Ürün ID geçersiz.");
+  await getDb().update(products).set({ sortOrder, updatedAt: new Date() }).where(eq(products.id, id));
   refreshCatalog();
 }
 

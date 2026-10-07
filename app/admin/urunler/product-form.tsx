@@ -35,6 +35,7 @@ export type ProductFormData = {
   description?: string | null;
   fragranceNotes?: string[] | null;
   categoryId?: string | null;
+  sortOrder?: number | null;
   featured?: boolean;
   active?: boolean;
   sku?: string | null;
@@ -1239,6 +1240,30 @@ export default function ProductForm({
             />
             Öne çıkan koleksiyon ürünü
           </label>
+        </section>
+
+        <section className="editor-card">
+          <h2>Vitrin & Sıralama</h2>
+          <label style={{ display: "flex", flexDirection: "column", gap: "6px", fontSize: "0.85rem", color: "#334155" }}>
+            <span>Vitrin Sıra Numarası (Küçük sayı en üstte)</span>
+            <input
+              name="sortOrder"
+              type="number"
+              min="0"
+              step="1"
+              defaultValue={data.sortOrder ?? 0}
+              placeholder="0 (Örn: 1, 2, 3)"
+              style={{
+                padding: "8px 12px",
+                borderRadius: "8px",
+                border: "1px solid #cbd5e1",
+                fontSize: "0.9rem",
+              }}
+            />
+          </label>
+          <small style={{ fontSize: "0.75rem", color: "#64748b", marginTop: "6px", display: "block", lineHeight: "1.3" }}>
+            Anasayfada en yukarıda listelenmesini istediğiniz ürüne (örn. Zeytin) 1 verin.
+          </small>
         </section>
 
         <section className="editor-card editor-summary">

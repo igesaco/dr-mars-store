@@ -17,6 +17,7 @@ export default async function EditProductPage({ params }: { params: Promise<{ id
         id: products.id, variantId: productVariants.id, name: products.name, slug: products.slug,
         shortDescription: products.shortDescription, description: products.description, fragranceNotes: products.fragranceNotes,
         categoryId: products.categoryId, featured: products.isFeatured, active: products.isActive,
+        sortOrder: products.sortOrder,
         seoTitle: products.seoTitle, seoDescription: products.seoDescription,
         sku: productVariants.sku, volumeMl: productVariants.volumeMl, price: productVariants.price,
         compareAtPrice: productVariants.compareAtPrice, unitCost: productVariants.unitCost,

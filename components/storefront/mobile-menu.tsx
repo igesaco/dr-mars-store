@@ -5,6 +5,7 @@ import { createPortal } from "react-dom";
 import Link from "next/link";
 import { ArrowRight, Box, HelpCircle, Package, User, X } from "lucide-react";
 import { getCategoryIcon } from "./header";
+import { BrandLogo } from "./brand-logo";
 
 const DEFAULT_CATEGORIES = [
   { id: "def-1", name: "Kolonyalar", slug: "kolonyalar" },
@@ -115,16 +116,9 @@ export function MobileMenu({
             flexShrink: 0,
           }}
         >
-          <Link href="/" onClick={onClose} className="flex flex-col items-start leading-none">
-            <div className="flex items-center gap-1.5 text-xl font-black tracking-widest text-white">
-              <span>DR</span>
-              <span className="inline-block w-1.5 h-1.5 bg-[#c5a880] rounded-full mx-0.5" />
-              <span>MARS</span>
-            </div>
-            <span className="text-[7.5px] font-bold tracking-[0.28em] text-[#c5a880] uppercase mt-1">
-              HAUTE PARFUMERIE · MARDİN
-            </span>
-          </Link>
+          <div onClick={onClose}>
+            <BrandLogo variant="dark" size="sm" href="/" />
+          </div>
           <button
             type="button"
             onClick={onClose}

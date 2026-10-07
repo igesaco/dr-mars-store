@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, Check, CheckCircle2, Copy, CreditCard, DollarSign, HelpCircle, Lock, ShieldCheck, ShoppingBag, Sparkles, Truck } from "lucide-react";
 import { useCart } from "@/components/cart/cart-context";
+import { TURKEY_CITIES } from "@/lib/turkey-cities";
 import { createOrderAction } from "./actions";
 
 export function CheckoutClient({ paymentSettings }: { paymentSettings?: any }) {
@@ -284,13 +285,11 @@ export function CheckoutClient({ paymentSettings }: { paymentSettings?: any }) {
                   onChange={(e) => setFormData({ ...formData, city: e.target.value })}
                   className="w-full rounded-lg border border-stone-300 p-3 text-base sm:text-sm outline-none focus:border-stone-900 bg-white"
                 >
-                  <option value="İstanbul">İstanbul</option>
-                  <option value="Ankara">Ankara</option>
-                  <option value="İzmir">İzmir</option>
-                  <option value="Bursa">Bursa</option>
-                  <option value="Antalya">Antalya</option>
-                  <option value="Eskişehir">Eskişehir</option>
-                  <option value="Diğer">Diğer İl</option>
+                  {TURKEY_CITIES.map((city) => (
+                    <option key={city} value={city}>
+                      {city}
+                    </option>
+                  ))}
                 </select>
               </div>
               <div>
@@ -445,14 +444,18 @@ export function CheckoutClient({ paymentSettings }: { paymentSettings?: any }) {
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-xs font-bold text-stone-700 mb-1">Fatura İli *</label>
-                      <input
-                        type="text"
+                      <select
                         required={!sameAsShipping}
                         value={billingData.city}
                         onChange={(e) => setBillingData({ ...billingData, city: e.target.value })}
-                        placeholder="İstanbul"
                         className="w-full rounded-lg border border-stone-300 p-2.5 text-sm outline-none focus:border-stone-900 bg-white"
-                      />
+                      >
+                        {TURKEY_CITIES.map((city) => (
+                          <option key={city} value={city}>
+                            {city}
+                          </option>
+                        ))}
+                      </select>
                     </div>
                     <div>
                       <label className="block text-xs font-bold text-stone-700 mb-1">Fatura İlçesi *</label>

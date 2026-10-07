@@ -7,6 +7,7 @@ import { useCart } from "@/components/cart/cart-context";
 import { useWishlist } from "@/components/wishlist/wishlist-context";
 import { SearchModal } from "./search-modal";
 import { MobileMenu } from "./mobile-menu";
+import { BrandLogo } from "./brand-logo";
 
 export type NavCategory = {
   id: string;
@@ -60,16 +61,7 @@ export function Header({
       <header className="sticky top-0 z-40 bg-[#faf8f5]/95 backdrop-blur-md border-b border-[#e7e3d8] transition-all">
         <div className="mx-auto max-w-7xl h-16 sm:h-20 px-3.5 sm:px-8 flex items-center justify-between">
           {/* Lüks Marka Logosu */}
-          <Link className="flex flex-col items-start leading-none group cursor-pointer" href="/">
-            <div className="flex items-center gap-1.5 text-xl sm:text-2xl font-black tracking-widest text-[#0b0f15] group-hover:text-[#91754f] transition-colors">
-              <span>DR</span>
-              <span className="inline-block w-1.5 h-1.5 bg-[#c5a880] rounded-full mx-0.5" />
-              <span>MARS</span>
-            </div>
-            <span className="text-[8.5px] font-bold tracking-[0.3em] text-[#8f7351] uppercase mt-1">
-              HAUTE PARFUMERIE · MARDİN
-            </span>
-          </Link>
+          <BrandLogo variant="light" size="md" href="/" />
 
           {/* ORTA: KURUMSAL MENÜ (Sadece Kurumsal & Marka Sayfaları) */}
           <nav className="hidden lg:flex items-center gap-7 xl:gap-8 text-[11px] font-bold tracking-[0.16em] uppercase text-stone-700">
