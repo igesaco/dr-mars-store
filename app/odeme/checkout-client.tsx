@@ -3,9 +3,22 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Check, CheckCircle2, Copy, CreditCard, DollarSign, HelpCircle, Lock, ShieldCheck, ShoppingBag, Sparkles, Truck } from "lucide-react";
+import {
+  ArrowLeft,
+  Check,
+  CheckCircle2,
+  Copy,
+  CreditCard,
+  DollarSign,
+  HelpCircle,
+  Lock,
+  ShieldCheck,
+  ShoppingBag,
+  Sparkles,
+  Truck,
+} from "lucide-react";
 import { useCart } from "@/components/cart/cart-context";
-import { TURKEY_CITIES } from "@/lib/turkey-cities";
+import { TURKEY_CITIES, getDistricts } from "@/lib/turkey-cities";
 import { createOrderAction } from "./actions";
 
 export function CheckoutClient({ paymentSettings }: { paymentSettings?: any }) {
@@ -282,8 +295,16 @@ export function CheckoutClient({ paymentSettings }: { paymentSettings?: any }) {
                 <label className="block text-xs font-bold text-stone-700 mb-1">İl *</label>
                 <select
                   value={formData.city}
-                  onChange={(e) => setFormData({ ...formData, city: e.target.value })}
-                  className="w-full rounded-lg border border-stone-300 p-3 text-base sm:text-sm outline-none focus:border-stone-900 bg-white"
+                  onChange={(e) => {
+                    const newCity = e.target.value;
+                    const districts = getDistricts(newCity);
+                    setFormData({
+                      ...formData,
+                      city: newCity,
+                      district: districts[0] || "",
+                    });
+                  }}
+                  className="w-full rounded-lg border border-stone-300 p-3 text-base sm:text-sm outline-none focus:border-stone-900 bg-white font-medium"
                 >
                   {TURKEY_CITIES.map((city) => (
                     <option key={city} value={city}>
@@ -294,14 +315,18 @@ export function CheckoutClient({ paymentSettings }: { paymentSettings?: any }) {
               </div>
               <div>
                 <label className="block text-xs font-bold text-stone-700 mb-1">İlçe *</label>
-                <input
-                  type="text"
+                <select
                   required
                   value={formData.district}
                   onChange={(e) => setFormData({ ...formData, district: e.target.value })}
-                  placeholder="Kadıköy, Şişli vb."
-                  className="w-full rounded-lg border border-stone-300 p-3 text-base sm:text-sm outline-none focus:border-stone-900"
-                />
+                  className="w-full rounded-lg border border-stone-300 p-3 text-base sm:text-sm outline-none focus:border-stone-900 bg-white font-medium"
+                >
+                  {getDistricts(formData.city).map((d) => (
+                    <option key={d} value={d}>
+                      {d}
+                    </option>
+                  ))}
+                </select>
               </div>
               <div className="sm:col-span-2">
                 <label className="block text-xs font-bold text-stone-700 mb-1">Açık Adres *</label>
@@ -447,8 +472,16 @@ export function CheckoutClient({ paymentSettings }: { paymentSettings?: any }) {
                       <select
                         required={!sameAsShipping}
                         value={billingData.city}
-                        onChange={(e) => setBillingData({ ...billingData, city: e.target.value })}
-                        className="w-full rounded-lg border border-stone-300 p-2.5 text-sm outline-none focus:border-stone-900 bg-white"
+                        onChange={(e) => {
+                          const newCity = e.target.value;
+                          const districts = getDistricts(newCity);
+                          setBillingData({
+                            ...billingData,
+                            city: newCity,
+                            district: districts[0] || "",
+                          });
+                        }}
+                        className="w-full rounded-lg border border-stone-300 p-2.5 text-sm outline-none focus:border-stone-900 bg-white font-medium"
                       >
                         {TURKEY_CITIES.map((city) => (
                           <option key={city} value={city}>
@@ -459,14 +492,18 @@ export function CheckoutClient({ paymentSettings }: { paymentSettings?: any }) {
                     </div>
                     <div>
                       <label className="block text-xs font-bold text-stone-700 mb-1">Fatura İlçesi *</label>
-                      <input
-                        type="text"
+                      <select
                         required={!sameAsShipping}
                         value={billingData.district}
                         onChange={(e) => setBillingData({ ...billingData, district: e.target.value })}
-                        placeholder="Şişli"
-                        className="w-full rounded-lg border border-stone-300 p-2.5 text-sm outline-none focus:border-stone-900 bg-white"
-                      />
+                        className="w-full rounded-lg border border-stone-300 p-2.5 text-sm outline-none focus:border-stone-900 bg-white font-medium"
+                      >
+                        {getDistricts(billingData.city).map((d) => (
+                          <option key={d} value={d}>
+                            {d}
+                          </option>
+                        ))}
+                      </select>
                     </div>
                     <div className="sm:col-span-2">
                       <label className="block text-xs font-bold text-stone-700 mb-1">Fatura Açık Adresi *</label>

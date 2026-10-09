@@ -18,6 +18,7 @@ import {
   Users,
   ShieldAlert,
   UserCheck,
+  Sparkles,
 } from "lucide-react";
 import { getCurrentAdmin, isAdmin } from "@/lib/admin-auth";
 import { logoutAction } from "@/app/yonetici-giris/actions";
@@ -36,6 +37,7 @@ const groups = [
     title: "KATALOG",
     links: [
       ["Ürünler", "/admin/urunler", Box],
+      ["Vitrin Sıralaması", "/admin/urunler/vitrin", Sparkles],
       ["Yeni ürün", "/admin/urunler/yeni", PlusSquare],
       ["Kategoriler", "/admin/kategoriler", Tags],
       ["Yorumlar", "/admin/yorumlar", MessageSquare],

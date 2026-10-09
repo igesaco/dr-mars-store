@@ -1,4 +1,4 @@
-import { asc, desc, eq } from "drizzle-orm";
+import { asc, desc, eq, sql } from "drizzle-orm";
 import { getDb } from "@/db";
 import { categories, productImages, products, productVariants, siteSettings } from "@/db/schema";
 
@@ -53,7 +53,11 @@ export async function getFeaturedProducts() {
       })
       .from(products)
       .where(eq(products.isActive, true))
-      .orderBy(asc(products.sortOrder), desc(products.isFeatured), desc(products.createdAt));
+      .orderBy(
+        sql`CASE WHEN ${products.sortOrder} > 0 THEN ${products.sortOrder} ELSE 999999 END ASC`,
+        desc(products.isFeatured),
+        desc(products.createdAt)
+      );
 
     const result = [];
     for (const prod of prods) {

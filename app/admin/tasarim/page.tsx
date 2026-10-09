@@ -12,6 +12,12 @@ const designSections = [
     badge: "AKTİF AYARLAR",
   },
   {
+    title: "Vitrin & Anasayfa Ürün Sıralaması",
+    text: "Ana sayfada hangi ürünün ilk kutuda, hangisinin 2. veya 3. sırada çıkacağını belirleyin.",
+    href: "/admin/urunler/vitrin",
+    badge: "VİTRİN SIRALAMASI",
+  },
+  {
     title: "Katalog & Vitrin Ürünleri",
     text: "Ana sayfada öne çıkan ürünleri seçin, ürün açıklamalarını ve koku notalarını güncelleyin.",
     href: "/admin/urunler",

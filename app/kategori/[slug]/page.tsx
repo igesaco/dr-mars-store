@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import Link from "next/link";
-import { and, asc, desc, eq } from "drizzle-orm";
+import { and, asc, desc, eq, sql } from "drizzle-orm";
 import { getDb } from "@/db";
 import { categories, productImages, products, productVariants } from "@/db/schema";
 import { Header } from "@/components/storefront/header";
@@ -90,7 +90,11 @@ export default async function CategoryPage({ params }: Props) {
     })
     .from(products)
     .where(and(...conditions))
-    .orderBy(asc(products.sortOrder), desc(products.isFeatured), desc(products.createdAt));
+    .orderBy(
+      sql`CASE WHEN ${products.sortOrder} > 0 THEN ${products.sortOrder} ELSE 999999 END ASC`,
+      desc(products.isFeatured),
+      desc(products.createdAt)
+    );
 
   const items = [];
   for (const prod of prods) {

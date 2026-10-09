@@ -254,24 +254,24 @@ export default function ProductsTable({ rows }: { rows: CatalogRow[] }) {
               <button
                 type="button"
                 onClick={() => handleUpdateSort(row.id, row.sortOrder ?? 0)}
-                title="Sıralamayı değiştir"
+                title="Sıralamayı değiştir (Örn: 1 en üst, 2, 3... veya 0 ile sırasız)"
                 style={{
                   display: "inline-flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  minWidth: "26px",
+                  minWidth: "30px",
                   height: "26px",
                   padding: "0 6px",
                   borderRadius: "6px",
-                  backgroundColor: row.sortOrder === 1 ? "#fef3c7" : "#f1f5f9",
-                  color: row.sortOrder === 1 ? "#92400e" : "#475569",
+                  backgroundColor: row.sortOrder === 1 ? "#fef3c7" : row.sortOrder && row.sortOrder > 1 ? "#eff6ff" : "#f1f5f9",
+                  color: row.sortOrder === 1 ? "#92400e" : row.sortOrder && row.sortOrder > 1 ? "#1e40af" : "#64748b",
                   fontWeight: 800,
                   fontSize: "0.75rem",
-                  border: row.sortOrder === 1 ? "1px solid #fde68a" : "1px solid #e2e8f0",
+                  border: row.sortOrder === 1 ? "1px solid #fde68a" : row.sortOrder && row.sortOrder > 1 ? "1px solid #bfdbfe" : "1px solid #e2e8f0",
                   cursor: "pointer",
                 }}
               >
-                #{row.sortOrder ?? 0}
+                {row.sortOrder && row.sortOrder > 0 ? `#${row.sortOrder}` : "—"}
               </button>
 
               <button

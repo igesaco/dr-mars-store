@@ -18,6 +18,7 @@ export type ShowcaseProduct = {
   shortDescription?: string | null;
   fragranceNotes?: string[] | null;
   isFeatured?: boolean;
+  sortOrder?: number | null;
   variants: {
     id: string;
     name: string;
@@ -60,6 +61,11 @@ export function HomeProductShowcase({
     if (sortOption === "price-asc") return priceA - priceB;
     if (sortOption === "price-desc") return priceB - priceA;
     if (sortOption === "name-asc") return a.name.localeCompare(b.name, "tr");
+
+    // Vitrin / Varsayılan Sıralama: Belirtilen sıra numarasına (1, 2, 3...) göre
+    const orderA = a.sortOrder && a.sortOrder > 0 ? a.sortOrder : 999999;
+    const orderB = b.sortOrder && b.sortOrder > 0 ? b.sortOrder : 999999;
+    if (orderA !== orderB) return orderA - orderB;
     return 0;
   });
 

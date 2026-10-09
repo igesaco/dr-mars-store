@@ -333,7 +333,88 @@ export async function updateProductSortOrder(form: FormData) {
   const sortOrder = parseInt(read(form, "sortOrder") || "0", 10);
   if (!uuid.test(id)) throw new Error("Ürün ID geçersiz.");
   await getDb().update(products).set({ sortOrder, updatedAt: new Date() }).where(eq(products.id, id));
+  
+  const { logAuditEvent } = await import("@/lib/audit-log");
+  await logAuditEvent({
+    action: "URUN_VITRIN_SIRA_GUNCELLEME",
+    entityType: "product",
+    description: `Ürün (#${id}) vitrin sırası #${sortOrder} olarak güncellendi.`,
+    details: { id, sortOrder },
+  });
+
   refreshCatalog();
+}
+
+export async function saveProductOrderList(input: string[] | FormData) {
+  await requireAdmin();
+  let ids: string[] = [];
+  if (Array.isArray(input)) {
+    ids = input;
+  } else if (input instanceof FormData) {
+    const raw = String(input.get("orderedIds") || "");
+    try {
+      ids = JSON.parse(raw);
+    } catch {
+      ids = [];
+    }
+  }
+  if (!Array.isArray(ids) || ids.length === 0) {
+    throw new Error("Geçerli bir ürün listesi gönderilmedi.");
+  }
+
+  const db = getDb();
+  await db.transaction(async (tx) => {
+    for (let i = 0; i < ids.length; i++) {
+      const id = ids[i];
+      if (uuid.test(id)) {
+        await tx
+          .update(products)
+          .set({ sortOrder: i + 1, updatedAt: new Date() })
+          .where(eq(products.id, id));
+      }
+    }
+  });
+
+  const { logAuditEvent } = await import("@/lib/audit-log");
+  await logAuditEvent({
+    action: "ANASAYFA_VITRIN_SIRALAMA_GUNCELLEME",
+    entityType: "product",
+    description: `${ids.length} adet ürünün anasayfa vitrin sıralaması güncellendi.`,
+    details: { orderedIds: ids },
+  });
+
+  refreshCatalog();
+  return { success: true };
+}
+
+export async function toggleProductFeatured(input: { id: string; isFeatured: boolean } | FormData) {
+  await requireAdmin();
+  let id = "";
+  let isFeatured = false;
+  if (input instanceof FormData) {
+    id = read(input, "id");
+    isFeatured = read(input, "isFeatured") === "true";
+  } else {
+    id = input.id;
+    isFeatured = Boolean(input.isFeatured);
+  }
+  if (!uuid.test(id)) throw new Error("Ürün ID geçersiz.");
+
+  await getDb()
+    .update(products)
+    .set({ isFeatured, updatedAt: new Date() })
+    .where(eq(products.id, id));
+
+  const { logAuditEvent } = await import("@/lib/audit-log");
+  await logAuditEvent({
+    action: "VITRIN_ONE_CIKAN_GUNCELLEME",
+    entityType: "product",
+    description: `Ürün (#${id}) vitrinde öne çıkarma durumu ${isFeatured ? "aktif" : "pasif"} yapıldı.`,
+    details: { id, isFeatured },
+  });
+
+  refreshCatalog();
+  return { success: true };
 }
 
 export async function saveCategory(form: FormData) {

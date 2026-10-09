@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { and, asc, count, desc, eq, ilike, lte, or } from "drizzle-orm";
+import { and, asc, count, desc, eq, ilike, lte, or, sql } from "drizzle-orm";
 import { getDb } from "@/db";
 import { categories, productImages, products, productVariants } from "@/db/schema";
 import ProductsTable, { type CatalogRow } from "./products-table";
@@ -31,7 +31,11 @@ export default async function ProductManagement({ searchParams }: {
         .leftJoin(categories, eq(products.categoryId, categories.id))
         .leftJoin(productVariants, eq(products.id, productVariants.productId))
         .leftJoin(productImages, and(eq(products.id, productImages.productId), eq(productImages.sortOrder, 0)))
-        .where(conditions.length ? and(...conditions) : undefined).orderBy(asc(products.sortOrder), desc(products.updatedAt)).limit(250),
+        .where(conditions.length ? and(...conditions) : undefined)
+        .orderBy(
+          sql`CASE WHEN ${products.sortOrder} > 0 THEN ${products.sortOrder} ELSE 999999 END ASC`,
+          desc(products.updatedAt)
+        ).limit(250),
       db.select({ id: categories.id, name: categories.name }).from(categories).orderBy(asc(categories.sortOrder), asc(categories.name)),
       db.select({ value: count() }).from(products),
       db.select({ value: count() }).from(products).where(eq(products.isActive, true)),
@@ -48,7 +52,13 @@ export default async function ProductManagement({ searchParams }: {
   return <main className="admin-main catalog-main">
     <header className="catalog-top">
       <div><p className="admin-kicker">E-TİCARET / KATALOG</p><h1>Ürünler</h1><p className="admin-lead">Kataloğu ara, filtrele ve ürünleri toplu olarak yönet.</p></div>
-      <div className="catalog-actions"><Link className="catalog-secondary" href="/admin/kategoriler">Kategoriler</Link><Link className="catalog-primary" href="/admin/urunler/yeni">+ Yeni ürün ekle</Link></div>
+      <div className="catalog-actions">
+        <Link className="catalog-secondary" href="/admin/urunler/vitrin" style={{ display: "inline-flex", alignItems: "center", gap: "6px", backgroundColor: "#fffbeb", color: "#92400e", borderColor: "#fde68a", fontWeight: 700 }}>
+          ⭐ Vitrin Sıralaması
+        </Link>
+        <Link className="catalog-secondary" href="/admin/kategoriler">Kategoriler</Link>
+        <Link className="catalog-primary" href="/admin/urunler/yeni">+ Yeni ürün ekle</Link>
+      </div>
     </header>
     {(params.created || params.updated) && <div className="admin-notice"><span />{params.created ? "Ürün başarıyla oluşturuldu." : "Ürün değişiklikleri kaydedildi."}</div>}
     {error && <div className="admin-notice report-error" role="alert">{error}</div>}

@@ -1262,8 +1262,25 @@ export default function ProductForm({
             />
           </label>
           <small style={{ fontSize: "0.75rem", color: "#64748b", marginTop: "6px", display: "block", lineHeight: "1.3" }}>
-            Anasayfada en yukarıda listelenmesini istediğiniz ürüne (örn. Zeytin) 1 verin.
+            Anasayfada ilk sırada listelenmesini istediğiniz ürüne 1, ikinci sıradakine 2 verin. Sırasız ürünler (0) sıralıların ardından listelenir.
           </small>
+          <div style={{ marginTop: "10px", paddingTop: "10px", borderTop: "1px dashed #e2e8f0" }}>
+            <Link
+              href="/admin/urunler/vitrin"
+              style={{
+                fontSize: "0.78rem",
+                color: "#92400e",
+                backgroundColor: "#fef3c7",
+                padding: "6px 10px",
+                borderRadius: "6px",
+                display: "inline-block",
+                fontWeight: 700,
+                textDecoration: "none",
+              }}
+            >
+              ⭐ Tüm Ürünleri Görsel Olarak Sırala →
+            </Link>
+          </div>
         </section>
 
         <section className="editor-card editor-summary">
